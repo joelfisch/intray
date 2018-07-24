@@ -13,4 +13,4 @@ in {
       pkgs.haskellPackages.intray-server-test-utils
       pkgs.haskellPackages.intray-web-server
     ]
-};
+}
