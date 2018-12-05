@@ -1,7 +1,7 @@
 .shake/
 *.cabal
 .stack-work/
-result
+result*
 /out/
 /tmp/
 /src/
