@@ -12,7 +12,13 @@ import Intray.Server.TestUtils
 spec :: Spec
 spec =
     withIntrayServer $
-    it "Going through the usual manual steps 'just works'" $ \(ClientEnv _ burl _) -> do
+    aroundWith
+        (\adFunc ->
+             \a ->
+                 withSystemTempDir
+                     "intray-cli-test"
+                     (\d -> adFunc (a, fromAbsDir d))) $
+    it "Going through the usual manual steps 'just works'" $ \((ClientEnv _ burl _), tdir) -> do
         intray
             [ "register"
             , "--username"
@@ -22,7 +28,7 @@ spec =
             , "--url"
             , showBaseUrl burl
             , "--intray-dir"
-            , "/tmp"
+            , tdir
             ]
         intray
             [ "login"
@@ -33,7 +39,7 @@ spec =
             , "--url"
             , showBaseUrl burl
             , "--intray-dir"
-            , "/tmp"
+            , tdir
             ]
         intray
             [ "add"
@@ -42,10 +48,10 @@ spec =
             , "--url"
             , showBaseUrl burl
             , "--intray-dir"
-            , "/tmp"
+            , tdir
             ]
-        intray ["show", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["done", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["size", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["sync", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["logout", "--intray-dir", "/tmp"]
+        intray ["show", "--url", showBaseUrl burl, "--intray-dir", tdir]
+        intray ["done", "--url", showBaseUrl burl, "--intray-dir", tdir]
+        intray ["size", "--url", showBaseUrl burl, "--intray-dir", tdir]
+        intray ["sync", "--url", showBaseUrl burl, "--intray-dir", tdir]
+        intray ["logout", "--intray-dir", tdir]

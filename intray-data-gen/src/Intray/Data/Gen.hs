@@ -5,19 +5,16 @@ module Intray.Data.Gen where
 
 import Import
 
-import Data.GenValidity
-import Data.GenValidity.ByteString ()
-import Data.GenValidity.Text ()
-import Data.GenValidity.Time ()
-import Data.GenValidity.UUID ()
-import Data.GenValidity.UUID.Typed ()
+import System.IO.Unsafe
+
 import qualified Data.Text as T
 
 import Intray.Data
 
 instance GenUnchecked ItemType
 
-instance GenValid ItemType
+instance GenValid ItemType where
+    genValid = genValidStructurallyWithoutExtraChecking
 
 instance GenUnchecked IntrayItem
 
@@ -41,12 +38,26 @@ instance GenValid Username where
 
 instance GenUnchecked User
 
+instance GenValid User where
+    genValid = genValidStructurally
+
 instance GenUnchecked HashedPassword
+
+instance GenValid HashedPassword where
+    genValid = do
+        t <- genValid
+        case unsafePerformIO $ passwordHash t of
+            Nothing ->
+                error
+                    "unable to hash password during generation, for some reason"
+            Just hp -> pure hp
 
 instance GenUnchecked Permission
 
-instance GenValid Permission
+instance GenValid Permission where
+    genValid = genValidStructurallyWithoutExtraChecking
 
 instance GenUnchecked AccessKeySecret
 
-instance GenValid AccessKeySecret
+instance GenValid AccessKeySecret where
+    genValid = genValidStructurally

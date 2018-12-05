@@ -24,12 +24,23 @@ spec = do
     genValidSpec @ItemType
     eqSpec @IntrayItem
     genValidSpec @IntrayItem
-    eqSpec @Username
-    ordSpec @Username
+    eqSpecOnValid @Username
+    ordSpecOnValid @Username
     genValidSpec @Username
     jsonSpecOnValid @Username
-    eqSpec @HashedPassword
+    eqSpecOnValid @HashedPassword
+    genValidSpec @HashedPassword
     eqSpec @AccountUUID
     ordSpec @AccountUUID
     genValidSpec @AccountUUID
     jsonSpecOnValid @AccountUUID
+    eqSpecOnValid @User
+    genValidSpec @User
+    eqSpec @Permission
+    ordSpec @Permission
+    genValidSpec @Permission
+    jsonSpecOnValid @Permission
+    eqSpecOnValid @AccessKeySecret
+    ordSpecOnValid @AccessKeySecret
+    genValidSpec @AccessKeySecret
+    jsonSpecOnValid @AccessKeySecret
