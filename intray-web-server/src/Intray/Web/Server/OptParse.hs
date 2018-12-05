@@ -53,6 +53,8 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Configuration Environ
                   { serveSetPort = port
                   , serveSetPersistLogins =
                         fromMaybe False serveFlagPersistLogins
+                  , serveSetTracking = serveFlagTracking
+                  , serveSetVerification = serveFlagVerification
                   , serveSetAPIPort = apiPort
                   , serveSetAPIConnectionInfo = connInfo
                   , serveSetAPIConnectionCount = connCount
@@ -125,6 +127,23 @@ parseCommandServe = info parser modifier
                   [ long "persist-logins"
                   , help
                         "Whether to persist logins accross restarts. This should not be used in production."
+                  ]) <*>
+         option
+             (Just . T.pack <$> str)
+             (mconcat
+                  [ long "analytics-tracking-id"
+                  , value Nothing
+                  , metavar "TRACKING_ID"
+                  , help "The google analytics tracking ID"
+                  ]) <*>
+         option
+             (Just . T.pack <$> str)
+             (mconcat
+                  [ long "search-console-verification"
+                  , value Nothing
+                  , metavar "VERIFICATION_TAG"
+                  , help
+                        "The contents of the google search console verification tag"
                   ]) <*>
          option
              (Just <$> auto)

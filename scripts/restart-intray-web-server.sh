@@ -3,7 +3,7 @@ set -x
 
 cd $HOME
 
-killall intray-web-server
+killall intray-web-server || true
 
 set -e
 

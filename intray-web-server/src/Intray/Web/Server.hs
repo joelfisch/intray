@@ -42,6 +42,8 @@ makeIntrayApp ServeSettings {..} = do
         App
             { appHttpManager = man
             , appStatic = myStatic
+            , appTracking = serveSetTracking
+            , appVerification = serveSetVerification
             , appPersistLogins = serveSetPersistLogins
             , appLoginTokens = tokens
             , appAPIBaseUrl = burl

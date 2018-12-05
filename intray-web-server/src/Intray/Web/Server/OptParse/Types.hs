@@ -17,6 +17,8 @@ newtype Command =
 data ServeFlags = ServeFlags
     { serveFlagPort :: Maybe Int
     , serveFlagPersistLogins :: Maybe Bool
+    , serveFlagTracking :: Maybe Text
+    , serveFlagVerification :: Maybe Text
     , serveFlagAPIPort :: Maybe Int
     , serveFlagAPIDB :: Maybe Text
     , serveFlagAPIConnectionCount :: Maybe Int
@@ -43,6 +45,8 @@ newtype Dispatch =
 data ServeSettings = ServeSettings
     { serveSetPort :: Int
     , serveSetPersistLogins :: Bool
+    , serveSetTracking :: Maybe Text
+    , serveSetVerification :: Maybe Text
     , serveSetAPIPort :: Int
     , serveSetAPIConnectionInfo :: SqliteConnectionInfo
     , serveSetAPIConnectionCount :: Int

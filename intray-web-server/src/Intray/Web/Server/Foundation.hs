@@ -59,6 +59,8 @@ type IntrayAuthHandler a = AuthHandler App a
 data App = App
     { appHttpManager :: Http.Manager
     , appStatic :: EmbeddedStatic
+    , appTracking :: Maybe Text
+    , appVerification :: Maybe Text
     , appAPIBaseUrl :: BaseUrl
     , appPersistLogins :: Bool
     , appLoginTokens :: MVar (HashMap Username Token)
@@ -70,6 +72,7 @@ instance Yesod App where
     approot = ApprootRelative
     defaultLayout widget = do
         pc <- widgetToPageContent $(widgetFile "default-body")
+        app <- getYesod
         withUrlRenderer $(hamletFile "templates/default-page.hamlet")
     yesodMiddleware = defaultCsrfMiddleware . defaultYesodMiddleware
     authRoute _ = Just $ AuthR LoginR
