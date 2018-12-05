@@ -15,14 +15,14 @@ final:
               mergelessRepo = final.fetchFromGitHub {
                 owner = "NorfairKing";
                 repo = "mergeless";
-                rev = "f0dc884343a682afdc8f9a39bee419d99d85c4c3";
-                sha256 = "0adsv9sq9q5sxalagn7a7g8h0wlbby4423cajvgilfl4j9h88v9d";
+                rev = "6dbfbd88710a41f43f9fc5391ff6aab7d38c01a8";
+                sha256 = "1pp082pc9498j7jq5j254xabf3v05cxavdw6qil1h7gd7224fxf7";
               };
               prettyRelativeTimeRepo = final.fetchFromGitHub {
                 owner = "NorfairKing";
                 repo = "pretty-relative-time";
-                rev = "9a670db25ac68974045c75da364486c10970824f";
-                sha256 = "125p6m7p8kqcndfa248k3xylmk9n2smchknplx2qqlqyxa909zdn";
+                rev = "85ee8a577fb576e2dd7643bf248ff8fbbe9598ec";
+                sha256 = "0g7i1nb52l41ka99z4s8ylm9w7jxmihr5s7rcp6kb7splmg99i6h";
               };
               typedUuidPkg = name:
                 super.callCabal2nix name (typedUuidRepo + "/${name}") {};

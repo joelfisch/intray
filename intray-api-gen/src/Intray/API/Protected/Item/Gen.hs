@@ -6,12 +6,6 @@ module Intray.API.Protected.Item.Gen where
 
 import Import
 
-import Data.GenValidity
-import Data.GenValidity.ByteString ()
-import Data.GenValidity.Text ()
-import Data.GenValidity.Time ()
-import Data.GenValidity.UUID ()
-
 import Intray.Data.Gen ()
 
 import Intray.API.Protected
@@ -19,10 +13,9 @@ import Intray.API.Protected
 instance GenUnchecked TypedItem
 
 instance GenValid TypedItem where
-    genValid = (TypedItem <$> genValid <*> genValid) `suchThat` isValid
+    genValid = genValidStructurally
 
 instance GenUnchecked a => GenUnchecked (ItemInfo a)
 
 instance GenValid a => GenValid (ItemInfo a) where
-    genValid =
-        (ItemInfo <$> genValid <*> genValid <*> genValid) `suchThat` isValid
+    genValid = genValidStructurally

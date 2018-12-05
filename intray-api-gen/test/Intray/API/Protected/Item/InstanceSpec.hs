@@ -13,15 +13,14 @@ import Intray.API.Protected.Item.Types
 
 spec :: Spec
 spec = do
-    eqSpec @(ItemInfo ByteString)
-    ordSpec @(ItemInfo ByteString)
+    eqSpecOnValid @(ItemInfo ByteString)
+    ordSpecOnValid @(ItemInfo ByteString)
     genValidSpec @(ItemInfo ByteString)
-    eqSpec @TypedItem
-    ordSpec @TypedItem
+    eqSpecOnValid @TypedItem
+    ordSpecOnValid @TypedItem
     genValidSpec @TypedItem
     jsonSpecOnValid @TypedItem
-    jsonSpecOnValid @TypedItem
-    eqSpec @(ItemInfo TypedItem)
-    ordSpec @(ItemInfo TypedItem)
+    eqSpecOnValid @(ItemInfo TypedItem)
+    ordSpecOnValid @(ItemInfo TypedItem)
     genValidSpec @(ItemInfo TypedItem)
     jsonSpecOnValid @(ItemInfo TypedItem)

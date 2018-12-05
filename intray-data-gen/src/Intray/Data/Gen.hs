@@ -22,10 +22,7 @@ instance GenValid ItemType
 instance GenUnchecked IntrayItem
 
 instance GenValid IntrayItem where
-    genValid =
-        IntrayItem <$> genValid <*> genValid <*> genValid <*> genValid <*>
-        genValid <*>
-        genValid
+    genValid = genValidStructurallyWithoutExtraChecking
 
 instance GenUnchecked Username
 
