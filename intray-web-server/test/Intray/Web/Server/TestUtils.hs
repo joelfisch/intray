@@ -46,6 +46,8 @@ intrayTestServeSettings = do
         ServeSettings
             { serveSetPort = 8000
             , serveSetPersistLogins = False
+            , serveSetTracking = Nothing
+            , serveSetVerification = Nothing
             , serveSetAPIPort = 8001
             , serveSetAPIConnectionInfo = connInfo
             , serveSetAPIConnectionCount = 4

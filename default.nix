@@ -1,11 +1,11 @@
 let
-  pkgsv = import (import ./nixpkgs.nix);
+  pkgsv = import (import ./nix/nixpkgs.nix);
   pkgs = pkgsv {};
-  validity-overlay = import (
-    (pkgs.fetchFromGitHub (import ./validity-version.nix)
-    + "/nix/overlay.nix")
-  );
+  validity-overlay = import (pkgs.fetchFromGitHub (import ./nix/validity-version.nix) + "/nix/overlay.nix");
 in pkgsv {
-  overlays = [ validity-overlay (import ./overlay.nix) ];
+  overlays = [
+    validity-overlay
+    (import ./nix/overlay.nix)
+  ];
   config.allowUnfree = true;
 }
