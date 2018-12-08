@@ -38,8 +38,8 @@ final:
             mergelessRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "mergeless";
-              rev = "6dbfbd88710a41f43f9fc5391ff6aab7d38c01a8";
-              sha256 = "1pp082pc9498j7jq5j254xabf3v05cxavdw6qil1h7gd7224fxf7";
+              rev = "cd1194d9abfa65366e3496e78a3eb5df3b36de56";
+              sha256 = "1l3n32p732z6l3xjhv3ml0my0d0skpy7815lkf66ralp0sjcvc4c";
             };
             prettyRelativeTimeRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
