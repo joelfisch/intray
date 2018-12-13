@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_GHC -ddump-splices #-}
 
 module Intray.Web.Server.Static where
 
@@ -16,7 +17,8 @@ import Yesod.EmbeddedStatic
 mkEmbeddedStatic
     False
     "myStatic"
-    [ embedFile "static/gtd_flowchart.jpg"
+    [ embedFile "static/logo.svg"
+    , embedFile "static/gtd_flowchart.jpg"
     , embedFile "static/semantic/dist/semantic.min.css"
     , embedFile "static/semantic/dist/semantic.min.js"
     , embedDirAt
