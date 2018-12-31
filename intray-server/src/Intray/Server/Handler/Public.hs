@@ -16,7 +16,7 @@ import Intray.Server.Handler.Public.PostRegister
 intrayPublicServer :: IntrayPublicSite (AsServerT IntrayHandler)
 intrayPublicServer =
     IntrayPublicSite
-        { postRegister = servePostRegister
-        , postLogin = servePostLogin
-        , getDocs = serveGetDocs
-        }
+    { postRegister = servePostRegister
+    , postLogin = servePostLogin
+    , getDocs = serveGetDocs
+    }

@@ -68,11 +68,11 @@ instance FromJSON Configuration where
 emptyConfiguration :: Configuration
 emptyConfiguration =
     Configuration
-        { configUrl = Nothing
-        , configUsername = Nothing
-        , configIntrayDir = Nothing
-        , configSyncStrategy = Nothing
-        }
+    { configUrl = Nothing
+    , configUsername = Nothing
+    , configIntrayDir = Nothing
+    , configSyncStrategy = Nothing
+    }
 
 data Settings = Settings
     { setBaseUrl :: Maybe BaseUrl

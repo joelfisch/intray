@@ -21,7 +21,7 @@ smallTextItem = TypedItem {itemType = TextItem, itemData = "Example Data"}
 largeTextItem :: TypedItem
 largeTextItem =
     smallTextItem
-        {itemData = SB.concat $ replicate 100 $ itemData smallTextItem}
+    {itemData = SB.concat $ replicate 100 $ itemData smallTextItem}
 
 main :: IO ()
 main =
@@ -95,9 +95,9 @@ login cenv form = do
 registrationLoginForm :: Registration -> LoginForm
 registrationLoginForm Registration {..} =
     LoginForm
-        { loginFormUsername = registrationUsername
-        , loginFormPassword = registrationPassword
-        }
+    { loginFormUsername = registrationUsername
+    , loginFormPassword = registrationPassword
+    }
 
 withServer :: (ClientEnv -> IO ()) -> IO ()
 withServer func = setupIntrayTestApp >>= withIntrayApp func

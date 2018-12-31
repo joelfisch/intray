@@ -16,7 +16,7 @@ import Intray.Server.Handler.Admin.GetStats
 intrayAdminServer :: IntrayAdminSite (AsServerT IntrayHandler)
 intrayAdminServer =
     IntrayAdminSite
-        { adminGetStats = serveAdminGetStats
-        , adminDeleteAccount = serveAdminDeleteAccount
-        , adminGetAccounts = serveAdminGetAccounts
-        }
+    { adminGetStats = serveAdminGetStats
+    , adminDeleteAccount = serveAdminDeleteAccount
+    , adminGetAccounts = serveAdminGetAccounts
+    }

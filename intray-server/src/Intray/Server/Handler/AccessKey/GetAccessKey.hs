@@ -37,8 +37,8 @@ serveGetAccessKey _ _ = throwAll err401
 makeAccessKeyInfo :: AccessKey -> AccessKeyInfo
 makeAccessKeyInfo AccessKey {..} =
     AccessKeyInfo
-        { accessKeyInfoUUID = accessKeyIdentifier
-        , accessKeyInfoName = accessKeyName
-        , accessKeyInfoCreatedTimestamp = accessKeyCreatedTimestamp
-        , accessKeyInfoPermissions = accessKeyPermissions
-        }
+    { accessKeyInfoUUID = accessKeyIdentifier
+    , accessKeyInfoName = accessKeyName
+    , accessKeyInfoCreatedTimestamp = accessKeyCreatedTimestamp
+    , accessKeyInfoPermissions = accessKeyPermissions
+    }

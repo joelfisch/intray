@@ -45,11 +45,11 @@ runIntrayServer ServeSettings {..} =
         let cookieCfg = defaultCookieSettings
         let intrayEnv =
                 IntrayServerEnv
-                    { envConnectionPool = pool
-                    , envCookieSettings = cookieCfg
-                    , envJWTSettings = jwtCfg
-                    , envAdmins = serveSetAdmins
-                    }
+                { envConnectionPool = pool
+                , envCookieSettings = cookieCfg
+                , envJWTSettings = jwtCfg
+                , envAdmins = serveSetAdmins
+                }
         liftIO $ Warp.run serveSetPort $ intrayApp intrayEnv
 
 intrayApp :: IntrayServerEnv -> Wai.Application
@@ -60,9 +60,9 @@ intrayApp se =
     addPolicy = cors (const $ Just policy)
     policy =
         simpleCorsResourcePolicy
-            { corsRequestHeaders = ["content-type"]
-            , corsMethods = ["GET", "POST", "HEAD", "DELETE"]
-            }
+        { corsRequestHeaders = ["content-type"]
+        , corsMethods = ["GET", "POST", "HEAD", "DELETE"]
+        }
 
 makeIntrayServer :: IntrayServerEnv -> Server IntrayAPI
 makeIntrayServer cfg =

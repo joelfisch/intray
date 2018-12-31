@@ -5,7 +5,8 @@ module Import
 import Prelude as X hiding (head, init, last, tail)
 
 import Data.ByteString as X (ByteString)
-import Data.List as X hiding (delete, deleteBy, head, init, last, tail)
+import Data.List as X
+       hiding (delete, deleteBy, head, init, last, tail)
 import Data.Maybe as X
 import Data.Monoid as X
 import Data.String as X

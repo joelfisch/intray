@@ -38,11 +38,11 @@ serveGetAccountInfo (Authenticated AuthCookie {..}) =
                         ([IntrayItemUserId ==. authCookieUserUUID] :: [Filter IntrayItem])
                 pure
                     AccountInfo
-                        { accountInfoUUID = authCookieUserUUID
-                        , accountInfoUsername = userUsername
-                        , accountInfoCreatedTimestamp = userCreatedTimestamp
-                        , accountInfoLastLogin = userLastLogin
-                        , accountInfoAdmin = userUsername `elem` admins
-                        , accountInfoCount = c
-                        }
+                    { accountInfoUUID = authCookieUserUUID
+                    , accountInfoUsername = userUsername
+                    , accountInfoCreatedTimestamp = userCreatedTimestamp
+                    , accountInfoLastLogin = userLastLogin
+                    , accountInfoAdmin = userUsername `elem` admins
+                    , accountInfoCount = c
+                    }
 serveGetAccountInfo _ = throwAll err401

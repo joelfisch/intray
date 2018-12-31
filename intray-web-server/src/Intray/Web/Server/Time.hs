@@ -24,7 +24,7 @@ makeTimestampWidget timestamp = do
 prettyTimestamp :: UTCTime -> UTCTime -> String
 prettyTimestamp now d =
     let year = (\(y, _, _) -> y) . toGregorian . utctDay
-     in (if year now == year d
-             then formatTime defaultTimeLocale "%A %B %e at %H:%M"
-             else formatTime defaultTimeLocale "%A %B %e %Y at %H:%M")
-            d
+    in (if year now == year d
+            then formatTime defaultTimeLocale "%A %B %e at %H:%M"
+            else formatTime defaultTimeLocale "%A %B %e %Y at %H:%M")
+           d

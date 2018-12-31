@@ -37,11 +37,11 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Configuration = do
     pure
         ( DispatchServe
               ServeSettings
-                  { serveSetPort = port
-                  , serveSetConnectionInfo = connInfo
-                  , serveSetConnectionCount = connCount
-                  , serveSetAdmins = admins
-                  }
+              { serveSetPort = port
+              , serveSetConnectionInfo = connInfo
+              , serveSetConnectionCount = connCount
+              , serveSetAdmins = admins
+              }
         , Settings)
 
 getConfiguration :: Command -> Flags -> IO Configuration
@@ -58,13 +58,13 @@ runArgumentsParser = execParserPure prefs_ argParser
   where
     prefs_ =
         ParserPrefs
-            { prefMultiSuffix = ""
-            , prefDisambiguate = True
-            , prefShowHelpOnError = True
-            , prefShowHelpOnEmpty = True
-            , prefBacktrack = True
-            , prefColumns = 80
-            }
+        { prefMultiSuffix = ""
+        , prefDisambiguate = True
+        , prefShowHelpOnError = True
+        , prefShowHelpOnEmpty = True
+        , prefBacktrack = True
+        , prefColumns = 80
+        }
 
 argParser :: ParserInfo Arguments
 argParser = info (helper <*> parseArgs) help_

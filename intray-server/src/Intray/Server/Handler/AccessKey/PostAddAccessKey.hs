@@ -43,17 +43,17 @@ servePostAddAccessKey (Authenticated AuthCookie {..}) AddAccessKey {..} =
                 runDb $
                     insert_
                         AccessKey
-                            { accessKeyIdentifier = uuid
-                            , accessKeyUser = authCookieUserUUID
-                            , accessKeyName = addAccessKeyName
-                            , accessKeyHashedKey = hp
-                            , accessKeyCreatedTimestamp = now
-                            , accessKeyPermissions = perms
-                            }
+                        { accessKeyIdentifier = uuid
+                        , accessKeyUser = authCookieUserUUID
+                        , accessKeyName = addAccessKeyName
+                        , accessKeyHashedKey = hp
+                        , accessKeyCreatedTimestamp = now
+                        , accessKeyPermissions = perms
+                        }
                 pure
                     AccessKeyCreated
-                        { accessKeyCreatedCreatedTimestamp = now
-                        , accessKeyCreatedKey = secret
-                        , accessKeyCreatedUUID = uuid
-                        }
+                    { accessKeyCreatedCreatedTimestamp = now
+                    , accessKeyCreatedKey = secret
+                    , accessKeyCreatedUUID = uuid
+                    }
 servePostAddAccessKey _ _ = throwAll err401

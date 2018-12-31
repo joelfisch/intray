@@ -87,7 +87,7 @@ lastItemInStore (Store is) =
                     UnsyncedItem a -> Just $ LastItemUnsynced a
                     SyncedItem s -> Just $ LastItemSynced s
                     UndeletedItem _ -> Nothing
-     in fst <$> S.minView ls
+    in fst <$> S.minView ls
 
 -- TODO maybe do this with an internal uuid?
 doneLastItem :: LastItem -> Store ItemUUID TypedItem -> Store ItemUUID TypedItem

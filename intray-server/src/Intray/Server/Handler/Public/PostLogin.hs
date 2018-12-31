@@ -63,9 +63,9 @@ servePostLogin LoginForm {..} = do
     setLoggedIn uid user perms = do
         let cookie =
                 AuthCookie
-                    { authCookieUserUUID = userIdentifier user
-                    , authCookiePermissions = perms
-                    }
+                { authCookieUserUUID = userIdentifier user
+                , authCookiePermissions = perms
+                }
         IntrayServerEnv {..} <- ask
         mApplyCookies <-
             liftIO $ acceptLogin envCookieSettings envJWTSettings cookie

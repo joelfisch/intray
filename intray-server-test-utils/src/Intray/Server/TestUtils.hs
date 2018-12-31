@@ -88,11 +88,11 @@ setupIntrayTestApp = do
     let cookieCfg = defaultCookieSettings
     let intrayEnv =
             IntrayServerEnv
-                { envConnectionPool = pool
-                , envCookieSettings = cookieCfg
-                , envJWTSettings = jwtCfg
-                , envAdmins = [fromJust $ parseUsername "admin"]
-                }
+            { envConnectionPool = pool
+            , envCookieSettings = cookieCfg
+            , envJWTSettings = jwtCfg
+            , envAdmins = [fromJust $ parseUsername "admin"]
+            }
     pure
         ( man
         , serveWithContext
@@ -134,9 +134,9 @@ randomRegistration = do
     u2 <- nextRandomUUID :: IO (UUID Text)
     pure
         Registration
-            { registrationUsername = fromJust $ parseUsername $ uuidText u1
-            , registrationPassword = uuidText u2
-            }
+        { registrationUsername = fromJust $ parseUsername $ uuidText u1
+        , registrationPassword = uuidText u2
+        }
 
 withValidNewUserAndData ::
        ClientEnv -> (Username -> Text -> Token -> IO ()) -> Expectation
@@ -174,9 +174,7 @@ withNewUser'sAccessKey cenv ps func =
         uuid <- nextRandomUUID :: IO (UUID AddAccessKey) -- Dummy's that are significantly likely to be random enough
         let aac =
                 AddAccessKey
-                    { addAccessKeyName = uuidText uuid
-                    , addAccessKeyPermissions = ps
-                    }
+                {addAccessKeyName = uuidText uuid, addAccessKeyPermissions = ps}
         errOrAkc <- runClient cenv $ clientPostAddAccessKey tok aac
         case errOrAkc of
             Left err ->

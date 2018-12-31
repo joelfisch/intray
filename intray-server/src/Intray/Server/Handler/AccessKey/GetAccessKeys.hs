@@ -19,7 +19,8 @@ import Intray.Data
 
 import Intray.Server.Types
 
-import Intray.Server.Handler.AccessKey.GetAccessKey (makeAccessKeyInfo)
+import Intray.Server.Handler.AccessKey.GetAccessKey
+       (makeAccessKeyInfo)
 import Intray.Server.Handler.Utils
 
 serveGetAccessKeys :: AuthResult AuthCookie -> IntrayHandler [AccessKeyInfo]
