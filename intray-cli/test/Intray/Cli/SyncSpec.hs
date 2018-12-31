@@ -22,14 +22,13 @@ import Intray.Cli.TestUtils
 
 spec :: Spec
 spec =
-    withIntrayServer $    aroundWith
-        (\adFunc ->
-             \a ->
-                 withSystemTempDir
-                     "intray-cli-test"
-                     (\d -> adFunc (a, fromAbsDir d))) $
-
-    it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \(cenv,d) ->
+    withIntrayServer $
+    aroundWith
+        (\adFunc a ->
+             withSystemTempDir
+                 "intray-cli-test"
+                 (\d -> adFunc (a, fromAbsDir d))) $
+    it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \(cenv, d) ->
         forAllValid $ \ti ->
             withValidNewUserAndData cenv $ \un pw _ -> do
                 let (ClientEnv _ burl _) = cenv

@@ -176,7 +176,8 @@ parseCommandRegister = info parser modifier
              (Just <$> str)
              (mconcat
                   [ long "password"
-                  , help "The password to register with. If absent, a prompt will ask for the password."
+                  , help
+                        "The password to register with. If absent, a prompt will ask for the password."
                   , value Nothing
                   , metavar "PASSWORD"
                   ]))

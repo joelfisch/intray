@@ -13,12 +13,11 @@ spec :: Spec
 spec =
     withIntrayServer $
     aroundWith
-        (\adFunc ->
-             \a ->
-                 withSystemTempDir
-                     "intray-cli-test"
-                     (\d -> adFunc (a, fromAbsDir d))) $
-    it "Going through the usual manual steps 'just works'" $ \((ClientEnv _ burl _), tdir) -> do
+        (\adFunc a ->
+             withSystemTempDir
+                 "intray-cli-test"
+                 (\d -> adFunc (a, fromAbsDir d))) $
+    it "Going through the usual manual steps 'just works'" $ \(ClientEnv _ burl _, tdir) -> do
         intray
             [ "register"
             , "--username"

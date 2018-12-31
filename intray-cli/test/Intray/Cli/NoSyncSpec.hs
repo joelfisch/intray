@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Cli.NoSyncSpec
     ( spec
@@ -16,11 +15,11 @@ spec =
         it "Works fine without a server" $ \tdir -> do
             let sets =
                     Settings
-                        { setBaseUrl = Nothing
-                        , setUsername = Nothing
-                        , setIntrayDir = tdir
-                        , setSyncStrategy = NeverSync
-                        }
+                    { setBaseUrl = Nothing
+                    , setUsername = Nothing
+                    , setIntrayDir = tdir
+                    , setSyncStrategy = NeverSync
+                    }
             let intray d = runReaderT (dispatch d) sets
             intray $ DispatchPostPostAddItem "hello world"
             intray DispatchShowItem
@@ -29,16 +28,14 @@ spec =
         specify "login fails immediately if no server is configured" $ \tdir -> do
             let sets =
                     Settings
-                        { setBaseUrl = Nothing
-                        , setUsername = Nothing
-                        , setIntrayDir = tdir
-                        , setSyncStrategy = NeverSync
-                        }
+                    { setBaseUrl = Nothing
+                    , setUsername = Nothing
+                    , setIntrayDir = tdir
+                    , setSyncStrategy = NeverSync
+                    }
             let intray d = runReaderT (dispatch d) sets
             intray
                 (DispatchLogin
                      LoginSettings
-                         { loginSetUsername = Nothing
-                         , loginSetPassword = Nothing
-                         }) `shouldThrow`
+                     {loginSetUsername = Nothing, loginSetPassword = Nothing}) `shouldThrow`
                 (== ExitFailure 1)

@@ -44,15 +44,15 @@ intrayTestServeSettings = do
     let connInfo = mkSqliteConnectionInfo "test.db"
     pure
         ServeSettings
-            { serveSetPort = 8000
-            , serveSetPersistLogins = False
-            , serveSetTracking = Nothing
-            , serveSetVerification = Nothing
-            , serveSetAPIPort = 8001
-            , serveSetAPIConnectionInfo = connInfo
-            , serveSetAPIConnectionCount = 4
-            , serveSetAPIAdmins = [fromJust $ parseUsername "admin"]
-            }
+        { serveSetPort = 8000
+        , serveSetPersistLogins = False
+        , serveSetTracking = Nothing
+        , serveSetVerification = Nothing
+        , serveSetAPIPort = 8001
+        , serveSetAPIConnectionInfo = connInfo
+        , serveSetAPIConnectionCount = 4
+        , serveSetAPIAdmins = [fromJust $ parseUsername "admin"]
+        }
 
 intrayWebServerSpec :: YesodSpec App -> Spec
 intrayWebServerSpec = b . a

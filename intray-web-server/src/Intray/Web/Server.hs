@@ -40,23 +40,23 @@ makeIntrayApp ServeSettings {..} = do
     burl <- parseBaseUrl $ "http://127.0.0.1:" ++ show serveSetAPIPort
     pure
         App
-            { appHttpManager = man
-            , appStatic = myStatic
-            , appTracking = serveSetTracking
-            , appVerification = serveSetVerification
-            , appPersistLogins = serveSetPersistLogins
-            , appLoginTokens = tokens
-            , appAPIBaseUrl = burl
-            }
+        { appHttpManager = man
+        , appStatic = myStatic
+        , appTracking = serveSetTracking
+        , appVerification = serveSetVerification
+        , appPersistLogins = serveSetPersistLogins
+        , appLoginTokens = tokens
+        , appAPIBaseUrl = burl
+        }
 
 makeIntrayAPIServeSettings :: ServeSettings -> API.ServeSettings
 makeIntrayAPIServeSettings ServeSettings {..} =
     API.ServeSettings
-        { API.serveSetPort = serveSetAPIPort
-        , API.serveSetConnectionInfo = serveSetAPIConnectionInfo
-        , API.serveSetConnectionCount = serveSetAPIConnectionCount
-        , API.serveSetAdmins = serveSetAPIAdmins
-        }
+    { API.serveSetPort = serveSetAPIPort
+    , API.serveSetConnectionInfo = serveSetAPIConnectionInfo
+    , API.serveSetConnectionCount = serveSetAPIConnectionCount
+    , API.serveSetAdmins = serveSetAPIAdmins
+    }
 
 runIntrayAPIServer :: ServeSettings -> IO ()
 runIntrayAPIServer ss = do
