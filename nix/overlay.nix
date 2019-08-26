@@ -44,8 +44,8 @@ final:
             prettyRelativeTimeRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "pretty-relative-time";
-              rev = "85ee8a577fb576e2dd7643bf248ff8fbbe9598ec";
-              sha256 = "0g7i1nb52l41ka99z4s8ylm9w7jxmihr5s7rcp6kb7splmg99i6h";
+              rev = "2f9d597fc754f338e1e33fa182dcd09abf2c1227";
+              sha256 = "0b1qjpygjbfwrfbndr7gqa6c57nqkhzzr4xknr18g7x8j2ycysfz";
             };
             typedUuidPkg = name:
               super.callCabal2nix name (typedUuidRepo + "/${name}") {};
