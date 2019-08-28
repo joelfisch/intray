@@ -20,9 +20,13 @@ extra-deps:
 - servant-auth-server-0.3.2.0
 - servant-flatten-0.2
 - servant-options-0.1.0.0
-- stripe-core-2.5.0
-- stripe-haskell-2.5.0@sha256:dad31386ea2f5426942f8c1a90e38e3e0a6819b57ddb3ab4f281259a2bf71d2e,1130
-- stripe-http-client-2.5.0@sha256:b6f61766fc0390c4614a3fa7433b7875731eb98b26749b0599cf760f37331230,1935
+- git: https://github.com/NorfairKing/stripe
+  commit: 06af65a0f444bfd0364f803507781770cbe3fe9b
+  subdirs:
+    - stripe-core
+    - stripe-haskell
+    - stripe-http-client
+    - stripe-http-streams
 - git: https://github.com/NorfairKing/mergeless.git
   commit: 0198f9393e2ef71f26de6427541387be44fd499b
   subdirs:

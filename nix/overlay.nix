@@ -48,10 +48,10 @@ final:
               sha256 = "0b1qjpygjbfwrfbndr7gqa6c57nqkhzzr4xknr18g7x8j2ycysfz";
             };
             stripeHaskellRepo = final.fetchFromGitHub {
-              owner = "dmjio";
+              owner = "NorfairKing";
               repo = "stripe";
-              rev = "913b88e7c71c783549919a6019ad5cd9306f80e8";
-              sha256 = "0hwc0x7vs25047rybnm71x4c5v37k69iq66g697hdal0ccnmadns";
+              rev = "06af65a0f444bfd0364f803507781770cbe3fe9b";
+              sha256 = "0wl3ai441vbj8vzsqywvx9g2d2v6vd3cg8m2bg8cvmbypg49anbl";
             };
             typedUuidPkg = name:
               super.callCabal2nix name (typedUuidRepo + "/${name}") {};

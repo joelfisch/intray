@@ -25,7 +25,7 @@ import Intray.Web.Server.OptParse
 intrayWebServer :: IO ()
 intrayWebServer = do
   (DispatchServe ss, Settings) <- getInstructions
-  putStrLn $ ppShow ss
+  pPrint ss
   concurrently_ (runIntrayWebServer ss) (runIntrayAPIServer ss)
 
 runIntrayWebServer :: ServeSettings -> IO ()

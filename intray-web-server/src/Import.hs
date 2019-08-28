@@ -1,6 +1,6 @@
 module Import
-    ( module X
-    ) where
+  ( module X
+  ) where
 
 import Prelude as X
 
@@ -8,6 +8,7 @@ import Data.Function as X
 import Data.List as X
 import Data.Maybe as X
 import Data.Monoid as X
+import Data.Ratio as X
 import Data.Text as X (Text)
 import Data.UUID.Typed as X
 
@@ -21,6 +22,7 @@ import GHC.Generics as X
 import Path as X
 import Path.IO as X
 
-import Text.Show.Pretty as X (ppShow)
+import Text.Printf as X
+import Text.Show.Pretty as X (pPrint, ppShow)
 
 import Debug.Trace as X

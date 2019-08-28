@@ -1,12 +1,12 @@
 <div .ui .very .padded .segment>
   <div .hidden .divider>
-  <img .ui .centered .image
-    src=@{StaticR static_logo_svg}>
+  <h1 .ui .center .aligned .icon .header>
+    <i .inbox .icon>
   <h1 class="ui center aligned header">
     <div class="content">
       Intray
       <div .sub .header>
-        Are you having a hard time getting things off your mind? Try intray!
+        Get it off your mind
 
 <div .ui .huge .padded .segment>
   <h2 .ui .header> Just write it down
@@ -144,7 +144,24 @@
 $maybe p <- mPricing
   <div .ui .huge .padded .segment>
     <h2 .ui .header> Pricing
-      Single price: #{Stripe.showAmount Stripe.CHF $ Stripe.getAmount $ pricingPrice p}
+    <div .ui .card .centered>
+      <div .ui .content>
+        <div class="ui segments">
+            <div class="ui center aligned secondary segment">
+               <div class="ui statistic">
+                  <div class="value">
+                    #{showAmountForPricing Stripe.CHF $ quotPrice (pricingPrice p) 12}
+                  <div class="label">
+                     per month
+            <div class="ui center aligned segment">
+               <p> Unlimited items
+            <div class="ui center aligned segment">
+               <p> Full API access
+            <div class="ui center aligned segment">
+               <p> Billed anually
+         <div class="ui primary fluid button">
+          Get Started
+
 
 
 <div .ui .huge .padded .segment>
@@ -208,21 +225,6 @@ $maybe p <- mPricing
         <div .description>
           <p>
             There will never be ads on Intray.
-
-    <div .item>
-      <i .question .icon>
-      <div .content>
-        <div .header>
-          <p>
-            Will Intray remain free of charge?
-        <div .description>
-          <p>
-            Intray is currently free of charge.
-            This is because the author uses it and running the service for only himself is
-            not cheaper than running it for multiple people.
-            If this ever changes, Intray may start charging a small subscription fee to cover
-            the cost of operation.
-            You can expect this to be less than a dollar per month.
 
     <div .item>
       <i .question .icon>

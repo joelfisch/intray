@@ -40,6 +40,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
         Just u -> pure u
   mmSets <-
     do let price = serveFlagPrice <|> envPrice
+       let currency = serveFlagCurrency <|> envCurrency
        let config =
              (\sk ->
                 StripeConfig
@@ -48,7 +49,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
                   }) <$>
              (serveFlagStripeSecretKey <|> envStripeSecretKey)
        let publicKey = T.pack <$> (serveFlagStripePublishableKey <|> envStripePublishableKey)
-       pure $ MonetisationSettings <$> price <*> config <*> publicKey
+       pure $ MonetisationSettings <$> price <*> currency <*>config <*> publicKey
   pure
     ( DispatchServe
         ServeSettings
@@ -66,13 +67,15 @@ getEnvironment :: IO Environment
 getEnvironment = do
   env <- System.getEnvironment
   let mv k = lookup ("INTRAY_SERVER_" <> k) env
-  pure
-    Environment
-      { envPort = mv "PORT" >>= readMaybe
-      , envPrice = mv "PRICE" >>= readMaybe
-      , envStripeSecretKey = mv "STRIPE_SECRET_KEY"
-      , envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
-      }
+  pure $
+    traceShowId
+      Environment
+        { envPort = mv "PORT" >>= readMaybe
+        , envPrice = Amount <$> (mv "PRICE" >>= readMaybe)
+        , envCurrency = mv "CURRENCY" >>= readMaybe
+        , envStripeSecretKey = mv "STRIPE_SECRET_KEY"
+        , envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
+        }
 
 getArguments :: IO Arguments
 getArguments = do
@@ -129,6 +132,9 @@ parseServeFlags =
   option
     ((Just . Stripe.Amount) <$> auto)
     (mconcat [long "price", value Nothing, metavar "PRICE", help "The price, in cents"]) <*>
+  option
+    (Just <$> auto)
+    (mconcat [long "currency", value Nothing, metavar "CURRENCY", help "The currency"]) <*>
   option
     (Just <$> str)
     (mconcat

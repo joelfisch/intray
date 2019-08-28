@@ -16,8 +16,7 @@ import Yesod.EmbeddedStatic
 mkEmbeddedStatic
     False
     "myStatic"
-    [ embedFile "static/logo.svg"
-    , embedFile "static/gtd_flowchart.jpg"
+    [ embedFile "static/gtd_flowchart.jpg"
     , embedFile "static/semantic/dist/semantic.min.css"
     , embedFile "static/semantic/dist/semantic.min.js"
     , embedDirAt

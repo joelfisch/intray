@@ -130,4 +130,4 @@ type PostLogin
 
 type GetDocs = Get '[ HTML] GetDocsResponse
 
-type GetPricing = Get '[ JSON] (Maybe Pricing)
+type GetPricing = "pricing" :> Get '[ JSON] (Maybe Pricing)
