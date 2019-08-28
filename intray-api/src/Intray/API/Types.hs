@@ -8,26 +8,27 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Types
-    ( ProtectAPI
-    , AuthCookie(..)
-    , Permission(..)
-    , userPermissions
-    , adminPermissions
-    , Registration(..)
-    , LoginForm(..)
-    , GetDocsResponse(..)
-    , HashedPassword
-    , passwordHash
-    , validatePassword
-    , ItemUUID
-    , AccountUUID
-    , AccessKeyUUID
-    , Username
-    , parseUsername
-    , parseUsernameWithError
-    , usernameText
-    , module Data.UUID.Typed
-    ) where
+  ( ProtectAPI
+  , AuthCookie(..)
+  , Permission(..)
+  , userPermissions
+  , adminPermissions
+  , Registration(..)
+  , LoginForm(..)
+  , GetDocsResponse(..)
+  , HashedPassword
+  , passwordHash
+  , validatePassword
+  , ItemUUID
+  , AccountUUID
+  , AccessKeyUUID
+  , Username
+  , parseUsername
+  , parseUsernameWithError
+  , usernameText
+  , Pricing(..)
+  , module Data.UUID.Typed
+  ) where
 
 import Import
 
@@ -52,14 +53,18 @@ import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Docs
 import Servant.HTML.Blaze
 
+import qualified Web.Stripe.Types as Stripe
+
 import Intray.Data
 
 type ProtectAPI = Auth '[ JWT] AuthCookie
 
-data AuthCookie = AuthCookie
+data AuthCookie =
+  AuthCookie
     { authCookieUserUUID :: AccountUUID
     , authCookiePermissions :: Set Permission
-    } deriving (Show, Eq, Ord, Generic)
+    }
+  deriving (Show, Eq, Ord, Generic)
 
 instance FromJSON AuthCookie
 
@@ -74,88 +79,119 @@ instance FromJWT Permission
 instance ToJWT Permission
 
 instance ToCapture (Capture "uuid" ItemUUID) where
-    toCapture _ = DocCapture "uuid" "The UUID of the item"
+  toCapture _ = DocCapture "uuid" "The UUID of the item"
 
 instance ToCapture (Capture "uuid" AccountUUID) where
-    toCapture _ = DocCapture "uuid" "The UUID of the account"
+  toCapture _ = DocCapture "uuid" "The UUID of the account"
 
 instance ToCapture (Capture "uuid" AccessKeyUUID) where
-    toCapture _ = DocCapture "uuid" "The UUID of the access key"
+  toCapture _ = DocCapture "uuid" "The UUID of the access key"
 
 instance ToSample UTCTime where
-    toSamples Proxy = singleSample $ UTCTime (fromGregorian 2018 2 10) 42
+  toSamples Proxy = singleSample $ UTCTime (fromGregorian 2018 2 10) 42
 
 instance ToSample Text where
-    toSamples Proxy = singleSample "Example Text"
+  toSamples Proxy = singleSample "Example Text"
 
 instance ToSample (UUID a) where
-    toSamples Proxy = singleSample (UUID $ UUID.fromWords 0 0 0 0)
+  toSamples Proxy = singleSample (UUID $ UUID.fromWords 0 0 0 0)
 
 instance ToSample Int where
-    toSamples Proxy = singleSample 42
+  toSamples Proxy = singleSample 42
 
-data Registration = Registration
+data Registration =
+  Registration
     { registrationUsername :: Username
     , registrationPassword :: Text
-    } deriving (Show, Eq, Ord, Generic)
+    }
+  deriving (Show, Eq, Ord, Generic)
 
 instance Validity Registration
 
 instance ToJSON Registration where
-    toJSON Registration {..} =
-        object
-            ["name" .= registrationUsername, "password" .= registrationPassword]
+  toJSON Registration {..} =
+    object ["name" .= registrationUsername, "password" .= registrationPassword]
 
 instance FromJSON Registration where
-    parseJSON =
-        withObject "Registration Text" $ \o ->
-            Registration <$> o .: "name" <*> o .: "password"
+  parseJSON =
+    withObject "Registration Text" $ \o -> Registration <$> o .: "name" <*> o .: "password"
 
 instance ToSample Registration
 
-data LoginForm = LoginForm
+data LoginForm =
+  LoginForm
     { loginFormUsername :: Username
     , loginFormPassword :: Text
-    } deriving (Show, Eq, Ord, Generic)
+    }
+  deriving (Show, Eq, Ord, Generic)
 
 instance Validity LoginForm
 
 instance FromJSON LoginForm where
-    parseJSON =
-        withObject "LoginForm" $ \o ->
-            LoginForm <$> o .: "username" <*> o .: "password"
+  parseJSON = withObject "LoginForm" $ \o -> LoginForm <$> o .: "username" <*> o .: "password"
 
 instance ToJSON LoginForm where
-    toJSON LoginForm {..} =
-        object
-            ["username" .= loginFormUsername, "password" .= loginFormPassword]
+  toJSON LoginForm {..} = object ["username" .= loginFormUsername, "password" .= loginFormPassword]
 
 instance ToSample LoginForm
 
 instance ToSample Username
 
 instance ToSample SetCookie where
-    toSamples Proxy = singleSample def
+  toSamples Proxy = singleSample def
 
-newtype GetDocsResponse = GetDocsResponse
+newtype GetDocsResponse =
+  GetDocsResponse
     { unGetDocsResponse :: HTML.Html
-    } deriving (Generic)
+    }
+  deriving (Generic)
 
 instance MimeUnrender HTML GetDocsResponse where
-    mimeUnrender Proxy bs =
-        Right $ GetDocsResponse $ HTML.unsafeLazyByteString bs
+  mimeUnrender Proxy bs = Right $ GetDocsResponse $ HTML.unsafeLazyByteString bs
 
 instance ToSample GetDocsResponse where
-    toSamples Proxy = singleSample $ GetDocsResponse "Documentation (In HTML)."
+  toSamples Proxy = singleSample $ GetDocsResponse "Documentation (In HTML)."
 
 instance ToMarkup GetDocsResponse where
-    toMarkup (GetDocsResponse html) = toMarkup html
+  toMarkup (GetDocsResponse html) = toMarkup html
 
 instance ToSample Permission
 
 instance (Ord a, ToSample a) => ToSample (Set a) where
-    toSamples Proxy = second S.fromList <$> toSamples Proxy
+  toSamples Proxy = second S.fromList <$> toSamples Proxy
 
 instance ToSample AccessKeySecret where
-    toSamples Proxy =
-        singleSample $ unsafePerformIO generateRandomAccessKeySecret
+  toSamples Proxy = singleSample $ unsafePerformIO generateRandomAccessKeySecret
+
+data Pricing =
+  Pricing
+    { pricingPrice :: Stripe.Amount
+    , pricingStripePublishableKey :: Text
+    }
+  deriving (Show, Eq, Generic)
+
+instance Validity Pricing
+
+instance FromJSON Pricing where
+  parseJSON = withObject "Pricing" $ \o -> Pricing <$> o .: "price" <*> o .: "publishable-key"
+
+instance ToJSON Pricing where
+  toJSON Pricing {..} =
+    object ["price" .= pricingPrice, "publishable-key" .= pricingStripePublishableKey]
+
+instance ToSample Pricing where
+  toSamples Proxy =
+    singleSample
+      Pricing
+        { pricingPrice = Stripe.Amount 100
+        , pricingStripePublishableKey = "pk_test_zV5qVP1IQTjE9QYulRZpfD8C00cqGOnQ91"
+        }
+
+instance Validity Stripe.Amount where
+  validate (Stripe.Amount a) = delve "getAmount" a
+
+instance ToJSON Stripe.Amount where
+  toJSON (Stripe.Amount a) = toJSON a
+
+instance FromJSON Stripe.Amount where
+  parseJSON v = Stripe.Amount <$> parseJSON v

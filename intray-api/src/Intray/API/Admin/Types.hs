@@ -19,8 +19,8 @@ import Servant.Docs
 import Intray.API.Types ()
 
 data AdminStats = AdminStats
-    { adminStatsNbUsers :: Int
-    , adminStatsNbItems :: Int
+    { adminStatsNbUsers :: !Int
+    , adminStatsNbItems :: !Int
     } deriving (Show, Eq, Ord, Generic)
 
 instance Validity AdminStats

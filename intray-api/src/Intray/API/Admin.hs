@@ -30,9 +30,9 @@ import Intray.API.Types
 type IntrayAdminAPI = ToServant (IntrayAdminSite AsApi)
 
 data IntrayAdminSite route = IntrayAdminSite
-    { adminGetStats :: route :- AdminGetStats
-    , adminDeleteAccount :: route :- AdminDeleteAccount
-    , adminGetAccounts :: route :- AdminGetAccounts
+    { adminGetStats :: !(route :- AdminGetStats)
+    , adminDeleteAccount :: !(route :- AdminDeleteAccount)
+    , adminGetAccounts :: !(route :- AdminGetAccounts)
     } deriving (Generic)
 
 type AdminGetStats = ProtectAPI :> "stats" :> Get '[ JSON] AdminStats

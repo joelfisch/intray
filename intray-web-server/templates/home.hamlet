@@ -140,6 +140,13 @@
     .
     In addition to the features on the web interface, the command-line client works offline with easy synchronisation.
 
+
+$maybe p <- mPricing
+  <div .ui .huge .padded .segment>
+    <h2 .ui .header> Pricing
+      Single price: #{Stripe.showAmount Stripe.CHF $ Stripe.getAmount $ pricingPrice p}
+
+
 <div .ui .huge .padded .segment>
   <h2 .ui .header> FAQ
   <div .ui .list>
@@ -152,7 +159,7 @@
         <div .description>
           <p>
             Items represent thoughts you have and want to get out of your head.
-            The purpose is to not think about the ideas anymore between when you write them down and when you process them. 
+            The purpose is to not think about the ideas anymore between when you write them down and when you process them.
             During processing, you take the items out of the intray and think about what you want to do with each idea.
             After that, you delete the item from the intray.
             Allowing to modify items would only allow you to make yourself less efficient.

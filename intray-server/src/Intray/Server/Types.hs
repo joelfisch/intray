@@ -1,6 +1,9 @@
-module Intray.Server.Types where
+module Intray.Server.Types
+  ( module Intray.Server.Types
+  , MonetisationSettings(..)
+  ) where
 
-import Control.Monad.Reader
+import Import
 
 import Database.Persist.Sqlite
 
@@ -9,11 +12,15 @@ import Servant.Auth.Server
 
 import Intray.API
 
-data IntrayServerEnv = IntrayServerEnv
-    { envConnectionPool :: ConnectionPool
-    , envCookieSettings :: CookieSettings
-    , envJWTSettings :: JWTSettings
-    , envAdmins :: [Username]
+import Intray.Server.OptParse.Types
+
+data IntrayServerEnv =
+  IntrayServerEnv
+    { envConnectionPool :: !ConnectionPool
+    , envCookieSettings :: !CookieSettings
+    , envJWTSettings :: !JWTSettings
+    , envAdmins :: ![Username]
+    , envMonetisationSettings :: !(Maybe MonetisationSettings)
     }
 
 type IntrayHandler = ReaderT IntrayServerEnv Handler

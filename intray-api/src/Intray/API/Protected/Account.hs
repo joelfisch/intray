@@ -6,13 +6,13 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Protected.Account
-    ( IntrayProtectedAccountAPI
-    , IntrayProtectedAccountSite(..)
-    , AuthCookie(..)
-    , AccountInfo(..)
-    , GetAccountInfo
-    , DeleteAccount
-    ) where
+  ( IntrayProtectedAccountAPI
+  , IntrayProtectedAccountSite(..)
+  , AuthCookie(..)
+  , AccountInfo(..)
+  , GetAccountInfo
+  , DeleteAccount
+  ) where
 
 import Import
 
@@ -26,10 +26,12 @@ import Intray.API.Types
 
 type IntrayProtectedAccountAPI = ToServant (IntrayProtectedAccountSite AsApi)
 
-data IntrayProtectedAccountSite route = IntrayProtectedAccountSite
-    { getAccountInfo :: route :- GetAccountInfo
-    , deleteAccount :: route :- DeleteAccount
-    } deriving (Generic)
+data IntrayProtectedAccountSite route =
+  IntrayProtectedAccountSite
+    { getAccountInfo :: !(route :- GetAccountInfo)
+    , deleteAccount :: !(route :- DeleteAccount)
+    }
+  deriving (Generic)
 
 type GetAccountInfo = ProtectAPI :> Get '[ JSON] AccountInfo
 

@@ -1,9 +1,9 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Web.Server
-    ( intrayWebServer
-    , makeIntrayApp
-    ) where
+  ( intrayWebServer
+  , makeIntrayApp
+  ) where
 
 import Import
 
@@ -24,41 +24,32 @@ import Intray.Web.Server.OptParse
 
 intrayWebServer :: IO ()
 intrayWebServer = do
-    (DispatchServe ss, Settings) <- getInstructions
-    putStrLn $ ppShow ss
-    concurrently_ (runIntrayWebServer ss) (runIntrayAPIServer ss)
+  (DispatchServe ss, Settings) <- getInstructions
+  putStrLn $ ppShow ss
+  concurrently_ (runIntrayWebServer ss) (runIntrayAPIServer ss)
 
 runIntrayWebServer :: ServeSettings -> IO ()
 runIntrayWebServer ss@ServeSettings {..} = do
-    app <- makeIntrayApp ss
-    warp serveSetPort app
+  app <- makeIntrayApp ss
+  warp serveSetPort app
 
 makeIntrayApp :: ServeSettings -> IO App
 makeIntrayApp ServeSettings {..} = do
-    man <- Http.newManager Http.defaultManagerSettings
-    tokens <- newMVar HM.empty
-    burl <- parseBaseUrl $ "http://127.0.0.1:" ++ show serveSetAPIPort
-    pure
-        App
-        { appHttpManager = man
-        , appStatic = myStatic
-        , appTracking = serveSetTracking
-        , appVerification = serveSetVerification
-        , appPersistLogins = serveSetPersistLogins
-        , appLoginTokens = tokens
-        , appAPIBaseUrl = burl
-        }
-
-makeIntrayAPIServeSettings :: ServeSettings -> API.ServeSettings
-makeIntrayAPIServeSettings ServeSettings {..} =
-    API.ServeSettings
-    { API.serveSetPort = serveSetAPIPort
-    , API.serveSetConnectionInfo = serveSetAPIConnectionInfo
-    , API.serveSetConnectionCount = serveSetAPIConnectionCount
-    , API.serveSetAdmins = serveSetAPIAdmins
-    }
+  man <- Http.newManager Http.defaultManagerSettings
+  tokens <- newMVar HM.empty
+  burl <- parseBaseUrl $ "http://127.0.0.1:" ++ show (API.serveSetPort serveSetAPISettings)
+  pure
+    App
+      { appHttpManager = man
+      , appStatic = myStatic
+      , appTracking = serveSetTracking
+      , appVerification = serveSetVerification
+      , appPersistLogins = serveSetPersistLogins
+      , appLoginTokens = tokens
+      , appAPIBaseUrl = burl
+      }
 
 runIntrayAPIServer :: ServeSettings -> IO ()
 runIntrayAPIServer ss = do
-    let apiServeSets = makeIntrayAPIServeSettings ss
-    API.runIntrayServer apiServeSets
+  let apiServeSets = serveSetAPISettings ss
+  API.runIntrayServer apiServeSets

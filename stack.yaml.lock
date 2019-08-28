@@ -75,6 +75,27 @@ packages:
   original:
     hackage: servant-options-0.1.0.0
 - completed:
+    hackage: stripe-core-2.5.0@sha256:beb0542aae550ff56b1ed1621c6629d61c30d003a935b69b72a0a7d43e4ac9a9,2845
+    pantry-tree:
+      size: 1831
+      sha256: e331eec3070367c7a776e13d808881c85d0761ef5a9fff98a05971b60518e671
+  original:
+    hackage: stripe-core-2.5.0
+- completed:
+    hackage: stripe-haskell-2.5.0@sha256:dad31386ea2f5426942f8c1a90e38e3e0a6819b57ddb3ab4f281259a2bf71d2e,1130
+    pantry-tree:
+      size: 380
+      sha256: 8d271af9b88e70e8362a577a559f71d1dd236e46583d642c58b4b0b751c2e1a4
+  original:
+    hackage: stripe-haskell-2.5.0@sha256:dad31386ea2f5426942f8c1a90e38e3e0a6819b57ddb3ab4f281259a2bf71d2e,1130
+- completed:
+    hackage: stripe-http-client-2.5.0@sha256:b6f61766fc0390c4614a3fa7433b7875731eb98b26749b0599cf760f37331230,1935
+    pantry-tree:
+      size: 292
+      sha256: 3dd3938c78a6caccd43693ffd07b5c6948941df5fe3a14a09e73d3b0eacf67b8
+  original:
+    hackage: stripe-http-client-2.5.0@sha256:b6f61766fc0390c4614a3fa7433b7875731eb98b26749b0599cf760f37331230,1935
+- completed:
     subdir: mergeless
     cabal-file:
       size: 1109
