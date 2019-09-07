@@ -22,8 +22,7 @@ data ServeFlags =
     { serveFlagPort :: !(Maybe Int)
     , serveFlagDb :: !(Maybe Text)
     , serveFlagAdmins :: ![String]
-    , serveFlagPrice :: !(Maybe Stripe.Amount)
-    , serveFlagCurrency :: !(Maybe Stripe.Currency)
+    , serveFlagStripePlan :: !(Maybe String)
     , serveFlagStripeSecretKey :: !(Maybe String)
     , serveFlagStripePublishableKey :: !(Maybe String)
     }
@@ -40,8 +39,7 @@ data Configuration =
 data Environment =
   Environment
     { envPort :: !(Maybe Int)
-    , envPrice :: !(Maybe Stripe.Amount)
-    , envCurrency :: !(Maybe Stripe.Currency)
+    , envStripePlan :: !(Maybe String)
     , envStripeSecretKey :: !(Maybe String)
     , envStripePublishableKey :: !(Maybe String)
     }
@@ -66,8 +64,7 @@ data ServeSettings =
 
 data MonetisationSettings =
   MonetisationSettings
-    { monetisationSetPrice :: !Stripe.Amount
-    , monetisationSetCurrency :: !Stripe.Currency
+    { monetisationSetPlan :: !Stripe.PlanId
     , monetisationSetStripeConfig :: !StripeConfig
     , monetisationSetStripePublishableKey :: !Text
     }

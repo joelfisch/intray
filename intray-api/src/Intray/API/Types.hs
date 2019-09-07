@@ -1,9 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -33,8 +35,10 @@ module Intray.API.Types
 import Import
 
 import Data.Aeson as JSON
+import Data.Hashable
 import Data.Set (Set)
 import qualified Data.Set as S
+import qualified Data.Text as T
 import Data.Time
 import qualified Data.UUID as UUID
 import Data.UUID.Typed
@@ -53,7 +57,7 @@ import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Docs
 import Servant.HTML.Blaze
 
-import qualified Web.Stripe.Types as Stripe
+import qualified Web.Stripe.Plan as Stripe
 
 import Intray.Data
 
@@ -165,27 +169,52 @@ instance ToSample AccessKeySecret where
 
 data Pricing =
   Pricing
-    { pricingPrice :: Stripe.Amount
-    , pricingStripePublishableKey :: Text
+    { pricingPlan :: !Stripe.PlanId
+    , pricingPrice :: !Stripe.Amount
+    , pricingCurrency :: !Stripe.Currency
+    , pricingStripePublishableKey :: !Text
     }
   deriving (Show, Eq, Generic)
 
 instance Validity Pricing
 
 instance FromJSON Pricing where
-  parseJSON = withObject "Pricing" $ \o -> Pricing <$> o .: "price" <*> o .: "publishable-key"
+  parseJSON =
+    withObject "Pricing" $ \o ->
+      Pricing <$> o .: "plan" <*> o .: "price" <*> o .: "currency" <*> o .: "publishable-key"
 
 instance ToJSON Pricing where
   toJSON Pricing {..} =
-    object ["price" .= pricingPrice, "publishable-key" .= pricingStripePublishableKey]
+    object
+      [ "plan" .= pricingPlan
+      , "price" .= pricingPrice
+      , "currency" .= pricingCurrency
+      , "publishable-key" .= pricingStripePublishableKey
+      ]
 
 instance ToSample Pricing where
   toSamples Proxy =
     singleSample
       Pricing
         { pricingPrice = Stripe.Amount 100
+        , pricingCurrency = Stripe.CHF
+        , pricingPlan = Stripe.PlanId "plan_FiN2Zsdv0DP0kh"
         , pricingStripePublishableKey = "pk_test_zV5qVP1IQTjE9QYulRZpfD8C00cqGOnQ91"
         }
+
+instance Validity Stripe.Currency where
+  validate = trivialValidation
+
+instance ToJSON Stripe.Currency where
+  toJSON c = toJSON $ T.toLower $ T.pack $ show c
+
+deriving instance Validity Stripe.PlanId
+
+deriving instance Hashable Stripe.PlanId
+
+deriving instance ToJSON Stripe.PlanId
+
+deriving instance FromJSON Stripe.PlanId
 
 instance Validity Stripe.Amount where
   validate (Stripe.Amount a) = delve "getAmount" a

@@ -15,6 +15,7 @@ newtype Command =
 data ServeFlags =
   ServeFlags
     { serveFlagAPIFlags :: API.ServeFlags
+    , serveFlagHost :: Maybe Text
     , serveFlagPort :: Maybe Int
     , serveFlagPersistLogins :: Maybe Bool
     , serveFlagTracking :: Maybe Text
@@ -33,6 +34,7 @@ data Configuration =
 data Environment =
   Environment
     { envAPIEnvironment :: API.Environment
+    , envHost :: Maybe Text
     , envPort :: Maybe Int
     }
   deriving (Show, Eq)
@@ -44,6 +46,7 @@ newtype Dispatch =
 data ServeSettings =
   ServeSettings
     { serveSetAPISettings :: !API.ServeSettings
+    , serveSetHost :: !(Maybe Text)
     , serveSetPort :: !Int
     , serveSetPersistLogins :: !Bool
     , serveSetTracking :: !(Maybe Text)

@@ -14,6 +14,9 @@
 
 /api/docs                          APIDocsR             GET
 
+/checkout/success                  CheckoutSuccessR     GET
+/checkout/canceled                 CheckoutCanceledR    GET
+
 -- Subsites
 /auth                              AuthR   Auth            getAuth
 /static                            StaticR EmbeddedStatic  appStatic

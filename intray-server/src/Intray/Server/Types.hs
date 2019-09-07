@@ -7,8 +7,12 @@ import Import
 
 import Database.Persist.Sqlite
 
+import Data.Cache
+
 import Servant
 import Servant.Auth.Server
+
+import Web.Stripe.Plan as Stripe
 
 import Intray.API
 
@@ -21,6 +25,7 @@ data IntrayServerEnv =
     , envJWTSettings :: !JWTSettings
     , envAdmins :: ![Username]
     , envMonetisationSettings :: !(Maybe MonetisationSettings)
+    , envPlanCache :: !(Cache Stripe.PlanId Stripe.Plan)
     }
 
 type IntrayHandler = ReaderT IntrayServerEnv Handler

@@ -39,8 +39,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
         Nothing -> die $ unwords ["Invalid admin username:", s]
         Just u -> pure u
   mmSets <-
-    do let price = serveFlagPrice <|> envPrice
-       let currency = serveFlagCurrency <|> envCurrency
+    do let plan = (Stripe.PlanId . T.pack) <$> (serveFlagStripePlan <|> envStripePlan)
        let config =
              (\sk ->
                 StripeConfig
@@ -49,7 +48,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
                   }) <$>
              (serveFlagStripeSecretKey <|> envStripeSecretKey)
        let publicKey = T.pack <$> (serveFlagStripePublishableKey <|> envStripePublishableKey)
-       pure $ MonetisationSettings <$> price <*> currency <*>config <*> publicKey
+       pure $ MonetisationSettings <$> plan <*> config <*> publicKey
   pure
     ( DispatchServe
         ServeSettings
@@ -67,15 +66,13 @@ getEnvironment :: IO Environment
 getEnvironment = do
   env <- System.getEnvironment
   let mv k = lookup ("INTRAY_SERVER_" <> k) env
-  pure $
-    traceShowId
-      Environment
-        { envPort = mv "PORT" >>= readMaybe
-        , envPrice = Amount <$> (mv "PRICE" >>= readMaybe)
-        , envCurrency = mv "CURRENCY" >>= readMaybe
-        , envStripeSecretKey = mv "STRIPE_SECRET_KEY"
-        , envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
-        }
+  pure
+    Environment
+      { envPort = mv "PORT" >>= readMaybe
+      , envStripePlan = mv "STRIPE_PLAN"
+      , envStripeSecretKey = mv "STRIPE_SECRET_KEY"
+      , envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
+      }
 
 getArguments :: IO Arguments
 getArguments = do
@@ -119,7 +116,7 @@ parseServeFlags =
   ServeFlags <$>
   option
     (Just <$> auto)
-    (mconcat [long "port", value Nothing, metavar "PORT", help "the port to serve on"]) <*>
+    (mconcat [long "api-port", value Nothing, metavar "PORT", help "the port to serve on"]) <*>
   option
     (Just . T.pack <$> str)
     (mconcat
@@ -130,11 +127,13 @@ parseServeFlags =
        ]) <*>
   many (strOption (mconcat [long "admin", metavar "USERNAME", help "An admin to use"])) <*>
   option
-    ((Just . Stripe.Amount) <$> auto)
-    (mconcat [long "price", value Nothing, metavar "PRICE", help "The price, in cents"]) <*>
-  option
-    (Just <$> auto)
-    (mconcat [long "currency", value Nothing, metavar "CURRENCY", help "The currency"]) <*>
+    (Just <$> str)
+    (mconcat
+       [ long "stripe-plan"
+       , value Nothing
+       , metavar "PLAN_ID"
+       , help "The product pricing plan for stripe"
+       ]) <*>
   option
     (Just <$> str)
     (mconcat

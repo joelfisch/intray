@@ -41,6 +41,7 @@ makeIntrayApp ServeSettings {..} = do
   pure
     App
       { appHttpManager = man
+      , appRoot = serveSetHost
       , appStatic = myStatic
       , appTracking = serveSetTracking
       , appVerification = serveSetVerification

@@ -93,7 +93,7 @@
             <div .item>
               Click 'log in' (with a saved password)
             <div .item>
-              Click the 'add item' tex area.
+              Click the 'add item' text area.
             <div .item>
               Start typing
         <td> 3
@@ -135,7 +135,7 @@
 
   <h2 .ui .header> CLI-Second
   <p>
-    Intray is available via 
+    Intray is available via
     <a href="https://github.com/NorfairKing/intray/tree/master/intray-cli">the official Intray command-line client
     .
     In addition to the features on the web interface, the command-line client works offline with easy synchronisation.
@@ -144,23 +144,43 @@
 $maybe p <- mPricing
   <div .ui .huge .padded .segment>
     <h2 .ui .header> Pricing
-    <div .ui .card .centered>
-      <div .ui .content>
-        <div class="ui segments">
-            <div class="ui center aligned secondary segment">
-               <div class="ui statistic">
-                  <div class="value">
-                    #{showAmountForPricing Stripe.CHF $ quotPrice (pricingPrice p) 12}
-                  <div class="label">
-                     per month
-            <div class="ui center aligned segment">
-               <p> Unlimited items
-            <div class="ui center aligned segment">
-               <p> Full API access
-            <div class="ui center aligned segment">
-               <p> Billed anually
-         <div class="ui primary fluid button">
-          Get Started
+    <div .ui .cards .centered>
+      <div .ui .card>
+        <div .ui .content>
+          <div .ui .centered .header>
+            Trial
+          <div class="ui segments">
+              <div class="ui center aligned secondary segment">
+                 <div class="ui statistic">
+                    <div class="value">
+                      Free
+                    <div class="label">
+                      Forever
+              <div class="ui center aligned segment">
+                 <p> Maximum 5 items
+              <div class="ui center aligned segment">
+                 <p> Full API access
+           <div class="ui primary fluid button">
+            Get Started
+      <div .ui .card>
+        <div .ui .content>
+          <div .ui .centered .header>
+            Subscription
+          <div class="ui segments">
+              <div class="ui center aligned secondary segment">
+                 <div class="ui statistic">
+                    <div class="value">
+                      #{showAmountForPricing (pricingCurrency p) $ quotPrice (pricingPrice p) 12}
+                    <div class="label">
+                       per month
+              <div class="ui center aligned segment">
+                 <p> Unlimited items
+              <div class="ui center aligned segment">
+                 <p> Full API access
+              <div class="ui center aligned segment">
+                 <p> Billed anually
+           <div class="ui primary fluid button">
+            Get Started
 
 
 
@@ -262,7 +282,7 @@ $maybe p <- mPricing
             Intray items are meant to be short term, ephemeral and for prosessing.
             Notes have an indeterminate life-time and do not lend themselves well for processing.
             Intray incorporates the best-practices for processing and is not cluttered by unnecessary features.
-            
+
             Moreover, Intray items will persist beyond eventual damage to your phone.
             This is not the case for all notes apps.
 

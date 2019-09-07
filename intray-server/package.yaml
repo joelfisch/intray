@@ -29,6 +29,7 @@ library:
   - aeson
   - aeson-pretty
   - bytestring
+  - cache
   - containers
   - file-embed
   - intray-api

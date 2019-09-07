@@ -10,6 +10,9 @@ github: NorfairKing/intray
 default-extensions:
 - NoImplicitPrelude
 
+dependencies:
+- base >=4.7 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
@@ -26,7 +29,6 @@ library:
 
   dependencies:
   - aeson
-  - base >=4.7 && <5
   - bcrypt
   - bytestring
   - containers
@@ -41,6 +43,8 @@ library:
   - uuid
   - validity
   - validity-bytestring
+  - stripe-core
+  - stripe-haskell
   - validity-containers
   - validity-text
   - validity-time

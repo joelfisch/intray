@@ -36,7 +36,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
       API.Flags
       envAPIEnvironment
       API.Configuration
-  let port = fromMaybe 8000 $ serveFlagPort `mplus` envPort
+  let port = fromMaybe 8000 $ serveFlagPort <|> envPort
   when (API.serveSetPort apiSets == port) $
     die $
     unlines ["Web server port and API port must not be the same.", "They are both: " ++ show port]
@@ -44,6 +44,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
     ( DispatchServe
         ServeSettings
           { serveSetAPISettings = apiSets
+          , serveSetHost = serveFlagHost <|> envHost
           , serveSetPort = port
           , serveSetPersistLogins = fromMaybe False serveFlagPersistLogins
           , serveSetTracking = serveFlagTracking
@@ -59,7 +60,12 @@ getEnvironment = do
   env <- System.getEnvironment
   apiEnv <- API.getEnvironment
   let mv k = lookup ("INTRAY_WEB_SERVER_" <> k) env
-  pure Environment {envAPIEnvironment = apiEnv, envPort = mv "PORT" >>= readMaybe}
+  pure
+    Environment
+      { envAPIEnvironment = apiEnv
+      , envHost = T.pack <$> mv "HOST"
+      , envPort = mv "PORT" >>= readMaybe
+      }
 
 getArguments :: IO Arguments
 getArguments = do
@@ -100,7 +106,10 @@ parseCommandServe = info parser modifier
       (ServeFlags <$> API.parseServeFlags <*>
        option
          (Just <$> auto)
-         (mconcat [long "port", metavar "PORT", value Nothing, help "the port to serve on"]) <*>
+         (mconcat [long "web-host", metavar "HOST", value Nothing, help "the host to serve on"]) <*>
+       option
+         (Just <$> auto)
+         (mconcat [long "web-port", metavar "PORT", value Nothing, help "the port to serve on"]) <*>
        flag
          Nothing
          (Just True)
