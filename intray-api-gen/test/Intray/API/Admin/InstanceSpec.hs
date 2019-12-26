@@ -1,8 +1,8 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Intray.API.Admin.InstanceSpec
-    ( spec
-    ) where
+  ( spec
+  ) where
 
 import TestImport
 
@@ -14,7 +14,7 @@ import Intray.API.Admin.Gen ()
 
 spec :: Spec
 spec = do
-    eqSpec @AdminStats
-    ordSpec @AdminStats
-    genValidSpec @AdminStats
-    jsonSpecOnValid @AdminStats
+  eqSpec @AdminStats
+  ordSpec @AdminStats
+  genValidSpec @AdminStats
+  jsonSpecOnValid @AdminStats

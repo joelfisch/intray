@@ -44,7 +44,8 @@ servePostSync (Authenticated AuthCookie {..}) sr =
             selectList
               [IntrayItemUserId ==. authCookieUserUUID, IntrayItemIdentifier <-. S.toList s]
               []
-          let inSButNotInStore = s `S.difference` S.fromList (map (intrayItemIdentifier .entityVal)items)
+          let inSButNotInStore =
+                s `S.difference` S.fromList (map (intrayItemIdentifier . entityVal) items)
           pure inSButNotInStore
         serverSyncProcessorQueryNewRemote s =
           M.fromList . map (makeSynced . entityVal) <$>

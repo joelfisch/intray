@@ -18,25 +18,25 @@ import Database.Persist
 import Database.Persist.Sql
 
 data Permission
-    = PermitAdd
-    | PermitShow
-    | PermitSize
-    | PermitDelete
-    | PermitGetItem
-    | PermitGetItems
-    | PermitGetItemUUIDs
-    | PermitSync
-    | PermitDeleteAccount
-    | PermitGetAccountInfo
-    | PermitPostAddAccessKey
-    | PermitGetAccessKey
-    | PermitGetAccessKeys
-    | PermitDeleteAccessKey
-    | PermitGetPermissions
-    | PermitAdminDeleteAccount
-    | PermitAdminGetAccounts
-    | PermitAdminGetStats
-    deriving (Show, Read, Eq, Ord, Generic, Enum, Bounded)
+  = PermitAdd
+  | PermitShow
+  | PermitSize
+  | PermitDelete
+  | PermitGetItem
+  | PermitGetItems
+  | PermitGetItemUUIDs
+  | PermitSync
+  | PermitDeleteAccount
+  | PermitGetAccountInfo
+  | PermitPostAddAccessKey
+  | PermitGetAccessKey
+  | PermitGetAccessKeys
+  | PermitDeleteAccessKey
+  | PermitGetPermissions
+  | PermitAdminDeleteAccount
+  | PermitAdminGetAccounts
+  | PermitAdminGetStats
+  deriving (Show, Read, Eq, Ord, Generic, Enum, Bounded)
 
 instance Validity Permission
 
@@ -45,38 +45,37 @@ instance FromJSON Permission
 instance ToJSON Permission
 
 instance PersistField Permission where
-    toPersistValue = PersistText . T.pack . show
-    fromPersistValue pv = do
-        t <- fromPersistValueText pv
-        case readMaybe $ T.unpack t of
-            Nothing -> Left "Unknown Permission value."
-            Just p -> pure p
+  toPersistValue = PersistText . T.pack . show
+  fromPersistValue pv = do
+    t <- fromPersistValueText pv
+    case readMaybe $ T.unpack t of
+      Nothing -> Left "Unknown Permission value."
+      Just p -> pure p
 
 instance PersistFieldSql Permission where
-    sqlType Proxy = SqlString
+  sqlType Proxy = SqlString
 
 userPermissions :: Set Permission
 userPermissions =
-    S.fromList
-        [ PermitAdd
-        , PermitShow
-        , PermitSize
-        , PermitDelete
-        , PermitGetItem
-        , PermitGetItems
-        , PermitGetItemUUIDs
-        , PermitSync
-        , PermitDeleteAccount
-        , PermitGetAccountInfo
-        , PermitPostAddAccessKey
-        , PermitGetAccessKey
-        , PermitGetAccessKeys
-        , PermitDeleteAccessKey
-        , PermitGetPermissions
-        ]
+  S.fromList
+    [ PermitAdd
+    , PermitShow
+    , PermitSize
+    , PermitDelete
+    , PermitGetItem
+    , PermitGetItems
+    , PermitGetItemUUIDs
+    , PermitSync
+    , PermitDeleteAccount
+    , PermitGetAccountInfo
+    , PermitPostAddAccessKey
+    , PermitGetAccessKey
+    , PermitGetAccessKeys
+    , PermitDeleteAccessKey
+    , PermitGetPermissions
+    ]
 
 adminPermissions :: Set Permission
 adminPermissions =
-    S.union userPermissions $
-    S.fromList
-        [PermitAdminDeleteAccount, PermitAdminGetAccounts, PermitAdminGetStats]
+  S.union userPermissions $
+  S.fromList [PermitAdminDeleteAccount, PermitAdminGetAccounts, PermitAdminGetStats]

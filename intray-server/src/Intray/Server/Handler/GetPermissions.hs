@@ -21,6 +21,5 @@ import Intray.Server.Handler.Utils
 
 serveGetPermissions :: AuthResult AuthCookie -> IntrayHandler (Set Permission)
 serveGetPermissions (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitGetPermissions $
-    pure authCookiePermissions
+  withPermission authCookiePermissions PermitGetPermissions $ pure authCookiePermissions
 serveGetPermissions _ = throwAll err401

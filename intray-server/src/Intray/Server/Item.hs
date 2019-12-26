@@ -1,10 +1,10 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Server.Item
-    ( makeIntrayItem
-    , makeItemInfo
-    , makeSynced
-    ) where
+  ( makeIntrayItem
+  , makeItemInfo
+  , makeSynced
+  ) where
 
 import Data.Time
 
@@ -13,7 +13,7 @@ import Intray.Data
 
 makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> TypedItem -> IntrayItem
 makeIntrayItem u i ts TypedItem {..} =
-    IntrayItem
+  IntrayItem
     { intrayItemIdentifier = i
     , intrayItemType = itemType
     , intrayItemContents = itemData
@@ -24,20 +24,17 @@ makeIntrayItem u i ts TypedItem {..} =
 
 makeItemInfo :: IntrayItem -> ItemInfo TypedItem
 makeItemInfo IntrayItem {..} =
-    ItemInfo
+  ItemInfo
     { itemInfoIdentifier = intrayItemIdentifier
-    , itemInfoContents =
-          TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
+    , itemInfoContents = TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
     , itemInfoTimestamp = intrayItemCreated
     }
 
 makeSynced :: IntrayItem -> (ItemUUID, Synced TypedItem)
 makeSynced IntrayItem {..} =
-  (intrayItemIdentifier,
-    Synced
-    {
-      syncedValue =
-          TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
-    , syncedCreated = intrayItemCreated
-    , syncedSynced = intrayItemSynced
-    })
+  ( intrayItemIdentifier
+  , Synced
+      { syncedValue = TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
+      , syncedCreated = intrayItemCreated
+      , syncedSynced = intrayItemSynced
+      })

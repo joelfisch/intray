@@ -12,8 +12,8 @@ in
     src = ./.;
     hooks = {
       canonix.enable = true;
+      hindent.enable = true;
       # hlint.enable = true;
-      # hindent.enable = true;
     };
   };
 }

@@ -24,11 +24,8 @@ import Intray.Server.Handler.Utils
 
 serveGetItems :: AuthResult AuthCookie -> IntrayHandler [ItemInfo TypedItem]
 serveGetItems (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitGetItems $ do
-        itemsEnts <-
-            runDb $
-            selectList
-                [IntrayItemUserId ==. authCookieUserUUID]
-                [Asc IntrayItemCreated]
-        pure $ map (makeItemInfo . entityVal) itemsEnts
+  withPermission authCookiePermissions PermitGetItems $ do
+    itemsEnts <-
+      runDb $ selectList [IntrayItemUserId ==. authCookieUserUUID] [Asc IntrayItemCreated]
+    pure $ map (makeItemInfo . entityVal) itemsEnts
 serveGetItems _ = throwAll err401

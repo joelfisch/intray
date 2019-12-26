@@ -11,4 +11,4 @@ import Intray.Data.Gen ()
 instance GenUnchecked AdminStats
 
 instance GenValid AdminStats where
-    genValid = genValidStructurally
+  genValid = genValidStructurally

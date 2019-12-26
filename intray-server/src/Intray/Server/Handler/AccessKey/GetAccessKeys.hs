@@ -4,8 +4,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Server.Handler.AccessKey.GetAccessKeys
-    ( serveGetAccessKeys
-    ) where
+  ( serveGetAccessKeys
+  ) where
 
 import Import
 
@@ -19,13 +19,12 @@ import Intray.Data
 
 import Intray.Server.Types
 
-import Intray.Server.Handler.AccessKey.GetAccessKey
-       (makeAccessKeyInfo)
+import Intray.Server.Handler.AccessKey.GetAccessKey (makeAccessKeyInfo)
 import Intray.Server.Handler.Utils
 
 serveGetAccessKeys :: AuthResult AuthCookie -> IntrayHandler [AccessKeyInfo]
 serveGetAccessKeys (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitGetAccessKeys $ do
-        aks <- runDb $ selectList [AccessKeyUser ==. authCookieUserUUID] []
-        pure $ map (makeAccessKeyInfo . entityVal) aks
+  withPermission authCookiePermissions PermitGetAccessKeys $ do
+    aks <- runDb $ selectList [AccessKeyUser ==. authCookieUserUUID] []
+    pure $ map (makeAccessKeyInfo . entityVal) aks
 serveGetAccessKeys _ = throwAll err401

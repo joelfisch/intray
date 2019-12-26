@@ -7,12 +7,12 @@
 {-# LANGUAGE TypeOperators #-}
 
 module Intray.API.Protected.AccessKey.Types
-    ( AccessKeyInfo(..)
-    , AccessKeyUUID
-    , AddAccessKey(..)
-    , AccessKeyCreated(..)
-    , module Data.UUID.Typed
-    ) where
+  ( AccessKeyInfo(..)
+  , AccessKeyUUID
+  , AddAccessKey(..)
+  , AccessKeyCreated(..)
+  , module Data.UUID.Typed
+  ) where
 
 import Import
 
@@ -27,36 +27,39 @@ import Intray.Data
 
 import Intray.API.Types ()
 
-data AccessKeyInfo = AccessKeyInfo
+data AccessKeyInfo =
+  AccessKeyInfo
     { accessKeyInfoUUID :: AccessKeyUUID
     , accessKeyInfoName :: Text
     , accessKeyInfoCreatedTimestamp :: UTCTime
     , accessKeyInfoPermissions :: Set Permission
-    } deriving (Show, Eq, Ord, Generic)
+    }
+  deriving (Show, Eq, Ord, Generic)
 
 instance Validity AccessKeyInfo
 
 instance FromJSON AccessKeyInfo where
-    parseJSON =
-        withObject "AccessKeyInfo" $ \o ->
-            AccessKeyInfo <$> o .: "uuid" <*> o .: "name" <*> o .: "created" <*>
-            o .: "permissions"
+  parseJSON =
+    withObject "AccessKeyInfo" $ \o ->
+      AccessKeyInfo <$> o .: "uuid" <*> o .: "name" <*> o .: "created" <*> o .: "permissions"
 
 instance ToJSON AccessKeyInfo where
-    toJSON AccessKeyInfo {..} =
-        object
-            [ "uuid" .= accessKeyInfoUUID
-            , "name" .= accessKeyInfoName
-            , "created" .= accessKeyInfoCreatedTimestamp
-            , "permissions" .= accessKeyInfoPermissions
-            ]
+  toJSON AccessKeyInfo {..} =
+    object
+      [ "uuid" .= accessKeyInfoUUID
+      , "name" .= accessKeyInfoName
+      , "created" .= accessKeyInfoCreatedTimestamp
+      , "permissions" .= accessKeyInfoPermissions
+      ]
 
 instance ToSample AccessKeyInfo
 
-data AddAccessKey = AddAccessKey
+data AddAccessKey =
+  AddAccessKey
     { addAccessKeyName :: Text
     , addAccessKeyPermissions :: Set Permission
-    } deriving (Show, Eq, Generic)
+    }
+  deriving (Show, Eq, Generic)
 
 instance Validity AddAccessKey
 
@@ -66,11 +69,13 @@ instance ToJSON AddAccessKey
 
 instance ToSample AddAccessKey
 
-data AccessKeyCreated = AccessKeyCreated
+data AccessKeyCreated =
+  AccessKeyCreated
     { accessKeyCreatedCreatedTimestamp :: UTCTime
     , accessKeyCreatedKey :: AccessKeySecret
     , accessKeyCreatedUUID :: AccessKeyUUID
-    } deriving (Show, Eq, Generic)
+    }
+  deriving (Show, Eq, Generic)
 
 instance Validity AccessKeyCreated
 

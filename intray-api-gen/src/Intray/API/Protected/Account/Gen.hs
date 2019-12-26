@@ -12,5 +12,5 @@ import Intray.Data.Gen ()
 import Intray.API.Admin.Gen ()
 
 instance GenValid AccountInfo where
-    genValid = genValidStructurally
-    shrinkValid = shrinkValidStructurally
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally

@@ -33,4 +33,4 @@ showAmountForPricing cur (Amount i) =
         _ -> showAmount cur i
 
 quotPrice :: Amount -> Int -> Amount
-quotPrice (Amount i) d = (Amount $ i `quot`  d)
+quotPrice (Amount i) d = (Amount $ i `quot` d)

@@ -6,7 +6,9 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.GetAccountInfo
-  ( serveGetAccountInfo, pollEvents, handleEvent
+  ( serveGetAccountInfo
+  , pollEvents
+  , handleEvent
   ) where
 
 import Import

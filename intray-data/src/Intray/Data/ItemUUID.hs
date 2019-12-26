@@ -1,7 +1,7 @@
 module Intray.Data.ItemUUID
-    ( ItemUUID
-    , module Data.UUID.Typed
-    ) where
+  ( ItemUUID
+  , module Data.UUID.Typed
+  ) where
 
 import Data.UUID.Typed
 

@@ -2,8 +2,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Server.Handler.Public.GetDocs
-    ( serveGetDocs
-    ) where
+  ( serveGetDocs
+  ) where
 
 import Import
 
@@ -25,27 +25,24 @@ serveGetDocs = pure intrayHtmlResponse
 
 intrayHtmlResponse :: GetDocsResponse
 intrayHtmlResponse =
-    GetDocsResponse $
-    Markdown.markdown
-        Markdown.defaultMarkdownSettings {Markdown.msXssProtect = False} $
-    LT.fromStrict intrayDocs
+  GetDocsResponse $
+  Markdown.markdown Markdown.defaultMarkdownSettings {Markdown.msXssProtect = False} $
+  LT.fromStrict intrayDocs
 
 intrayDocs :: Text
 intrayDocs =
-    T.unlines .
-    map (\t ->
-             if T.isPrefixOf "```" (T.stripStart t)
-                 then T.stripStart t
-                 else t) .
-    T.lines . T.pack $
-    Docs.markdown $ Docs.docsWithIntros [intr] $ Docs.pretty intrayOpenAPI
+  T.unlines .
+  map
+    (\t ->
+       if T.isPrefixOf "```" (T.stripStart t)
+         then T.stripStart t
+         else t) .
+  T.lines . T.pack $
+  Docs.markdown $ Docs.docsWithIntros [intr] $ Docs.pretty intrayOpenAPI
   where
     intr =
-        Docs.DocIntro
-            "Intray API"
-            [ unlines
-                  [ "<style>"
-                  , T.unpack $ TE.decodeUtf8 $(embedFile "res/style/docs.css")
-                  , "</style>"
-                  ]
-            ]
+      Docs.DocIntro
+        "Intray API"
+        [ unlines
+            ["<style>", T.unpack $ TE.decodeUtf8 $(embedFile "res/style/docs.css"), "</style>"]
+        ]

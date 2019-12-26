@@ -1,6 +1,6 @@
 module Intray.Data
-    ( module X
-    ) where
+  ( module X
+  ) where
 
 import Intray.Data.AccessKeySecret as X
 import Intray.Data.AccessKeyUUID as X

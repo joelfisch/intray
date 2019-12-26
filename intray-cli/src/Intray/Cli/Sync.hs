@@ -10,9 +10,9 @@ import Import
 import Intray.Client
 
 import Intray.Cli.Client
-import Intray.Cli.Store
 import Intray.Cli.OptParse
 import Intray.Cli.Session
+import Intray.Cli.Store
 
 withClientStoreAndSync ::
      (ClientStore ItemUUID TypedItem -> CliM (ClientStore ItemUUID TypedItem)) -> CliM ()

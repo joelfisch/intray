@@ -6,13 +6,13 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Admin
-    ( IntrayAdminAPI
-    , IntrayAdminSite(..)
-    , AdminStats(..)
-    , AdminGetStats
-    , AdminDeleteAccount
-    , AdminGetAccounts
-    ) where
+  ( IntrayAdminAPI
+  , IntrayAdminSite(..)
+  , AdminStats(..)
+  , AdminGetStats
+  , AdminDeleteAccount
+  , AdminGetAccounts
+  ) where
 
 import Import
 
@@ -29,15 +29,17 @@ import Intray.API.Types
 
 type IntrayAdminAPI = ToServant (IntrayAdminSite AsApi)
 
-data IntrayAdminSite route = IntrayAdminSite
+data IntrayAdminSite route =
+  IntrayAdminSite
     { adminGetStats :: !(route :- AdminGetStats)
     , adminDeleteAccount :: !(route :- AdminDeleteAccount)
     , adminGetAccounts :: !(route :- AdminGetAccounts)
-    } deriving (Generic)
+    }
+  deriving (Generic)
 
 type AdminGetStats = ProtectAPI :> "stats" :> Get '[ JSON] AdminStats
 
 type AdminDeleteAccount
-     = ProtectAPI :> "account" :> Capture "uuid" AccountUUID :> Delete '[ JSON] NoContent
+   = ProtectAPI :> "account" :> Capture "uuid" AccountUUID :> Delete '[ JSON] NoContent
 
 type AdminGetAccounts = ProtectAPI :> "accounts" :> Get '[ JSON] [AccountInfo]

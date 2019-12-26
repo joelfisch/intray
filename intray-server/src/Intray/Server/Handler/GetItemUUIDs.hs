@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.GetItemUUIDs
-    ( serveGetItemUUIDs
-    ) where
+  ( serveGetItemUUIDs
+  ) where
 
 import Import
 
@@ -25,8 +25,7 @@ import Intray.Server.Handler.Utils
 
 serveGetItemUUIDs :: AuthResult AuthCookie -> IntrayHandler [ItemUUID]
 serveGetItemUUIDs (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitGetItemUUIDs $
-    fmap (fmap $ intrayItemIdentifier . entityVal) $
-    runDb $
-    selectList [IntrayItemUserId ==. authCookieUserUUID] [Asc IntrayItemCreated]
+  withPermission authCookiePermissions PermitGetItemUUIDs $
+  fmap (fmap $ intrayItemIdentifier . entityVal) $
+  runDb $ selectList [IntrayItemUserId ==. authCookieUserUUID] [Asc IntrayItemCreated]
 serveGetItemUUIDs _ = throwAll err401

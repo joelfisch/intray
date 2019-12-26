@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.GetIntraySize
-    ( serveGetIntraySize
-    ) where
+  ( serveGetIntraySize
+  ) where
 
 import Import
 
@@ -25,6 +25,6 @@ import Intray.Server.Handler.Utils
 
 serveGetIntraySize :: AuthResult AuthCookie -> IntrayHandler Int
 serveGetIntraySize (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitSize $
-    runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
+  withPermission authCookiePermissions PermitSize $
+  runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
 serveGetIntraySize _ = throwAll err401

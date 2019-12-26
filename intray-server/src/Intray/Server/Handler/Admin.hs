@@ -1,7 +1,7 @@
 module Intray.Server.Handler.Admin
-    ( IntrayAdminSite
-    , intrayAdminServer
-    ) where
+  ( IntrayAdminSite
+  , intrayAdminServer
+  ) where
 
 import Servant.Generic
 
@@ -15,7 +15,7 @@ import Intray.Server.Handler.Admin.GetStats
 
 intrayAdminServer :: IntrayAdminSite (AsServerT IntrayHandler)
 intrayAdminServer =
-    IntrayAdminSite
+  IntrayAdminSite
     { adminGetStats = serveAdminGetStats
     , adminDeleteAccount = serveAdminDeleteAccount
     , adminGetAccounts = serveAdminGetAccounts

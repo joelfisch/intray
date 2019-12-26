@@ -6,51 +6,51 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Protected
-    ( IntrayProtectedAPI
-    , IntrayProtectedSite(..)
-    , IntrayProtectedItemAPI
-    , IntrayProtectedItemSite(..)
-    , IntrayProtectedAccountAPI
-    , IntrayProtectedAccountSite(..)
-    , IntrayProtectedAccessKeyAPI
-    , IntrayProtectedAccessKeySite(..)
-    , AuthCookie(..)
-    , GetItemUUIDs
-    , GetItems
-    , GetShowItem
-    , GetIntraySize
-    , PostAddItem
-    , GetItem
-    , DeleteItem
-    , ItemType(..)
-    , TypedItem(..)
-    , textTypedItem
-    , TypedItemCase(..)
-    , typedItemCase
-    , ItemInfo(..)
-    , Added(..)
-    , Synced(..)
-    , SyncRequest(..)
-    , SyncResponse(..)
-    , PostSync
-    , AccountInfo(..)
-    , GetAccountInfo
-    , DeleteAccount
-    , AccessKeyUUID
-    , AccessKeyInfo(..)
-    , AddAccessKey(..)
-    , AccessKeyCreated(..)
-    , PostAddAccessKey
-    , GetAccessKey
-    , GetAccessKeys
-    , DeleteAccessKey
-    , ItemUUID
-    , AccountUUID
-    , Username
-    , parseUsername
-    , parseUsernameWithError
-    , usernameText
-    ) where
+  ( IntrayProtectedAPI
+  , IntrayProtectedSite(..)
+  , IntrayProtectedItemAPI
+  , IntrayProtectedItemSite(..)
+  , IntrayProtectedAccountAPI
+  , IntrayProtectedAccountSite(..)
+  , IntrayProtectedAccessKeyAPI
+  , IntrayProtectedAccessKeySite(..)
+  , AuthCookie(..)
+  , GetItemUUIDs
+  , GetItems
+  , GetShowItem
+  , GetIntraySize
+  , PostAddItem
+  , GetItem
+  , DeleteItem
+  , ItemType(..)
+  , TypedItem(..)
+  , textTypedItem
+  , TypedItemCase(..)
+  , typedItemCase
+  , ItemInfo(..)
+  , Added(..)
+  , Synced(..)
+  , SyncRequest(..)
+  , SyncResponse(..)
+  , PostSync
+  , AccountInfo(..)
+  , GetAccountInfo
+  , DeleteAccount
+  , AccessKeyUUID
+  , AccessKeyInfo(..)
+  , AddAccessKey(..)
+  , AccessKeyCreated(..)
+  , PostAddAccessKey
+  , GetAccessKey
+  , GetAccessKeys
+  , DeleteAccessKey
+  , ItemUUID
+  , AccountUUID
+  , Username
+  , parseUsername
+  , parseUsernameWithError
+  , usernameText
+  ) where
 
 import Import
 
@@ -68,12 +68,13 @@ import Intray.API.Types
 
 type IntrayProtectedAPI = ToServant (IntrayProtectedSite AsApi)
 
-data IntrayProtectedSite route = IntrayProtectedSite
+data IntrayProtectedSite route =
+  IntrayProtectedSite
     { protectedItemSite :: !(route :- "intray" :> ToServant (IntrayProtectedItemSite AsApi))
     , protectedAccountSite :: !(route :- "account" :> ToServant (IntrayProtectedAccountSite AsApi))
     , protectedAccessKeySite :: !(route :- "access-key" :> ToServant (IntrayProtectedAccessKeySite AsApi))
     , getPermissions :: !(route :- GetPermissions)
-    } deriving (Generic)
+    }
+  deriving (Generic)
 
-type GetPermissions
-     = ProtectAPI :> "permissions" :> Get '[ JSON] (Set Permission)
+type GetPermissions = ProtectAPI :> "permissions" :> Get '[ JSON] (Set Permission)

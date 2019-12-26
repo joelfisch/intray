@@ -4,8 +4,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Server.Handler.AccessKey.DeleteAccessKey
-    ( serveDeleteAccessKey
-    ) where
+  ( serveDeleteAccessKey
+  ) where
 
 import Import
 
@@ -22,10 +22,9 @@ import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
-serveDeleteAccessKey ::
-       AuthResult AuthCookie -> AccessKeyUUID -> IntrayHandler NoContent
+serveDeleteAccessKey :: AuthResult AuthCookie -> AccessKeyUUID -> IntrayHandler NoContent
 serveDeleteAccessKey (Authenticated AuthCookie {..}) uuid =
-    withPermission authCookiePermissions PermitDeleteAccessKey $ do
-        runDb $ deleteWhere [AccessKeyIdentifier ==. uuid]
-        pure NoContent
+  withPermission authCookiePermissions PermitDeleteAccessKey $ do
+    runDb $ deleteWhere [AccessKeyIdentifier ==. uuid]
+    pure NoContent
 serveDeleteAccessKey _ _ = throwAll err401

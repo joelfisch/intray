@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.Admin.GetAccounts
-    ( serveAdminGetAccounts
-    ) where
+  ( serveAdminGetAccounts
+  ) where
 
 import Import
 
@@ -25,21 +25,18 @@ import Intray.Server.Handler.Utils
 
 serveAdminGetAccounts :: AuthResult AuthCookie -> IntrayHandler [AccountInfo]
 serveAdminGetAccounts (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitAdminGetAccounts $ do
-        admins <- asks envAdmins
-        users <- runDb $ selectList [] [Asc UserId]
-        forM users $ \(Entity _ User {..}) -> do
-            c <-
-                runDb $
-                count
-                    ([IntrayItemUserId ==. userIdentifier] :: [Filter IntrayItem])
-            pure
-                AccountInfo
-                { accountInfoUUID = userIdentifier
-                , accountInfoUsername = userUsername
-                , accountInfoCreatedTimestamp = userCreatedTimestamp
-                , accountInfoLastLogin = userLastLogin
-                , accountInfoAdmin = userUsername `elem` admins
-                , accountInfoCount = c
-                }
+  withPermission authCookiePermissions PermitAdminGetAccounts $ do
+    admins <- asks envAdmins
+    users <- runDb $ selectList [] [Asc UserId]
+    forM users $ \(Entity _ User {..}) -> do
+      c <- runDb $ count ([IntrayItemUserId ==. userIdentifier] :: [Filter IntrayItem])
+      pure
+        AccountInfo
+          { accountInfoUUID = userIdentifier
+          , accountInfoUsername = userUsername
+          , accountInfoCreatedTimestamp = userCreatedTimestamp
+          , accountInfoLastLogin = userLastLogin
+          , accountInfoAdmin = userUsername `elem` admins
+          , accountInfoCount = c
+          }
 serveAdminGetAccounts _ = throwAll err401

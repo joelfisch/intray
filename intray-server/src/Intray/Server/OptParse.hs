@@ -2,9 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Intray.Server.OptParse
-    ( module Intray.Server.OptParse
-    , module Intray.Server.OptParse.Types
-    ) where
+  ( module Intray.Server.OptParse
+  , module Intray.Server.OptParse.Types
+  ) where
 
 import Import
 

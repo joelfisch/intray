@@ -1,8 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Web.Server.Handler.Error
-    ( getErrorAPIDownR
-    ) where
+  ( getErrorAPIDownR
+  ) where
 
 import Import
 

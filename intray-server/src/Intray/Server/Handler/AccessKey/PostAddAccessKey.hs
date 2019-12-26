@@ -5,8 +5,8 @@
 {-# LANGUAGE TypeOperators #-}
 
 module Intray.Server.Handler.AccessKey.PostAddAccessKey
-    ( servePostAddAccessKey
-    ) where
+  ( servePostAddAccessKey
+  ) where
 
 import Import
 
@@ -26,34 +26,32 @@ import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
-servePostAddAccessKey ::
-       AuthResult AuthCookie -> AddAccessKey -> IntrayHandler AccessKeyCreated
+servePostAddAccessKey :: AuthResult AuthCookie -> AddAccessKey -> IntrayHandler AccessKeyCreated
 servePostAddAccessKey (Authenticated AuthCookie {..}) AddAccessKey {..} =
-    withPermission authCookiePermissions PermitPostAddAccessKey $ do
-        let perms =
-                authCookiePermissions `S.intersection` addAccessKeyPermissions
-        unless (perms == addAccessKeyPermissions) $ throwAll err401
-        uuid <- liftIO nextRandomUUID
-        now <- liftIO getCurrentTime
-        secret <- liftIO generateRandomAccessKeySecret
-        mhp <- liftIO $ passwordHash $ accessKeySecretText secret
-        case mhp of
-            Nothing -> throwAll err500 {errBody = "Unable to hash secret key."}
-            Just hp -> do
-                runDb $
-                    insert_
-                        AccessKey
-                        { accessKeyIdentifier = uuid
-                        , accessKeyUser = authCookieUserUUID
-                        , accessKeyName = addAccessKeyName
-                        , accessKeyHashedKey = hp
-                        , accessKeyCreatedTimestamp = now
-                        , accessKeyPermissions = perms
-                        }
-                pure
-                    AccessKeyCreated
-                    { accessKeyCreatedCreatedTimestamp = now
-                    , accessKeyCreatedKey = secret
-                    , accessKeyCreatedUUID = uuid
-                    }
+  withPermission authCookiePermissions PermitPostAddAccessKey $ do
+    let perms = authCookiePermissions `S.intersection` addAccessKeyPermissions
+    unless (perms == addAccessKeyPermissions) $ throwAll err401
+    uuid <- liftIO nextRandomUUID
+    now <- liftIO getCurrentTime
+    secret <- liftIO generateRandomAccessKeySecret
+    mhp <- liftIO $ passwordHash $ accessKeySecretText secret
+    case mhp of
+      Nothing -> throwAll err500 {errBody = "Unable to hash secret key."}
+      Just hp -> do
+        runDb $
+          insert_
+            AccessKey
+              { accessKeyIdentifier = uuid
+              , accessKeyUser = authCookieUserUUID
+              , accessKeyName = addAccessKeyName
+              , accessKeyHashedKey = hp
+              , accessKeyCreatedTimestamp = now
+              , accessKeyPermissions = perms
+              }
+        pure
+          AccessKeyCreated
+            { accessKeyCreatedCreatedTimestamp = now
+            , accessKeyCreatedKey = secret
+            , accessKeyCreatedUUID = uuid
+            }
 servePostAddAccessKey _ _ = throwAll err401

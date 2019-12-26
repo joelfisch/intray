@@ -1,7 +1,7 @@
 module Intray.Data.AccessKeyUUID
-    ( AccessKeyUUID
-    , module Data.UUID.Typed
-    ) where
+  ( AccessKeyUUID
+  , module Data.UUID.Typed
+  ) where
 
 import Data.UUID.Typed
 

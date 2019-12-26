@@ -6,8 +6,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.GetItem
-    ( serveGetItem
-    ) where
+  ( serveGetItem
+  ) where
 
 import Import
 
@@ -25,12 +25,11 @@ import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
-serveGetItem ::
-       AuthResult AuthCookie -> ItemUUID -> IntrayHandler (ItemInfo TypedItem)
+serveGetItem :: AuthResult AuthCookie -> ItemUUID -> IntrayHandler (ItemInfo TypedItem)
 serveGetItem (Authenticated AuthCookie {..}) id_ =
-    withPermission authCookiePermissions PermitGetItem $ do
-        mitem <- runDb $ getBy $ UniqueItemIdentifier id_
-        case mitem of
-            Nothing -> throwError err404 {errBody = "Item not found."}
-            Just item -> pure $ makeItemInfo $ entityVal item
+  withPermission authCookiePermissions PermitGetItem $ do
+    mitem <- runDb $ getBy $ UniqueItemIdentifier id_
+    case mitem of
+      Nothing -> throwError err404 {errBody = "Item not found."}
+      Just item -> pure $ makeItemInfo $ entityVal item
 serveGetItem _ _ = throwAll err401

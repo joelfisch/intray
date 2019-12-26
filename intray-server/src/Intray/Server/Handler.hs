@@ -1,6 +1,6 @@
 module Intray.Server.Handler
-    ( intrayServer
-    ) where
+  ( intrayServer
+  ) where
 
 import Servant.Generic
 
@@ -8,14 +8,10 @@ import Intray.API
 
 import Intray.Server.Types
 
-import Intray.Server.Handler.AccessKey.DeleteAccessKey
-       (serveDeleteAccessKey)
-import Intray.Server.Handler.AccessKey.GetAccessKey
-       (serveGetAccessKey)
-import Intray.Server.Handler.AccessKey.GetAccessKeys
-       (serveGetAccessKeys)
-import Intray.Server.Handler.AccessKey.PostAddAccessKey
-       (servePostAddAccessKey)
+import Intray.Server.Handler.AccessKey.DeleteAccessKey (serveDeleteAccessKey)
+import Intray.Server.Handler.AccessKey.GetAccessKey (serveGetAccessKey)
+import Intray.Server.Handler.AccessKey.GetAccessKeys (serveGetAccessKeys)
+import Intray.Server.Handler.AccessKey.PostAddAccessKey (servePostAddAccessKey)
 import Intray.Server.Handler.Admin (intrayAdminServer)
 import Intray.Server.Handler.DeleteAccount (serveDeleteAccount)
 import Intray.Server.Handler.DeleteItem (serveDeleteItem)
@@ -32,21 +28,16 @@ import Intray.Server.Handler.Public (intrayPublicServer)
 
 intrayServer :: IntraySite (AsServerT IntrayHandler)
 intrayServer =
-    IntraySite
-    { openSite = toServant intrayOpenServer
-    , adminSite = toServant intrayAdminServer
-    }
+  IntraySite {openSite = toServant intrayOpenServer, adminSite = toServant intrayAdminServer}
 
 intrayOpenServer :: IntrayOpenSite (AsServerT IntrayHandler)
 intrayOpenServer =
-    IntrayOpenSite
-    { protectedSite = toServant intrayProtectedServer
-    , publicSite = toServant intrayPublicServer
-    }
+  IntrayOpenSite
+    {protectedSite = toServant intrayProtectedServer, publicSite = toServant intrayPublicServer}
 
 intrayProtectedServer :: IntrayProtectedSite (AsServerT IntrayHandler)
 intrayProtectedServer =
-    IntrayProtectedSite
+  IntrayProtectedSite
     { protectedItemSite = toServant intrayProtectedItemServer
     , protectedAccountSite = toServant intrayProtectedAccountServer
     , protectedAccessKeySite = toServant intrayProtectedAccessKeyServer
@@ -55,7 +46,7 @@ intrayProtectedServer =
 
 intrayProtectedItemServer :: IntrayProtectedItemSite (AsServerT IntrayHandler)
 intrayProtectedItemServer =
-    IntrayProtectedItemSite
+  IntrayProtectedItemSite
     { getShowItem = serveGetShowItem
     , getIntraySize = serveGetIntraySize
     , getItemUUIDs = serveGetItemUUIDs
@@ -66,16 +57,14 @@ intrayProtectedItemServer =
     , postSync = servePostSync
     }
 
-intrayProtectedAccountServer ::
-       IntrayProtectedAccountSite (AsServerT IntrayHandler)
+intrayProtectedAccountServer :: IntrayProtectedAccountSite (AsServerT IntrayHandler)
 intrayProtectedAccountServer =
-    IntrayProtectedAccountSite
+  IntrayProtectedAccountSite
     {getAccountInfo = serveGetAccountInfo, deleteAccount = serveDeleteAccount}
 
-intrayProtectedAccessKeyServer ::
-       IntrayProtectedAccessKeySite (AsServerT IntrayHandler)
+intrayProtectedAccessKeyServer :: IntrayProtectedAccessKeySite (AsServerT IntrayHandler)
 intrayProtectedAccessKeyServer =
-    IntrayProtectedAccessKeySite
+  IntrayProtectedAccessKeySite
     { postAddAccessKey = servePostAddAccessKey
     , getAccessKey = serveGetAccessKey
     , getAccessKeys = serveGetAccessKeys

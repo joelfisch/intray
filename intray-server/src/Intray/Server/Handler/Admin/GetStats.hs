@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.Admin.GetStats
-    ( serveAdminGetStats
-    ) where
+  ( serveAdminGetStats
+  ) where
 
 import Import
 
@@ -25,8 +25,8 @@ import Intray.Server.Handler.Utils
 
 serveAdminGetStats :: AuthResult AuthCookie -> IntrayHandler AdminStats
 serveAdminGetStats (Authenticated AuthCookie {..}) =
-    withPermission authCookiePermissions PermitAdminGetStats $ do
-        adminStatsNbUsers <- runDb $ count ([] :: [Filter User])
-        adminStatsNbItems <- runDb $ count ([] :: [Filter IntrayItem])
-        pure AdminStats {..}
+  withPermission authCookiePermissions PermitAdminGetStats $ do
+    adminStatsNbUsers <- runDb $ count ([] :: [Filter User])
+    adminStatsNbItems <- runDb $ count ([] :: [Filter IntrayItem])
+    pure AdminStats {..}
 serveAdminGetStats _ = throwAll err401

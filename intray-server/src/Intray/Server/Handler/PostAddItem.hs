@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.PostAddItem
-    ( servePostAddItem
-    ) where
+  ( servePostAddItem
+  ) where
 
 import Import
 
@@ -27,9 +27,9 @@ import Intray.Server.Handler.Utils
 
 servePostAddItem :: AuthResult AuthCookie -> TypedItem -> IntrayHandler ItemUUID
 servePostAddItem (Authenticated AuthCookie {..}) typedItem =
-    withPermission authCookiePermissions PermitAdd $ do
-        now <- liftIO getCurrentTime
-        uuid <- liftIO nextRandomUUID
-        runDb $ insert_ $ makeIntrayItem authCookieUserUUID uuid now typedItem
-        pure uuid
+  withPermission authCookiePermissions PermitAdd $ do
+    now <- liftIO getCurrentTime
+    uuid <- liftIO nextRandomUUID
+    runDb $ insert_ $ makeIntrayItem authCookieUserUUID uuid now typedItem
+    pure uuid
 servePostAddItem _ _ = throwAll err401

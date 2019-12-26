@@ -1,8 +1,8 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Intray.API.Protected.Account.InstanceSpec
-    ( spec
-    ) where
+  ( spec
+  ) where
 
 import TestImport
 
@@ -13,7 +13,7 @@ import Intray.API.Protected.Account.Types
 
 spec :: Spec
 spec = do
-    eqSpecOnValid @AccountInfo
-    ordSpecOnValid @AccountInfo
-    genValidSpec @AccountInfo
-    jsonSpecOnValid @AccountInfo
+  eqSpecOnValid @AccountInfo
+  ordSpecOnValid @AccountInfo
+  genValidSpec @AccountInfo
+  jsonSpecOnValid @AccountInfo

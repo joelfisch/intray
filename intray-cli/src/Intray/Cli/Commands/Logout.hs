@@ -1,6 +1,6 @@
 module Intray.Cli.Commands.Logout
-    ( logout
-    ) where
+  ( logout
+  ) where
 
 import Import
 
@@ -9,5 +9,5 @@ import Intray.Cli.Path
 
 logout :: CliM ()
 logout = do
-    p <- sessionPath
-    liftIO $ ignoringAbsence $ removeFile p
+  p <- sessionPath
+  liftIO $ ignoringAbsence $ removeFile p

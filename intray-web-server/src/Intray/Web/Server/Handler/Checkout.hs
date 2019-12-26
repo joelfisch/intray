@@ -9,10 +9,10 @@ module Intray.Web.Server.Handler.Checkout
 
 import Yesod
 
-
 import Intray.Web.Server.Foundation
 
 getCheckoutSuccessR :: Handler Html
 getCheckoutSuccessR = redirect AccountR
+
 getCheckoutCanceledR :: Handler Html
 getCheckoutCanceledR = redirect AccountR

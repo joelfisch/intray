@@ -6,10 +6,10 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server
-    ( runIntrayServer
-    , makeIntrayServer
-    , intrayAppContext
-    ) where
+  ( runIntrayServer
+  , makeIntrayServer
+  , intrayAppContext
+  ) where
 
 import Import
 
