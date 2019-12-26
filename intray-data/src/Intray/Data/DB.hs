@@ -25,7 +25,7 @@ import Intray.Data.HashedPassword
 import Intray.Data.ItemType
 import Intray.Data.ItemUUID
 import Intray.Data.Permission
-import Intray.Data.Stripe
+import Intray.Data.Stripe()
 import Intray.Data.Username
 
 share

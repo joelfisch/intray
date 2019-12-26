@@ -84,19 +84,13 @@ final:
               owner = "NorfairKing";
               repo = "stripe";
               rev = "ab23e8d5a7232d81d818095fad3fd361fbd485dd";
-              sha256 = "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgaa";
+              sha256 = "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgl6";
             };
             yesodStaticRemoteRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "yesod-static-remote";
               rev = "22c0a92c1d62f1b8d432003844ef0636a9131b08";
               sha256 = "sha256:1mz1fb421wccx7mbpn9qaj214w4sl4qali5rclx9fqp685jkfj05";
-            };
-            stripeHaskellRepo = final.fetchFromGitHub {
-              owner = "NorfairKing";
-              repo = "stripe";
-              rev = "06af65a0f444bfd0364f803507781770cbe3fe9b";
-              sha256 = "0wl3ai441vbj8vzsqywvx9g2d2v6vd3cg8m2bg8cvmbypg49anbl";
             };
             typedUuidPkg = name:
               super.callCabal2nix name (typedUuidRepo + "/${name}") {};

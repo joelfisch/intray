@@ -8,16 +8,10 @@ module Intray.Server.Handler.Public.GetPricing
 
 import Import
 
-import Control.Exception
-
 import Data.Cache as Cache
 
-import qualified Data.ByteString.Lazy.Char8 as LB8
-
-import Servant
 import Servant.Auth.Server.SetCookieOrphan ()
 
-import Web.Stripe as Stripe
 import Web.Stripe.Plan as Stripe
 
 import Intray.API

@@ -1,14 +1,8 @@
--- {-# LANGUAGE ExistentialQuantification #-}
--- {-# LANGUAGE DeriveGeneric #-}
--- {-# LANGUAGE MultiParamTypeClasses #-}
--- {-# LANGUAGE OverloadedStrings #-}
--- {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.Data.Stripe where
-
-import Import
 
 import Web.Stripe.Types as Stripe
 
