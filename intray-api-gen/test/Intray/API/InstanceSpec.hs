@@ -13,15 +13,7 @@ import Intray.API.Types
 
 spec :: Spec
 spec = do
-    eqSpec @Permission
-    ordSpec @Permission
-    genValidSpec @Permission
-    jsonSpecOnValid @Permission
-    eqSpecOnValid @Registration
-    ordSpecOnValid @Registration
     genValidSpec @Registration
     jsonSpecOnValid @Registration
-    eqSpecOnValid @LoginForm
-    ordSpecOnValid @LoginForm
     genValidSpec @LoginForm
     jsonSpecOnValid @LoginForm

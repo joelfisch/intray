@@ -31,12 +31,13 @@ makeItemInfo IntrayItem {..} =
     , itemInfoTimestamp = intrayItemCreated
     }
 
-makeSynced :: IntrayItem -> Synced ItemUUID TypedItem
+makeSynced :: IntrayItem -> (ItemUUID, Synced TypedItem)
 makeSynced IntrayItem {..} =
+  (intrayItemIdentifier,
     Synced
-    { syncedUuid = intrayItemIdentifier
-    , syncedValue =
+    {
+      syncedValue =
           TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
     , syncedCreated = intrayItemCreated
     , syncedSynced = intrayItemSynced
-    }
+    })

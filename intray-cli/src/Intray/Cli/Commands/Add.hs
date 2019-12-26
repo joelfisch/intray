@@ -3,8 +3,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Intray.Cli.Commands.Add
-    ( addItem
-    ) where
+  ( addItem
+  ) where
 
 import Import
 
@@ -18,6 +18,6 @@ import Intray.Cli.Sync
 
 addItem :: Text -> CliM ()
 addItem t = do
-    now <- liftIO getCurrentTime
-    modifyStoreAndSync $
-        addItemToStore Added {addedValue = textTypedItem t, addedCreated = now}
+  now <- liftIO getCurrentTime
+  modifyClientStoreAndSync $
+    addItemToClientStore Added {addedValue = textTypedItem t, addedCreated = now}

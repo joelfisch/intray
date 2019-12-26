@@ -21,7 +21,6 @@ data ServeFlags = ServeFlags
     , serveFlagVerification :: Maybe Text
     , serveFlagAPIPort :: Maybe Int
     , serveFlagAPIDB :: Maybe Text
-    , serveFlagAPIConnectionCount :: Maybe Int
     , serveFlagAPIAdmins :: [String]
     } deriving (Show, Eq)
 
@@ -49,7 +48,6 @@ data ServeSettings = ServeSettings
     , serveSetVerification :: Maybe Text
     , serveSetAPIPort :: Int
     , serveSetAPIConnectionInfo :: SqliteConnectionInfo
-    , serveSetAPIConnectionCount :: Int
     , serveSetAPIAdmins :: [Username]
     } deriving (Show)
 

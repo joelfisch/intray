@@ -1,7 +1,7 @@
 <div .ui .very .padded .segment>
   <div .hidden .divider>
-  <img .ui .centered .image
-    src=@{StaticR static_logo_svg}>
+  <h1 class="ui center aligned icon header">
+    <i class="inbox icon"></i>
   <h1 class="ui center aligned header">
     <div class="content">
       Intray

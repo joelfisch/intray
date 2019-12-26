@@ -8,21 +8,23 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Protected.Item.Types
-    ( ItemType(..)
-    , TypedItem(..)
-    , textTypedItem
-    , TypedItemCase(..)
-    , typedItemCase
-    , ItemInfo(..)
-    , ItemUUID
-    , module Data.UUID.Typed
-    ) where
+  ( ItemType(..)
+  , TypedItem(..)
+  , textTypedItem
+  , TypedItemCase(..)
+  , typedItemCase
+  , ItemInfo(..)
+  , ItemUUID
+  , module Data.UUID.Typed
+  ) where
 
 import Import
 
 import Data.Aeson as JSON
 import qualified Data.ByteString.Base64 as Base64
 import qualified Data.ByteString.Char8 as SB8
+import qualified Data.Map as M
+import Data.Map (Map)
 import Data.Mergeless
 import qualified Data.Text.Encoding as TE
 import Data.Time
@@ -34,74 +36,79 @@ import Intray.Data
 
 import Intray.API.Types ()
 
-data TypedItem = TypedItem
+data TypedItem =
+  TypedItem
     { itemType :: ItemType
     , itemData :: ByteString
-    } deriving (Show, Read, Eq, Ord, Generic)
+    }
+  deriving (Show, Read, Eq, Ord, Generic)
 
 instance Validity TypedItem
 
 instance FromJSON TypedItem where
-    parseJSON =
-        withObject "TypedItem" $ \o ->
-            TypedItem <$> o .: "type" <*>
-            (do t <- o .: "data"
-                case Base64.decode $ SB8.pack t of
-                    Left err ->
-                        fail $
-                        unwords
-                            [ "Failed to decode base64-encoded typed item data:"
-                            , err
-                            ]
-                    Right r -> pure r)
+  parseJSON =
+    withObject "TypedItem" $ \o ->
+      TypedItem <$> o .: "type" <*>
+      (do t <- o .: "data"
+          case Base64.decode $ SB8.pack t of
+            Left err -> fail $ unwords ["Failed to decode base64-encoded typed item data:", err]
+            Right r -> pure r)
 
 instance ToJSON TypedItem where
-    toJSON TypedItem {..} =
-        object
-            ["type" .= itemType, "data" .= SB8.unpack (Base64.encode itemData)]
+  toJSON TypedItem {..} = object ["type" .= itemType, "data" .= SB8.unpack (Base64.encode itemData)]
 
 instance ToSample TypedItem where
-    toSamples Proxy = singleSample $ TypedItem TextItem "Hello World!"
+  toSamples Proxy = singleSample $ TypedItem TextItem "Hello World!"
 
 textTypedItem :: Text -> TypedItem
 textTypedItem t = TypedItem {itemType = TextItem, itemData = TE.encodeUtf8 t}
 
 typedItemCase :: TypedItem -> Either String TypedItemCase
 typedItemCase TypedItem {..} =
-    case itemType of
-        TextItem -> left show $ CaseTextItem <$> TE.decodeUtf8' itemData
+  case itemType of
+    TextItem -> left show $ CaseTextItem <$> TE.decodeUtf8' itemData
 
 newtype TypedItemCase =
-    CaseTextItem Text
-    deriving (Show, Read, Eq, Ord, Generic)
+  CaseTextItem Text
+  deriving (Show, Read, Eq, Ord, Generic)
 
-data ItemInfo a = ItemInfo
+data ItemInfo a =
+  ItemInfo
     { itemInfoIdentifier :: ItemUUID
     , itemInfoContents :: a
     , itemInfoTimestamp :: UTCTime
-    } deriving (Show, Read, Eq, Ord, Generic)
+    }
+  deriving (Show, Read, Eq, Ord, Generic)
 
 instance Validity a => Validity (ItemInfo a)
 
 instance ToJSON a => ToJSON (ItemInfo a) where
-    toJSON ItemInfo {..} =
-        object
-            [ "id" .= itemInfoIdentifier
-            , "contents" .= itemInfoContents
-            , "timestamp" .= itemInfoTimestamp
-            ]
+  toJSON ItemInfo {..} =
+    object
+      ["id" .= itemInfoIdentifier, "contents" .= itemInfoContents, "timestamp" .= itemInfoTimestamp]
 
 instance FromJSON a => FromJSON (ItemInfo a) where
-    parseJSON =
-        withObject "ItemInfo TypedItem" $ \o ->
-            ItemInfo <$> o .: "id" <*> o .: "contents" <*> o .: "timestamp"
+  parseJSON =
+    withObject "ItemInfo TypedItem" $ \o ->
+      ItemInfo <$> o .: "id" <*> o .: "contents" <*> o .: "timestamp"
+
+instance ToSample ClientId where
+  toSamples Proxy = singleSample (ClientId 0)
 
 instance ToSample a => ToSample (ItemInfo a)
 
 instance ToSample a => ToSample (Added a)
 
-instance (ToSample i, ToSample a) => ToSample (Synced i a)
+instance ToSample a => ToSample (Synced a)
 
-instance ToSample (SyncRequest ItemUUID TypedItem)
+instance ToSample i => ToSample (ClientAddition i)
 
-instance ToSample (SyncResponse ItemUUID TypedItem)
+instance (Ord i, ToSample i, ToSample a) => ToSample (SyncRequest i a)
+
+instance (Ord i, ToSample i, ToSample a) => ToSample (SyncResponse i a)
+
+instance (Ord k, ToSample k, ToSample v) => ToSample (Map k v) where
+  toSamples Proxy = fmapSamples M.fromList $ toSamples Proxy
+
+fmapSamples :: (a -> b) -> [(Text, a)] -> [(Text, b)]
+fmapSamples f = map (second f)

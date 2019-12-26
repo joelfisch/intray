@@ -3,14 +3,7 @@ final:
     with final.haskell.lib;
     {
       intrayPackages = let
-        pathFor = name:
-          builtins.path {
-            inherit name;
-            path = ../. + "/${name}";
-            filter = path:
-              type:
-                !final.lib.hasPrefix "." (baseNameOf path);
-          };
+        pathFor = name: final.gitignoreSource (../. + "/${name}");
         intrayPkg = name:
           failOnAllWarnings (disableLibraryProfiling (final.haskellPackages.callCabal2nix name (pathFor name) {}));
       in final.lib.genAttrs [
@@ -24,34 +17,80 @@ final:
         "intray-data-gen"
         "intray-server"
         "intray-server-test-utils"
-        "intray-web-server"
-      ] intrayPkg;
+      ] intrayPkg // {
+        "intray-web-server" =
+        let semantic-js = builtins.fetchurl {
+              url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js;
+              sha256 = "sha256:0ll00jawcwd4nj568sj7lfp2ixrni9wqf37sz5nhz6wggjk9xhdp";
+            };
+            semantic-css = builtins.fetchurl {
+              url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css;
+              sha256 = "sha256:0m13jdkv3vdqr0pbr1zfc2ndsafr2p5mnfzkbm7pd8v1ylwy8rpn";
+            };
+            jquery-js = builtins.fetchurl {
+              url = https://code.jquery.com/jquery-3.1.1.min.js;
+              sha256 = "sha256:1gyrxy9219l11mn8c6538hnh3gr6idmimm7wv37183c0m1hnfmc5";
+            };
+            icons-ttf = builtins.fetchurl {
+              url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/themes/default/assets/fonts/icons.ttf;
+              sha256 = "sha256:1nm34hrh3inyrq7cbkh47g8m2hbqpsgkzbdrpfiiii7m8bsq2zyb";
+            };
+            icons-woff = builtins.fetchurl {
+              url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/themes/default/assets/fonts/icons.woff;
+              sha256 = "sha256:1qgzlmd80c4ckh9zpfl2qzjvg389hvmkdhkv8amyq4c71y2a9dlm";
+            };
+            icons-woff2 = builtins.fetchurl {
+              url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/themes/default/assets/fonts/icons.woff2;
+              sha256 = "sha256:1lqd60f1pml8zc93hgwcm6amkcy6rnbq3cyxqv5a3a25jnsnci23";
+            };
+        in overrideCabal (intrayPkg "intray-web-server") (old: {
+          preConfigure = ''
+            ${old.preConfigure or ""}
+
+            mkdir -p static/
+            cp ${jquery-js} static/jquery.min.js
+            mkdir -p static/semantic/
+            cp ${semantic-css} static/semantic/semantic.min.css
+            cp ${semantic-js} static/semantic/semantic.min.js
+            mkdir -p static/semantic/themes/default/assets/fonts
+            cp ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
+            cp ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
+            cp ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
+          '';
+        });
+      };
       haskellPackages = previous.haskellPackages.extend (self:
         super:
           let
             typedUuidRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "typed-uuid";
-              rev = "155c9ec880ca1c12f7dd8a8468b3626de8164823";
-              sha256 = "0wvdj07vhd7q93f7sdg4mq8f9nk4w3fjsq3z7nx7zm5dv0j78iwb";
+              rev = "4c5739c5e231b1cee6bd568ec55734116691ac8f";
+              sha256 = "sha256:185ki38vyvq5889vqdsw53dcdwssdyl4rzvxfhh6kbby17x2f835";
             };
             mergelessRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "mergeless";
-              rev = "0198f9393e2ef71f26de6427541387be44fd499b";
-              sha256 = "1699fj3w5ydigvhm0cixblr1fg4fzxbx0m3l6fr5v1dcn589sbpa";
+              rev = "3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5";
+              sha256 = "sha256:0far86wdprvyk8i50y4i5wzc0vcqj5ksdf90jnyyalrbklgxxgkv";
             };
             prettyRelativeTimeRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "pretty-relative-time";
-              rev = "21b29c9d729ed91a56819f569de6fdc8582d7e3d";
-              sha256 = "15ash7kdr03d37hx1s3hiwpms969j3vnqxji13q5wqj47nwiqj14";
+              rev = "2abdb2ba83ad47b8369e2ef618c7c21b82d80b23";
+              sha256 = "sha256:13csx5p0y7wsf8w1vzi3h3bnm4s5976rw9r9glhi55xdwq9s65q7";
             };
             stripeHaskellRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "stripe";
               rev = "ab23e8d5a7232d81d818095fad3fd361fbd485dd";
-              sha256 = "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgl6";
+              sha256 = "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgaa";
+            };
+            yesodStaticRemoteRepo = final.fetchFromGitHub {
+              owner = "NorfairKing";
+              repo = "yesod-static-remote";
+              rev = "22c0a92c1d62f1b8d432003844ef0636a9131b08";
+              sha256 = "sha256:1mz1fb421wccx7mbpn9qaj214w4sl4qali5rclx9fqp685jkfj05";
             };
             typedUuidPkg = name:
               super.callCabal2nix name (typedUuidRepo + "/${name}") {};
@@ -63,6 +102,7 @@ final:
               dontCheck (super.callCabal2nix name (stripeHaskellRepo + "/${name}") {});
           in {
             pretty-relative-time = super.callCabal2nix "pretty-relative-time" prettyRelativeTimeRepo {};
+            yesod-static-remote = super.callCabal2nix "yesod-static-remote" yesodStaticRemoteRepo {};
             servant-auth-server = doJailbreak (super.servant-auth-server);
           } // final.lib.genAttrs [
             "stripe-core"

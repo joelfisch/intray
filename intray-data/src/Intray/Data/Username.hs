@@ -88,8 +88,8 @@ newtype UsernameChar =
     UsernameChar Char
 
 instance Validity UsernameChar where
-    validate (UsernameChar '-') = mempty
-    validate (UsernameChar '_') = mempty
+    validate (UsernameChar '-') = valid
+    validate (UsernameChar '_') = valid
     validate (UsernameChar c) =
         mconcat
             [ check

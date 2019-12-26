@@ -32,8 +32,7 @@ module Intray.Client
     , Synced(..)
     , SyncRequest(..)
     , SyncResponse(..)
-    , StoreItem(..)
-    , Store(..)
+    , ClientStore(..)
     , makeSyncRequest
     , mergeSyncResponse
     , AccountInfo(..)

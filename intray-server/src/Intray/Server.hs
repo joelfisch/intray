@@ -6,10 +6,10 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server
-    ( runIntrayServer
-    , makeIntrayServer
-    , intrayAppContext
-    ) where
+  ( runIntrayServer
+  , makeIntrayServer
+  , intrayAppContext
+  ) where
 
 import Import
 
@@ -37,43 +37,38 @@ import Intray.Server.Handler (intrayServer)
 
 runIntrayServer :: ServeSettings -> IO ()
 runIntrayServer ServeSettings {..} =
-    runStderrLoggingT $
-    withSqlitePoolInfo serveSetConnectionInfo serveSetConnectionCount $ \pool -> do
-        runResourceT $ flip runSqlPool pool $ runMigration migrateAll
-        signingKey <- liftIO loadSigningKey
-        let jwtCfg = defaultJWTSettings signingKey
-        let cookieCfg = defaultCookieSettings
-        let intrayEnv =
-                IntrayServerEnv
-                { envConnectionPool = pool
-                , envCookieSettings = cookieCfg
-                , envJWTSettings = jwtCfg
-                , envAdmins = serveSetAdmins
-                }
-        liftIO $ Warp.run serveSetPort $ intrayApp intrayEnv
+  runStderrLoggingT $
+  withSqlitePoolInfo serveSetConnectionInfo 1 $ \pool -> do
+    runResourceT $ flip runSqlPool pool $ runMigration migrateAll
+    signingKey <- liftIO loadSigningKey
+    let jwtCfg = defaultJWTSettings signingKey
+    let cookieCfg = defaultCookieSettings
+    let intrayEnv =
+          IntrayServerEnv
+            { envConnectionPool = pool
+            , envCookieSettings = cookieCfg
+            , envJWTSettings = jwtCfg
+            , envAdmins = serveSetAdmins
+            }
+    liftIO $ Warp.run serveSetPort $ intrayApp intrayEnv
 
 intrayApp :: IntrayServerEnv -> Wai.Application
-intrayApp se =
-    addPolicy . serveWithContext intrayAPI (intrayAppContext se) $
-    makeIntrayServer se
+intrayApp se = addPolicy . serveWithContext intrayAPI (intrayAppContext se) $ makeIntrayServer se
   where
     addPolicy = cors (const $ Just policy)
     policy =
-        simpleCorsResourcePolicy
-        { corsRequestHeaders = ["content-type"]
-        , corsMethods = ["GET", "POST", "HEAD", "DELETE"]
-        }
+      simpleCorsResourcePolicy
+        {corsRequestHeaders = ["content-type"], corsMethods = ["GET", "POST", "HEAD", "DELETE"]}
 
 makeIntrayServer :: IntrayServerEnv -> Server IntrayAPI
 makeIntrayServer cfg =
-    hoistServerWithContext
-        intrayAPI
-        (Proxy :: Proxy IntrayContext)
-        (`runReaderT` cfg)
-        (toServant intrayServer)
+  hoistServerWithContext
+    intrayAPI
+    (Proxy :: Proxy IntrayContext)
+    (`runReaderT` cfg)
+    (toServant intrayServer)
 
 intrayAppContext :: IntrayServerEnv -> Context IntrayContext
-intrayAppContext IntrayServerEnv {..} =
-    envCookieSettings :. envJWTSettings :. EmptyContext
+intrayAppContext IntrayServerEnv {..} = envCookieSettings :. envJWTSettings :. EmptyContext
 
 type IntrayContext = '[ CookieSettings, JWTSettings]

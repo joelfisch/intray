@@ -17,7 +17,6 @@ newtype Command =
 data ServeFlags = ServeFlags
     { serveFlagPort :: Maybe Int
     , serveFlagDb :: Maybe Text
-    , serveFlagConnectionCount :: Maybe Int
     , serveFlagAdmins :: [String]
     } deriving (Show, Eq)
 
@@ -40,6 +39,5 @@ data Settings =
 data ServeSettings = ServeSettings
     { serveSetPort :: Int
     , serveSetConnectionInfo :: SqliteConnectionInfo
-    , serveSetConnectionCount :: Int
     , serveSetAdmins :: [Username]
     } deriving (Show)
