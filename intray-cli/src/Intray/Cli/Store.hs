@@ -88,8 +88,8 @@ lastItemInClientStore :: ClientStore ItemUUID TypedItem -> Maybe LastItem
 lastItemInClientStore ClientStore {..} =
   let lasts =
         concat
-          [ map (\(ci, a) -> LastItemUnsynced ci a) (M.toList clientStoreAdded)
-          , map (\(uu, s) -> LastItemSynced uu s) (M.toList clientStoreSynced)
+          [ map (uncurry LastItemUnsynced) (M.toList clientStoreAdded)
+          , map (uncurry LastItemSynced) (M.toList clientStoreSynced)
           ]
    in case lasts of
         [] -> Nothing

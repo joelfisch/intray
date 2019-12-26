@@ -30,7 +30,7 @@ getInstructions = do
 
 combineToInstructions :: Command -> Flags -> Environment -> Configuration -> IO Instructions
 combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Configuration = do
-  ((API.DispatchServe apiSets), API.Settings) <-
+  (API.DispatchServe apiSets, API.Settings) <-
     API.combineToInstructions
       (API.CommandServe serveFlagAPIFlags)
       API.Flags

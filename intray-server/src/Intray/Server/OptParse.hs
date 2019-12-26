@@ -39,7 +39,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
         Nothing -> die $ unwords ["Invalid admin username:", s]
         Just u -> pure u
   mmSets <-
-    do let plan = (Stripe.PlanId . T.pack) <$> (serveFlagStripePlan <|> envStripePlan)
+    do let plan = Stripe.PlanId . T.pack <$> (serveFlagStripePlan <|> envStripePlan)
        let config =
              (\sk ->
                 StripeConfig
