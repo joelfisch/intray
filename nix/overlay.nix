@@ -3,14 +3,7 @@ final:
     with final.haskell.lib;
     {
       intrayPackages = let
-        pathFor = name:
-          builtins.path {
-            inherit name;
-            path = ../. + "/${name}";
-            filter = path:
-              type:
-                !final.lib.hasPrefix "." (baseNameOf path);
-          };
+        pathFor = name: final.gitignoreSource (../. + "/${name}");
         intrayPkg = name:
           failOnAllWarnings (disableLibraryProfiling (final.haskellPackages.callCabal2nix name (pathFor name) {}));
       in final.lib.genAttrs [
@@ -32,26 +25,26 @@ final:
             typedUuidRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "typed-uuid";
-              rev = "155c9ec880ca1c12f7dd8a8468b3626de8164823";
-              sha256 = "0wvdj07vhd7q93f7sdg4mq8f9nk4w3fjsq3z7nx7zm5dv0j78iwb";
+              rev = "4c5739c5e231b1cee6bd568ec55734116691ac8f";
+              sha256 = "sha256:185ki38vyvq5889vqdsw53dcdwssdyl4rzvxfhh6kbby17x2f835";
             };
             mergelessRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "mergeless";
-              rev = "0198f9393e2ef71f26de6427541387be44fd499b";
-              sha256 = "1699fj3w5ydigvhm0cixblr1fg4fzxbx0m3l6fr5v1dcn589sbpa";
+              rev = "3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5";
+              sha256 = "sha256:0far86wdprvyk8i50y4i5wzc0vcqj5ksdf90jnyyalrbklgxxgkv";
             };
             prettyRelativeTimeRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "pretty-relative-time";
-              rev = "21b29c9d729ed91a56819f569de6fdc8582d7e3d";
-              sha256 = "15ash7kdr03d37hx1s3hiwpms969j3vnqxji13q5wqj47nwiqj14";
+              rev = "2abdb2ba83ad47b8369e2ef618c7c21b82d80b23";
+              sha256 = "sha256:13csx5p0y7wsf8w1vzi3h3bnm4s5976rw9r9glhi55xdwq9s65q7";
             };
             stripeHaskellRepo = final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "stripe";
               rev = "ab23e8d5a7232d81d818095fad3fd361fbd485dd";
-              sha256 = "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgl6";
+              sha256 = "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgaa";
             };
             typedUuidPkg = name:
               super.callCabal2nix name (typedUuidRepo + "/${name}") {};

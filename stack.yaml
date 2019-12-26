@@ -1,4 +1,4 @@
-extra-package-dbs: []
+snapshot: lts-11.9
 packages:
 - intray-api
 - intray-api-gen
@@ -28,12 +28,12 @@ extra-deps:
     - stripe-http-client
     - stripe-http-streams
 - github: NorfairKing/mergeless
-  commit: 645c0374ce731e765dd00179e2806d81bf1c92cc
+  commit: 3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5
   subdirs:
     - mergeless
     - genvalidity-mergeless
 - github: NorfairKing/validity
-  commit: a7be852cea9292ef2a618cb88ff823a53d926318
+  commit: a0fcd782138dac7200e6544c2f40208649ecb0e9
   subdirs:
     - validity
     - validity-bytestring
