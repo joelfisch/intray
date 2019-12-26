@@ -5,6 +5,8 @@
     - Change last login to last unautomated login or to last use
     - Allow access keys to expire automatically?
     - Possibly make the admin api an entirely different server
+    - Allow for audio and picture items
+    - email notifications
   - entry: Web server
     forest:
     - share links?
@@ -27,3 +29,4 @@
     - ! 'Feature to highlight: intray uses ethical design'
     - Documentation to explain the concept of intray-zero and how that's the reason
       that you cannot view more than one item at a time
+    - email notification if the inbox is non-empty for a while

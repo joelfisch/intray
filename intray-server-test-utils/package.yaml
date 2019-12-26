@@ -29,6 +29,7 @@ library:
   - genvalidity-mergeless
   - genvalidity-text
   - genvalidity-time
+  - cache
   - hspec
   - http-client
   - http-types
@@ -83,6 +84,7 @@ tests:
     - path
     - path-io
     - servant
+    - servant-server
     - servant-client
     - text
 

@@ -14,6 +14,7 @@ import Intray.Web.Server.Handler.AccessKeys
 import Intray.Web.Server.Handler.Account
 import Intray.Web.Server.Handler.Add
 import Intray.Web.Server.Handler.Admin
+import Intray.Web.Server.Handler.Checkout
 import Intray.Web.Server.Handler.Error
 import Intray.Web.Server.Handler.Home
 import Intray.Web.Server.Handler.Process

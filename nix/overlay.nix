@@ -92,6 +92,12 @@ final:
               rev = "22c0a92c1d62f1b8d432003844ef0636a9131b08";
               sha256 = "sha256:1mz1fb421wccx7mbpn9qaj214w4sl4qali5rclx9fqp685jkfj05";
             };
+            stripeHaskellRepo = final.fetchFromGitHub {
+              owner = "NorfairKing";
+              repo = "stripe";
+              rev = "06af65a0f444bfd0364f803507781770cbe3fe9b";
+              sha256 = "0wl3ai441vbj8vzsqywvx9g2d2v6vd3cg8m2bg8cvmbypg49anbl";
+            };
             typedUuidPkg = name:
               super.callCabal2nix name (typedUuidRepo + "/${name}") {};
             validityPkg = name:
@@ -102,7 +108,7 @@ final:
               dontCheck (super.callCabal2nix name (stripeHaskellRepo + "/${name}") {});
           in {
             pretty-relative-time = super.callCabal2nix "pretty-relative-time" prettyRelativeTimeRepo {};
-            yesod-static-remote = super.callCabal2nix "yesod-static-remote" yesodStaticRemoteRepo {};
+            yesod-static-remote = dontCheck (super.callCabal2nix "yesod-static-remote" yesodStaticRemoteRepo {});
             servant-auth-server = doJailbreak (super.servant-auth-server);
           } // final.lib.genAttrs [
             "stripe-core"

@@ -6,12 +6,14 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server
-  ( runIntrayServer
-  , makeIntrayServer
-  , intrayAppContext
-  ) where
+    ( runIntrayServer
+    , makeIntrayServer
+    , intrayAppContext
+    ) where
 
 import Import
+
+import Data.Cache
 
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
@@ -43,12 +45,15 @@ runIntrayServer ServeSettings {..} =
     signingKey <- liftIO loadSigningKey
     let jwtCfg = defaultJWTSettings signingKey
     let cookieCfg = defaultCookieSettings
+    planCache <- liftIO $ newCache Nothing
     let intrayEnv =
           IntrayServerEnv
             { envConnectionPool = pool
             , envCookieSettings = cookieCfg
             , envJWTSettings = jwtCfg
             , envAdmins = serveSetAdmins
+            , envMonetisationSettings = serveSetMonetisationSettings
+            , envPlanCache = planCache
             }
     liftIO $ Warp.run serveSetPort $ intrayApp intrayEnv
 

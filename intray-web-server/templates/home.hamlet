@@ -1,12 +1,12 @@
 <div .ui .very .padded .segment>
   <div .hidden .divider>
-  <h1 class="ui center aligned icon header">
-    <i class="inbox icon"></i>
+  <h1 .ui .center .aligned .icon .header>
+    <i .inbox .icon>
   <h1 class="ui center aligned header">
     <div class="content">
       Intray
       <div .sub .header>
-        Are you having a hard time getting things off your mind? Try intray!
+        Get it off your mind
 
 <div .ui .huge .padded .segment>
   <h2 .ui .header> Just write it down
@@ -93,7 +93,7 @@
             <div .item>
               Click 'log in' (with a saved password)
             <div .item>
-              Click the 'add item' tex area.
+              Click the 'add item' text area.
             <div .item>
               Start typing
         <td> 3
@@ -135,10 +135,54 @@
 
   <h2 .ui .header> CLI-Second
   <p>
-    Intray is available via 
+    Intray is available via
     <a href="https://github.com/NorfairKing/intray/tree/master/intray-cli">the official Intray command-line client
     .
     In addition to the features on the web interface, the command-line client works offline with easy synchronisation.
+
+
+$maybe p <- mPricing
+  <div .ui .huge .padded .segment>
+    <h2 .ui .header> Pricing
+    <div .ui .cards .centered>
+      <div .ui .card>
+        <div .ui .content>
+          <div .ui .centered .header>
+            Trial
+          <div class="ui segments">
+              <div class="ui center aligned secondary segment">
+                 <div class="ui statistic">
+                    <div class="value">
+                      Free
+                    <div class="label">
+                      Forever
+              <div class="ui center aligned segment">
+                 <p> Maximum 5 items
+              <div class="ui center aligned segment">
+                 <p> Full API access
+           <div class="ui primary fluid button">
+            Get Started
+      <div .ui .card>
+        <div .ui .content>
+          <div .ui .centered .header>
+            Subscription
+          <div class="ui segments">
+              <div class="ui center aligned secondary segment">
+                 <div class="ui statistic">
+                    <div class="value">
+                      #{showAmountForPricing (pricingCurrency p) $ quotPrice (pricingPrice p) 12}
+                    <div class="label">
+                       per month
+              <div class="ui center aligned segment">
+                 <p> Unlimited items
+              <div class="ui center aligned segment">
+                 <p> Full API access
+              <div class="ui center aligned segment">
+                 <p> Billed anually
+           <div class="ui primary fluid button">
+            Get Started
+
+
 
 <div .ui .huge .padded .segment>
   <h2 .ui .header> FAQ
@@ -152,7 +196,7 @@
         <div .description>
           <p>
             Items represent thoughts you have and want to get out of your head.
-            The purpose is to not think about the ideas anymore between when you write them down and when you process them. 
+            The purpose is to not think about the ideas anymore between when you write them down and when you process them.
             During processing, you take the items out of the intray and think about what you want to do with each idea.
             After that, you delete the item from the intray.
             Allowing to modify items would only allow you to make yourself less efficient.
@@ -207,21 +251,6 @@
       <div .content>
         <div .header>
           <p>
-            Will Intray remain free of charge?
-        <div .description>
-          <p>
-            Intray is currently free of charge.
-            This is because the author uses it and running the service for only himself is
-            not cheaper than running it for multiple people.
-            If this ever changes, Intray may start charging a small subscription fee to cover
-            the cost of operation.
-            You can expect this to be less than a dollar per month.
-
-    <div .item>
-      <i .question .icon>
-      <div .content>
-        <div .header>
-          <p>
             I don't trust you with my data, can I still use Intray?
         <div .description>
           <p>
@@ -253,7 +282,7 @@
             Intray items are meant to be short term, ephemeral and for prosessing.
             Notes have an indeterminate life-time and do not lend themselves well for processing.
             Intray incorporates the best-practices for processing and is not cluttered by unnecessary features.
-            
+
             Moreover, Intray items will persist beyond eventual damage to your phone.
             This is not the case for all notes apps.
 

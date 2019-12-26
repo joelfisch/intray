@@ -1,6 +1,9 @@
 name:    intray-web-server
 version: "0.0.0.0"
 
+dependencies:
+- base >=4.9 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
@@ -10,7 +13,6 @@ library:
   - aeson
   - aeson-pretty
   - async
-  - base >=4.9 && <5
   - base16-bytestring
   - bytestring
   - containers
@@ -34,6 +36,8 @@ library:
   - servant-auth-client
   - servant-client
   - shakespeare
+  - stripe-core
+  - stripe-haskell
   - template-haskell
   - text
   - time
@@ -78,6 +82,7 @@ tests:
     - http-types
     - intray-data
     - intray-data-gen
+    - intray-server
     - intray-server-test-utils
     - intray-web-server
     - mtl

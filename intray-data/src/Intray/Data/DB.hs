@@ -17,16 +17,20 @@ import Data.Time
 import Database.Persist.Sql
 import Database.Persist.TH
 
+import qualified Web.Stripe.Types as Stripe
+
 import Intray.Data.AccessKeyUUID
 import Intray.Data.AccountUUID
 import Intray.Data.HashedPassword
 import Intray.Data.ItemType
 import Intray.Data.ItemUUID
 import Intray.Data.Permission
+import Intray.Data.Stripe
 import Intray.Data.Username
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    [persistLowerCase|
+share
+  [mkPersist sqlSettings, mkMigrate "migrateAll"]
+  [persistLowerCase|
 
 User
     identifier AccountUUID
@@ -41,6 +45,12 @@ User
     deriving Show
     deriving Eq
     deriving Generic
+
+
+Customer
+    user AccountUUID
+    stripeCustomer Stripe.CustomerId
+
 
 
 IntrayItem

@@ -3,14 +3,18 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Web.Server.Handler.Account
-    ( getAccountR
-    , postAccountDeleteR
-    ) where
+  ( getAccountR
+  , postAccountDeleteR
+  ) where
 
 import Import
 
 import Yesod
 import Yesod.Auth
+
+import Text.Julius
+
+import Web.Stripe.Plan as Stripe
 
 import Intray.Client
 
@@ -19,22 +23,27 @@ import Intray.Web.Server.Time
 
 getAccountR :: Handler Html
 getAccountR =
-    withLogin $ \t -> do
-        mai <- runClientOrDisallow $ clientGetAccountInfo t
-        accountInfoWidget <- accountInfoSegment mai
-        token <- genToken
-        withNavBar $(widgetFile "account")
+  withLogin $ \t -> do
+    mai <- runClientOrDisallow $ clientGetAccountInfo t
+    accountInfoWidget <- accountInfoSegment mai
+    token <- genToken
+    mPricing <- runClientOrErr clientGetPricing
+    mSubscribeForm <-
+      forM mPricing $ \Pricing {..} -> do
+        let Stripe.PlanId pricingPlanText = pricingPlan
+        pure $(widgetFile "stripe-form")
+    withNavBar $(widgetFile "account")
 
 accountInfoSegment :: Maybe AccountInfo -> Handler Widget
 accountInfoSegment Nothing =
-    pure
-        [whamlet|
+  pure
+    [whamlet|
         <div .ui .negative .message>
             You are not authorised to view account info.|]
 accountInfoSegment (Just AccountInfo {..}) = do
-    timestampWidget <- makeTimestampWidget accountInfoCreatedTimestamp
-    pure
-        [whamlet|
+  timestampWidget <- makeTimestampWidget accountInfoCreatedTimestamp
+  pure
+    [whamlet|
         <div .ui .segment>
           <h1> Account
 
@@ -44,19 +53,19 @@ accountInfoSegment (Just AccountInfo {..}) = do
 adminSegment :: Maybe AccountInfo -> Widget
 adminSegment Nothing = mempty
 adminSegment (Just AccountInfo {..})
-    | accountInfoAdmin =
-        [whamlet|
+  | accountInfoAdmin =
+    [whamlet|
             <div .ui .segment>
                 <p>
                   This account is an administrator.
                 <p>
                   <a .ui .positive .button href=@{AdminR}>
                     The Admin Panel|]
-    | otherwise = mempty
+  | otherwise = mempty
 
 postAccountDeleteR :: Handler Html
 postAccountDeleteR =
-    withLogin $ \t -> do
-        NoContent <- runClientOrErr $ clientDeleteAccount t
-        clearCreds False
-        redirect HomeR
+  withLogin $ \t -> do
+    NoContent <- runClientOrErr $ clientDeleteAccount t
+    clearCreds False
+    redirect HomeR

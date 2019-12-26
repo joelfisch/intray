@@ -9,6 +9,9 @@ copyright: ! 'Copyright: (c) 2016-2018 Tom Sydney Kerckhove'
 license: AllRightsReserved
 github: NorfairKing/intray-server
 
+dependencies:
+- base >=4.7 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
@@ -22,12 +25,11 @@ library:
   - Intray.Server.Types
   - Intray.Server.OptParse
   - Intray.Server.OptParse.Types
-
   dependencies:
   - aeson
   - aeson-pretty
-  - base >=4.7 && <5
   - bytestring
+  - cache
   - containers
   - file-embed
   - intray-api
@@ -49,6 +51,8 @@ library:
   - servant-docs
   - servant-generic
   - servant-server
+  - stripe-core
+  - stripe-haskell
   - text
   - time
   - typed-uuid

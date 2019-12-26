@@ -69,10 +69,10 @@ import Intray.API.Types
 type IntrayProtectedAPI = ToServant (IntrayProtectedSite AsApi)
 
 data IntrayProtectedSite route = IntrayProtectedSite
-    { protectedItemSite :: route :- "intray" :> ToServant (IntrayProtectedItemSite AsApi)
-    , protectedAccountSite :: route :- "account" :> ToServant (IntrayProtectedAccountSite AsApi)
-    , protectedAccessKeySite :: route :- "access-key" :> ToServant (IntrayProtectedAccessKeySite AsApi)
-    , getPermissions :: route :- GetPermissions
+    { protectedItemSite :: !(route :- "intray" :> ToServant (IntrayProtectedItemSite AsApi))
+    , protectedAccountSite :: !(route :- "account" :> ToServant (IntrayProtectedAccountSite AsApi))
+    , protectedAccessKeySite :: !(route :- "access-key" :> ToServant (IntrayProtectedAccessKeySite AsApi))
+    , getPermissions :: !(route :- GetPermissions)
     } deriving (Generic)
 
 type GetPermissions

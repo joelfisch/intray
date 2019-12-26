@@ -1,8 +1,8 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Intray.API.InstanceSpec
-    ( spec
-    ) where
+  ( spec
+  ) where
 
 import TestImport
 
@@ -13,7 +13,9 @@ import Intray.API.Types
 
 spec :: Spec
 spec = do
-    genValidSpec @Registration
-    jsonSpecOnValid @Registration
-    genValidSpec @LoginForm
-    jsonSpecOnValid @LoginForm
+  genValidSpec @Registration
+  jsonSpecOnValid @Registration
+  genValidSpec @LoginForm
+  jsonSpecOnValid @LoginForm
+  genValidSpec @Pricing
+  jsonSpecOnValid @Pricing

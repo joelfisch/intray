@@ -10,6 +10,9 @@ github: NorfairKing/intray
 default-extensions:
 - NoImplicitPrelude
 
+dependencies:
+- base >=4.7 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
@@ -22,7 +25,6 @@ library:
 
   dependencies:
   - QuickCheck
-  - base >=4.7 && <5
   - bytestring
   - genvalidity
   - genvalidity-bytestring
@@ -33,6 +35,8 @@ library:
   - intray-api
   - intray-data
   - intray-data-gen
+  - stripe-core
+  - stripe-haskell
   - text
   - validity
   - validity-bytestring

@@ -1,16 +1,16 @@
 module Import
-    ( module X
-    ) where
+  ( module X
+  ) where
 
 import Prelude as X hiding (head, init, last, tail)
 
 import Data.ByteString as X (ByteString)
-import Data.List as X
-       hiding (delete, deleteBy, head, init, last, tail)
+import Data.List as X hiding (delete, deleteBy, head, init, last, tail)
 import Data.Maybe as X
 import Data.Monoid as X
 import Data.String as X
 import Data.Text as X (Text)
+import Text.Read as X (readMaybe)
 
 import Control.Arrow as X
 import Control.Monad as X

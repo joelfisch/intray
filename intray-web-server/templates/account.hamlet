@@ -1,7 +1,12 @@
 <h1> Account
 
 ^{accountInfoWidget}
-  
+
+$maybe stripeForm <- mSubscribeForm
+  <div .ui .segment>
+    <h2> Subscribe
+    ^{stripeForm}
+
 <div .ui .segment>
   <h2> Danger zone
 
@@ -9,7 +14,7 @@
     <a .ui .button
       href=@{AccessKeysR}>
       Manage Access Keys
-    
+
   <p>
     <form
        method=post
