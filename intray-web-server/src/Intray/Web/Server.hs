@@ -54,7 +54,6 @@ makeIntrayAPIServeSettings ServeSettings {..} =
     API.ServeSettings
     { API.serveSetPort = serveSetAPIPort
     , API.serveSetConnectionInfo = serveSetAPIConnectionInfo
-    , API.serveSetConnectionCount = serveSetAPIConnectionCount
     , API.serveSetAdmins = serveSetAPIAdmins
     }
 

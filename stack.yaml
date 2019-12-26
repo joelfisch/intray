@@ -20,6 +20,8 @@ extra-deps:
 - servant-auth-server-0.3.2.0
 - servant-flatten-0.2
 - servant-options-0.1.0.0
+- github: NorfairKing/yesod-static-remote
+  commit: 22c0a92c1d62f1b8d432003844ef0636a9131b08
 - github: NorfairKing/stripe
   commit: ab23e8d5a7232d81d818095fad3fd361fbd485dd
   subdirs:

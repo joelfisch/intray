@@ -75,6 +75,17 @@ packages:
   original:
     hackage: servant-options-0.1.0.0
 - completed:
+    size: 3570
+    url: https://github.com/NorfairKing/yesod-static-remote/archive/22c0a92c1d62f1b8d432003844ef0636a9131b08.tar.gz
+    name: yesod-static-remote
+    version: 0.0.0.0
+    sha256: c965419e480551685dff83e75ceadc156b550d2e3274198bf033a752ab635870
+    pantry-tree:
+      size: 443
+      sha256: 55bd433a4c11019454d888f75eda7867931f7eea14e28fbbb7d363ec310adcc7
+  original:
+    url: https://github.com/NorfairKing/yesod-static-remote/archive/22c0a92c1d62f1b8d432003844ef0636a9131b08.tar.gz
+- completed:
     size: 64800
     subdir: stripe-core
     url: https://github.com/NorfairKing/stripe/archive/ab23e8d5a7232d81d818095fad3fd361fbd485dd.tar.gz

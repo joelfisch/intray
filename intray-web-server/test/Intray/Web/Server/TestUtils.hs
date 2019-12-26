@@ -50,7 +50,6 @@ intrayTestServeSettings = do
         , serveSetVerification = Nothing
         , serveSetAPIPort = 8001
         , serveSetAPIConnectionInfo = connInfo
-        , serveSetAPIConnectionCount = 4
         , serveSetAPIAdmins = [fromJust $ parseUsername "admin"]
         }
 
