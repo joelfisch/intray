@@ -13,7 +13,7 @@ in
     hooks = {
       canonix.enable = true;
       hindent.enable = true;
-      # hlint.enable = true;
+      hlint.enable = true;
     };
   };
 }
