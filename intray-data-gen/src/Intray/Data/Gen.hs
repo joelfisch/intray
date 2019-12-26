@@ -11,53 +11,43 @@ import qualified Data.Text as T
 
 import Intray.Data
 
-instance GenUnchecked ItemType
-
 instance GenValid ItemType where
-    genValid = genValidStructurallyWithoutExtraChecking
-
-instance GenUnchecked IntrayItem
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
 
 instance GenValid IntrayItem where
-    genValid = genValidStructurallyWithoutExtraChecking
-
-instance GenUnchecked Username
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
 
 instance GenValid Username where
-    genValid = do
-        username <- parseUsername <$> textGen
-        case username of
-            Just name -> pure name
-            Nothing -> genValid
-      where
-        textGen =
-            T.pack <$>
-            ((:) <$> charGen <*>
-             ((:) <$> charGen <*> ((:) <$> charGen <*> genListOf charGen)))
-        charGen = genValid `suchThat` validUsernameChar
-
-instance GenUnchecked User
+  genValid = do
+    username <- parseUsername <$> textGen
+    case username of
+      Just name -> pure name
+      Nothing -> genValid
+    where
+      textGen =
+        T.pack <$>
+        ((:) <$> charGen <*> ((:) <$> charGen <*> ((:) <$> charGen <*> genListOf charGen)))
+      charGen = choose ('\NUL', '\255') `suchThat` validUsernameChar
+  shrinkValid = shrinkValidStructurally
 
 instance GenValid User where
-    genValid = genValidStructurally
-
-instance GenUnchecked HashedPassword
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally
 
 instance GenValid HashedPassword where
-    genValid = do
-        t <- genValid
-        case unsafePerformIO $ passwordHash t of
-            Nothing ->
-                error
-                    "unable to hash password during generation, for some reason"
-            Just hp -> pure hp
-
-instance GenUnchecked Permission
+  genValid = do
+    t <- genValid
+    case unsafePerformIO $ passwordHash t of
+      Nothing -> error "unable to hash password during generation, for some reason"
+      Just hp -> pure hp
+  shrinkValid _ = [] -- Doesn't help anyway
 
 instance GenValid Permission where
-    genValid = genValidStructurallyWithoutExtraChecking
-
-instance GenUnchecked AccessKeySecret
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
 
 instance GenValid AccessKeySecret where
-    genValid = genValidStructurally
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally

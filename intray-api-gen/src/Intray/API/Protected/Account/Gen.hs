@@ -11,7 +11,6 @@ import Intray.Data.Gen ()
 
 import Intray.API.Admin.Gen ()
 
-instance GenUnchecked AccountInfo
-
 instance GenValid AccountInfo where
     genValid = genValidStructurally
+    shrinkValid = shrinkValidStructurally
