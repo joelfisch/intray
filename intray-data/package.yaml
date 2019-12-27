@@ -17,16 +17,6 @@ default-extensions:
 library:
   source-dirs: src
   ghc-options: -Wall
-  exposed-modules:
-  - Intray.Data
-  - Intray.Data.AccessKeySecret
-  - Intray.Data.AccessKeyUUID
-  - Intray.Data.AccountUUID
-  - Intray.Data.HashedPassword
-  - Intray.Data.ItemType
-  - Intray.Data.ItemUUID
-  - Intray.Data.UUID
-  - Intray.Data.Username
 
   dependencies:
   - aeson

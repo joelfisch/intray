@@ -3,7 +3,7 @@
 
 module Intray.Data.Gen where
 
-import Import
+import Intray.Data.Gen.Import
 
 import System.IO.Unsafe
 

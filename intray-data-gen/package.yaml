@@ -7,14 +7,13 @@ maintainer: syd.kerckhove@gmail.com
 copyright: ! 'Copyright: (c) 2017-2018 Tom Sydney Kerckhove'
 license: AllRightsReserved
 github: NorfairKing/intray-server
+
 default-extensions:
 - NoImplicitPrelude
 
 library:
   source-dirs: src
   ghc-options: -Wall
-  exposed-modules:
-  - Intray.Data.Gen
 
   dependencies:
   - QuickCheck
