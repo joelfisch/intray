@@ -8,9 +8,11 @@ with final.haskell.lib;
       pathFor = name: final.gitignoreSource ( ../. + "/${name}" );
       intrayPkg =
         name:
-          failOnAllWarnings (
-            disableLibraryProfiling ( final.haskellPackages.callCabal2nix name ( pathFor name ) {} )
-          );
+          addBuildDepend (
+            failOnAllWarnings (
+              disableLibraryProfiling ( final.haskellPackages.callCabal2nix name ( pathFor name ) {} )
+            )
+          ) ( final.haskellPackages.autoexporter );
     in
       final.lib.genAttrs [
         "intray-data"

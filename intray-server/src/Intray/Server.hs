@@ -35,7 +35,7 @@ import Intray.Server.Types
 
 import Intray.Server.SigningKey
 
-import Intray.Server.Handler (intrayServer)
+import Intray.Server.Serve (intrayServer)
 
 runIntrayServer :: ServeSettings -> IO ()
 runIntrayServer ServeSettings {..} =
