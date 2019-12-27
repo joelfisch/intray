@@ -1,4 +1,4 @@
-module Import
+module Intray.Data.Import
   ( module X
   ) where
 

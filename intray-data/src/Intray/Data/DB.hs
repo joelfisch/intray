@@ -9,7 +9,7 @@
 
 module Intray.Data.DB where
 
-import Import
+import Intray.Data.Import
 
 import Data.Set (Set)
 import Data.Time

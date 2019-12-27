@@ -6,7 +6,7 @@
 
 module Intray.Data.Permission where
 
-import Import
+import Intray.Data.Import
 
 import Data.Aeson
 import qualified Data.Set as S

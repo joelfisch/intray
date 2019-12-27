@@ -12,7 +12,7 @@ module Intray.Data.AccessKeySecret
   , parseAccessKeySecretText
   ) where
 
-import Import
+import Intray.Data.Import
 
 import Data.Aeson as JSON
 import qualified Data.ByteString as SB

@@ -8,7 +8,7 @@ module Intray.Data.HashedPassword
   , validatePassword
   ) where
 
-import Import
+import Intray.Data.Import
 
 import qualified Crypto.BCrypt as BCrypt
 import qualified Data.Text.Encoding as TE

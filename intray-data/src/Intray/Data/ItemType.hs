@@ -6,7 +6,7 @@
 
 module Intray.Data.ItemType where
 
-import Import
+import Intray.Data.Import
 
 import Data.Aeson
 

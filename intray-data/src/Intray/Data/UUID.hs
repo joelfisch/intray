@@ -5,7 +5,7 @@ module Intray.Data.UUID
   (
   ) where
 
-import Import
+import Intray.Data.Import
 
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.Text as T

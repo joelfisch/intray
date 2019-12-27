@@ -12,7 +12,7 @@ module Intray.Data.Username
   , validUsernameChar
   ) where
 
-import Import
+import Intray.Data.Import
 
 import Data.Aeson as JSON
 import Data.Aeson.Types as JSON (toJSONKeyText)
