@@ -31,6 +31,7 @@ serveGetPricing = do
           pure plan
         Just plan -> pure plan
     let pricingPlan = monetisationSetPlan
+        pricingTrialPeriod = planTrialPeriodDays
         pricingPrice = Stripe.Amount planAmount
         pricingCurrency = planCurrency
         pricingStripePublishableKey = monetisationSetStripePublishableKey

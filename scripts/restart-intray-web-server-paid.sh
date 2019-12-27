@@ -7,4 +7,6 @@ pkill -f 'intray-web-server serve' || true
 
 set -e
 
-intray-web-server serve --persist-logins --admin admin &
+intray-web-server serve \
+  --persist-logins \
+  --admin admin &
