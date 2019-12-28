@@ -6,9 +6,14 @@ module Intray.Web.Server.Handler.Error
 
 import Import
 
+import qualified Data.Text as T
+import Text.Read (readMaybe)
+
 import Yesod
 
 import Intray.Web.Server.Foundation
 
 getErrorAPIDownR :: Text -> Handler Html
-getErrorAPIDownR e = withNavBar $(widgetFile "api-down")
+getErrorAPIDownR e = do
+  let ms = readMaybe (T.unpack e) :: Maybe String
+  withNavBar $(widgetFile "api-down")

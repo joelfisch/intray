@@ -1,4 +1,7 @@
 <h1> The Intray API is down.
 
 <pre>
-  #{e}
+  $maybe s <- ms
+    #{s}
+  $nothing
+    #{e}
