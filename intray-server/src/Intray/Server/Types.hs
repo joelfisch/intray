@@ -24,7 +24,7 @@ data IntrayServerEnv =
     , envCookieSettings :: !CookieSettings
     , envJWTSettings :: !JWTSettings
     , envAdmins :: ![Username]
-    , envMonetisationSettings :: !(Maybe MonetisationSettings)
+    , envStripeSettings :: !(Maybe StripeSettings)
     , envPlanCache :: !(Cache Stripe.PlanId Stripe.Plan)
     }
 

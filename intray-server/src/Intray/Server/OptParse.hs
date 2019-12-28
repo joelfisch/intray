@@ -66,7 +66,8 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
                envLooperStripeEventsFetcher
                Nothing
        pure $
-         MonetisationSettings <$> plan <*> config <*> publicKey <*> pure fetcherSets <*>
+         MonetisationSettings <$> (StripeSettings <$> plan <*> config <*> publicKey) <*>
+         pure fetcherSets <*>
          pure retrierSets
   pure
     ( DispatchServe

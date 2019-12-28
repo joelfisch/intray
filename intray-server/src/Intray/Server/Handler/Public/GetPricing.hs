@@ -14,25 +14,26 @@ import Web.Stripe.Plan as Stripe
 
 import Intray.API
 
-import Intray.Server.Stripe
+import Intray.Server.Handler.Stripe
+import Intray.Server.OptParse.Types
 import Intray.Server.Types
 
 serveGetPricing :: IntrayHandler (Maybe Pricing)
 serveGetPricing = do
-  mMonetisation <- asks envMonetisationSettings
-  forM mMonetisation $ \ms@MonetisationSettings {..} -> do
+  mStripe <- asks envStripeSettings
+  forM mStripe $ \ms@StripeSettings {..} -> do
     planCache <- asks envPlanCache
-    mPlan <- liftIO $ Cache.lookup planCache monetisationSetPlan
+    mPlan <- liftIO $ Cache.lookup planCache stripeSetPlan
     Stripe.Plan {..} <-
       case mPlan of
         Nothing -> do
-          plan <- runStripeOrErrorWith ms $ getPlan monetisationSetPlan
-          liftIO $ Cache.insert planCache monetisationSetPlan plan
+          plan <- runStripeHandlerOrErrorWith ms $ getPlan stripeSetPlan
+          liftIO $ Cache.insert planCache stripeSetPlan plan
           pure plan
         Just plan -> pure plan
-    let pricingPlan = monetisationSetPlan
+    let pricingPlan = stripeSetPlan
         pricingTrialPeriod = planTrialPeriodDays
         pricingPrice = Stripe.Amount planAmount
         pricingCurrency = planCurrency
-        pricingStripePublishableKey = monetisationSetStripePublishableKey
+        pricingStripePublishableKey = stripeSetPublishableKey
     pure Pricing {..}

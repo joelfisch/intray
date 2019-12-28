@@ -55,7 +55,7 @@ runIntrayServer ServeSettings {..} =
             , envCookieSettings = cookieCfg
             , envJWTSettings = jwtCfg
             , envAdmins = serveSetAdmins
-            , envMonetisationSettings = serveSetMonetisationSettings
+            , envStripeSettings = monetisationSetStripeSettings <$> serveSetMonetisationSettings
             , envPlanCache = planCache
             }
     let mLoopersSets =
@@ -65,6 +65,7 @@ runIntrayServer ServeSettings {..} =
               Just
                 LoopersSettings
                   { loopersSetLogLevel = serveSetLogLevel
+                  , loopersSetStripeSettings = monetisationSetStripeSettings
                   , loopersSetStripeEventsFetcher = monetisationSetStripeEventsFetcher
                   , loopersSetStripeEventsRetrier = monetisationSetStripeEventsRetrier
                   }

@@ -74,10 +74,16 @@ data ServeSettings =
 
 data MonetisationSettings =
   MonetisationSettings
-    { monetisationSetPlan :: !Stripe.PlanId
-    , monetisationSetStripeConfig :: !StripeConfig
-    , monetisationSetStripePublishableKey :: !Text
+    { monetisationSetStripeSettings :: !StripeSettings
     , monetisationSetStripeEventsFetcher :: LooperSettings
     , monetisationSetStripeEventsRetrier :: LooperSettings
+    }
+  deriving (Show)
+
+data StripeSettings =
+  StripeSettings
+    { stripeSetPlan :: !Stripe.PlanId
+    , stripeSetStripeConfig :: !StripeConfig
+    , stripeSetPublishableKey :: !Text
     }
   deriving (Show)
