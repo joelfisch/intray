@@ -8,6 +8,7 @@ module Intray.Server.OptParse
 
 import Import
 
+import Control.Monad.Logger
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Database.Persist.Sqlite
@@ -33,6 +34,7 @@ getInstructions = do
 combineToInstructions :: Command -> Flags -> Environment -> Configuration -> IO Instructions
 combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Configuration = do
   let port = fromMaybe 8001 $ serveFlagPort <|> envPort
+  let logLevel = fromMaybe LevelInfo $ serveFlagLogLevel <|> envLogLevel
   let connInfo = mkSqliteConnectionInfo $ fromMaybe "intray.db" serveFlagDb
   admins <-
     forM serveFlagAdmins $ \s ->
@@ -70,6 +72,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
     ( DispatchServe
         ServeSettings
           { serveSetPort = port
+          , serveSetLogLevel = logLevel
           , serveSetConnectionInfo = connInfo
           , serveSetAdmins = admins
           , serveSetMonetisationSettings = mmSets
@@ -83,16 +86,21 @@ getEnvironment :: IO Environment
 getEnvironment = do
   env <- System.getEnvironment
   let mv k = lookup ("INTRAY_SERVER_" <> k) env
+      mr :: Read a => String -> IO (Maybe a)
+      mr k =
+        forM (mv k) $ \s ->
+          case readMaybe s of
+            Nothing -> die $ "Un-Read-able value: " <> s
+            Just val -> pure val
       le n = readLooperEnvironment "INTRAY_SERVER_LOOPER_" n env
-  pure
-    Environment
-      { envPort = mv "PORT" >>= readMaybe
-      , envStripePlan = mv "STRIPE_PLAN"
-      , envStripeSecretKey = mv "STRIPE_SECRET_KEY"
-      , envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
-      , envLooperStripeEventsFetcher = le "STRIPE_EVENTS_FETCHER"
-      , envLooperStripeEventsRetrier = le "STRIPE_EVENTS_RETRIER"
-      }
+  let envPort = mv "PORT" >>= readMaybe
+  envLogLevel <- mr "LOG_LEVEL"
+  let envStripePlan = mv "STRIPE_PLAN"
+  let envStripeSecretKey = mv "STRIPE_SECRET_KEY"
+  let envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
+  let envLooperStripeEventsFetcher = le "STRIPE_EVENTS_FETCHER"
+  let envLooperStripeEventsRetrier = le "STRIPE_EVENTS_RETRIER"
+  pure Environment {..}
 
 getArguments :: IO Arguments
 getArguments = do
@@ -146,6 +154,15 @@ parseServeFlags =
        , help "The sqlite connection string"
        ]) <*>
   many (strOption (mconcat [long "admin", metavar "USERNAME", help "An admin to use"])) <*>
+  option
+    (Just <$> auto)
+    (mconcat
+       [ long "log-level"
+       , metavar "LOG_LEVEL"
+       , value Nothing
+       , help $
+         "the log level, possible values: " <> show [LevelDebug, LevelInfo, LevelWarn, LevelError]
+       ]) <*>
   option
     (Just <$> str)
     (mconcat

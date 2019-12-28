@@ -2,6 +2,7 @@ module Intray.Server.OptParse.Types where
 
 import Import
 
+import Control.Monad.Logger
 import Database.Persist.Sqlite
 
 import Looper
@@ -24,6 +25,7 @@ data ServeFlags =
     { serveFlagPort :: !(Maybe Int)
     , serveFlagDb :: !(Maybe Text)
     , serveFlagAdmins :: ![String]
+    , serveFlagLogLevel :: Maybe LogLevel
     , serveFlagStripePlan :: !(Maybe String)
     , serveFlagStripeSecretKey :: !(Maybe String)
     , serveFlagStripePublishableKey :: !(Maybe String)
@@ -43,6 +45,7 @@ data Configuration =
 data Environment =
   Environment
     { envPort :: !(Maybe Int)
+    , envLogLevel :: !(Maybe LogLevel)
     , envStripePlan :: !(Maybe String)
     , envStripeSecretKey :: !(Maybe String)
     , envStripePublishableKey :: !(Maybe String)
@@ -62,6 +65,7 @@ data Settings =
 data ServeSettings =
   ServeSettings
     { serveSetPort :: !Int
+    , serveSetLogLevel :: !LogLevel
     , serveSetConnectionInfo :: !SqliteConnectionInfo
     , serveSetAdmins :: ![Username]
     , serveSetMonetisationSettings :: !(Maybe MonetisationSettings)

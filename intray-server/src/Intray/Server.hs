@@ -42,6 +42,7 @@ import Intray.Server.Serve (intrayServer)
 runIntrayServer :: ServeSettings -> IO ()
 runIntrayServer ServeSettings {..} =
   runStderrLoggingT $
+  filterLogger (\_ ll -> ll >= serveSetLogLevel) $
   withSqlitePoolInfo serveSetConnectionInfo 1 $ \pool -> do
     runResourceT $ flip runSqlPool pool $ runMigration migrateAll
     signingKey <- liftIO loadSigningKey
@@ -63,7 +64,8 @@ runIntrayServer ServeSettings {..} =
             Just MonetisationSettings {..} ->
               Just
                 LoopersSettings
-                  { loopersSetStripeEventsFetcher = monetisationSetStripeEventsFetcher
+                  { loopersSetLogLevel = serveSetLogLevel
+                  , loopersSetStripeEventsFetcher = monetisationSetStripeEventsFetcher
                   , loopersSetStripeEventsRetrier = monetisationSetStripeEventsRetrier
                   }
     let runServer = Warp.run serveSetPort $ intrayApp intrayEnv

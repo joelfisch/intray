@@ -8,18 +8,31 @@ module Intray.Server.Looper
 
 import Import
 
+import Control.Monad.Logger
+import qualified Data.Text as T
+import Data.Time
 import Looper
 
 data LoopersSettings =
   LoopersSettings
-    { loopersSetStripeEventsFetcher :: LooperSettings
+    { loopersSetLogLevel :: LogLevel
+    , loopersSetStripeEventsFetcher :: LooperSettings
     , loopersSetStripeEventsRetrier :: LooperSettings
     }
   deriving (Show)
 
 runIntrayServerLoopers :: LoopersSettings -> IO ()
 runIntrayServerLoopers LoopersSettings {..} =
-  runLoopers
-    [ mkLooperDef "stripe-events-fetcher" loopersSetStripeEventsFetcher (pure ())
-    , mkLooperDef "stripe-events-retrier" loopersSetStripeEventsRetrier (pure ())
-    ]
+  runStderrLoggingT $
+  filterLogger (\_ ll -> ll >= loopersSetLogLevel) $ runLoopersIgnoreOverrun customRunner looperDefs
+  where
+    customRunner ld = do
+      logDebugNS (looperDefName ld) "Starting"
+      start <- liftIO getCurrentTime
+      looperDefFunc ld
+      end <- liftIO getCurrentTime
+      logDebugNS (looperDefName ld) $ "Done, took " <> T.pack (show (diffUTCTime end start))
+    looperDefs =
+      [ mkLooperDef "stripe-events-fetcher" loopersSetStripeEventsFetcher (pure ())
+      , mkLooperDef "stripe-events-retrier" loopersSetStripeEventsRetrier (pure ())
+      ]
