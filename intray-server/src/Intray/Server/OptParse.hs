@@ -11,6 +11,7 @@ import Import
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Database.Persist.Sqlite
+import Looper
 
 import qualified System.Environment as System
 
@@ -48,7 +49,23 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
                   }) <$>
              (serveFlagStripeSecretKey <|> envStripeSecretKey)
        let publicKey = T.pack <$> (serveFlagStripePublishableKey <|> envStripePublishableKey)
-       pure $ MonetisationSettings <$> plan <*> config <*> publicKey
+       let fetcherSets =
+             deriveLooperSettings
+               (seconds 0)
+               (minutes 1)
+               serveFlagLooperStripeEventsFetcher
+               envLooperStripeEventsRetrier
+               Nothing
+       let retrierSets =
+             deriveLooperSettings
+               (seconds 30)
+               (hours 24)
+               serveFlagLooperStripeEventsRetrier
+               envLooperStripeEventsFetcher
+               Nothing
+       pure $
+         MonetisationSettings <$> plan <*> config <*> publicKey <*> pure fetcherSets <*>
+         pure retrierSets
   pure
     ( DispatchServe
         ServeSettings
@@ -66,12 +83,15 @@ getEnvironment :: IO Environment
 getEnvironment = do
   env <- System.getEnvironment
   let mv k = lookup ("INTRAY_SERVER_" <> k) env
+      le n = readLooperEnvironment "INTRAY_SERVER_LOOPER_" n env
   pure
     Environment
       { envPort = mv "PORT" >>= readMaybe
       , envStripePlan = mv "STRIPE_PLAN"
       , envStripeSecretKey = mv "STRIPE_SECRET_KEY"
       , envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
+      , envLooperStripeEventsFetcher = le "STRIPE_EVENTS_FETCHER"
+      , envLooperStripeEventsRetrier = le "STRIPE_EVENTS_RETRIER"
       }
 
 getArguments :: IO Arguments
@@ -149,7 +169,9 @@ parseServeFlags =
        , value Nothing
        , metavar "PUBLISHABLE_KEY"
        , help "The publishable key for stripe"
-       ])
+       ]) <*>
+  getLooperFlags "stripe-events-fetcher" <*>
+  getLooperFlags "stripe-events-retrier"
 
 parseFlags :: Parser Flags
 parseFlags = pure Flags

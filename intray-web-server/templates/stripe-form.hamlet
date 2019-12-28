@@ -7,6 +7,6 @@
   id="checkout-button-#{pricingPlanText}"
   role="link"
 >
-  Checkout
+  Get Started
 
 <div id="error-message">

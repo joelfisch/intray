@@ -2,10 +2,22 @@
 
 ^{accountInfoWidget}
 
-$maybe stripeForm <- mSubscribeForm
+$maybe p <- mPricing
   <div .ui .segment>
     <h2> Subscribe
-    ^{stripeForm}
+    <p>
+      <ul>
+        <li>
+          #{pricingShowAmountPerMonth p} per month, billed anually
+        <li>
+          Unlimited items
+        <li>
+          Full API access
+        $maybe tp <- pricingTrialPeriod p
+          <li>
+            #{show tp} day Trial period
+    <p>
+      ^{pricingStripeForm p}
 
 <div .ui .segment>
   <h2> Danger zone

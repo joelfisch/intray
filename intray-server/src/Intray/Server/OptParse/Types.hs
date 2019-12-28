@@ -4,6 +4,8 @@ import Import
 
 import Database.Persist.Sqlite
 
+import Looper
+
 import Web.Stripe.Client as Stripe
 import Web.Stripe.Types as Stripe
 
@@ -25,6 +27,8 @@ data ServeFlags =
     , serveFlagStripePlan :: !(Maybe String)
     , serveFlagStripeSecretKey :: !(Maybe String)
     , serveFlagStripePublishableKey :: !(Maybe String)
+    , serveFlagLooperStripeEventsFetcher :: LooperFlags
+    , serveFlagLooperStripeEventsRetrier :: LooperFlags
     }
   deriving (Show, Eq)
 
@@ -42,6 +46,8 @@ data Environment =
     , envStripePlan :: !(Maybe String)
     , envStripeSecretKey :: !(Maybe String)
     , envStripePublishableKey :: !(Maybe String)
+    , envLooperStripeEventsFetcher :: LooperEnvironment
+    , envLooperStripeEventsRetrier :: LooperEnvironment
     }
   deriving (Show, Eq)
 
@@ -67,5 +73,7 @@ data MonetisationSettings =
     { monetisationSetPlan :: !Stripe.PlanId
     , monetisationSetStripeConfig :: !StripeConfig
     , monetisationSetStripePublishableKey :: !Text
+    , monetisationSetStripeEventsFetcher :: LooperSettings
+    , monetisationSetStripeEventsRetrier :: LooperSettings
     }
   deriving (Show)

@@ -61,5 +61,8 @@ extra-deps:
     - genvalidity-typed-uuid
 - github: NorfairKing/pretty-relative-time
   commit: 2abdb2ba83ad47b8369e2ef618c7c21b82d80b23
+- github: NorfairKing/looper
+  commit: 929a8ad6a99a84624767bd9d619cc5318c6bda56
+
 nix:
   packages: [zlib]

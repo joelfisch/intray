@@ -170,7 +170,7 @@ $maybe p <- mPricing
               <div class="ui center aligned secondary segment">
                  <div class="ui statistic">
                     <div class="value">
-                      #{showAmountForPricing (pricingCurrency p) $ quotPrice (pricingPrice p) 12}
+                      #{pricingShowAmountPerMonth p}
                     <div class="label">
                        per month
               <div class="ui center aligned segment">

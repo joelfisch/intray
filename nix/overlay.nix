@@ -111,6 +111,13 @@ with final.haskell.lib;
               sha256 =
                 "sha256:1mz1fb421wccx7mbpn9qaj214w4sl4qali5rclx9fqp685jkfj05";
             };
+          looperRepo =
+            final.fetchFromGitHub {
+              owner = "NorfairKing";
+              repo = "looper";
+              rev = "929a8ad6a99a84624767bd9d619cc5318c6bda56";
+              sha256 = "07wc2as7p2pz08a9qfx2jm3kz1cvfg73d872il3zhyplbd6yhzbx";
+            };
           typedUuidPkg =
             name:
               super.callCabal2nix name ( typedUuidRepo + "/${name}" ) {};
@@ -130,6 +137,8 @@ with final.haskell.lib;
             pretty-relative-time = super.callCabal2nix "pretty-relative-time" prettyRelativeTimeRepo {};
             yesod-static-remote = dontCheck (super.callCabal2nix "yesod-static-remote" yesodStaticRemoteRepo {});
             servant-auth-server = doJailbreak (super.servant-auth-server);
+            looper = super.callCabal2nix "looper" looperRepo {};
+
           } // final.lib.genAttrs [
             "stripe-core"
             "stripe-haskell"

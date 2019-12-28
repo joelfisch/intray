@@ -421,6 +421,17 @@ packages:
       sha256: 70663ba71b6709568854e840badab2b9d4baca87b019e3fbd254ff0bc2d6cd0f
   original:
     url: https://github.com/NorfairKing/pretty-relative-time/archive/2abdb2ba83ad47b8369e2ef618c7c21b82d80b23.tar.gz
+- completed:
+    size: 5899
+    url: https://github.com/NorfairKing/looper/archive/929a8ad6a99a84624767bd9d619cc5318c6bda56.tar.gz
+    name: looper
+    version: 0.0.0.2
+    sha256: ac508bb39629fb414c43027c51e70ec5d96f57bfc4e3e98af80e0ecb0de089c0
+    pantry-tree:
+      size: 670
+      sha256: 7526e3334146d7e85002e4e875b824e22871aa6e1815e5ae9a957aa709802beb
+  original:
+    url: https://github.com/NorfairKing/looper/archive/929a8ad6a99a84624767bd9d619cc5318c6bda56.tar.gz
 snapshots:
 - completed:
     size: 507596

@@ -21,6 +21,8 @@ import Intray.Client
 import Intray.Web.Server.Foundation
 import Intray.Web.Server.Time
 
+import Intray.Web.Server.Handler.Pricing
+
 getAccountR :: Handler Html
 getAccountR =
   withLogin $ \t -> do
@@ -28,11 +30,12 @@ getAccountR =
     accountInfoWidget <- accountInfoSegment mai
     token <- genToken
     mPricing <- runClientOrErr clientGetPricing
-    mSubscribeForm <-
-      forM mPricing $ \Pricing {..} -> do
-        let Stripe.PlanId pricingPlanText = pricingPlan
-        pure $(widgetFile "stripe-form")
     withNavBar $(widgetFile "account")
+
+pricingStripeForm :: Pricing -> Widget
+pricingStripeForm Pricing {..} =
+  let Stripe.PlanId pricingPlanText = pricingPlan
+   in $(widgetFile "stripe-form")
 
 accountInfoSegment :: Maybe AccountInfo -> Handler Widget
 accountInfoSegment Nothing =

@@ -17,14 +17,6 @@ library:
   ghc-options: -Wall
   default-extensions:
   - NoImplicitPrelude
-  exposed-modules:
-  - IntrayServer
-  - Intray.Server
-  - Intray.Server.Handler.PostSync
-  - Intray.Server.Handler.Utils
-  - Intray.Server.Types
-  - Intray.Server.OptParse
-  - Intray.Server.OptParse.Types
   dependencies:
   - aeson
   - aeson-pretty
@@ -35,6 +27,7 @@ library:
   - intray-api
   - intray-data
   - jose
+  - looper
   - markdown
   - mergeless
   - monad-logger
