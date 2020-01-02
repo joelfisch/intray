@@ -160,6 +160,8 @@ $maybe p <- mPricing
                  <p> Maximum 5 items
               <div class="ui center aligned segment">
                  <p> Full API access
+              <div class="ui center aligned segment">
+                 <p> A Free command-line application
            <div class="ui primary fluid button">
             Get Started
       <div .ui .card>
@@ -177,6 +179,10 @@ $maybe p <- mPricing
                  <p> Unlimited items
               <div class="ui center aligned segment">
                  <p> Full API access
+              <div class="ui center aligned segment">
+                 <p> A Free command-line application
+              <div class="ui center aligned segment">
+                 <p> Synchronisation accross devices
               $maybe tp <- pricingTrialPeriod p
                 <div class="ui center aligned segment">
                    <p> #{show tp} day Trial period

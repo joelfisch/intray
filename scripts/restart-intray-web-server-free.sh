@@ -10,5 +10,5 @@ set -e
 export INTRAY_SERVER_LOG_LEVEL=LevelDebug
 
 intray-web-server serve \
-  --persist-logins \  
+  --persist-logins \
   --admin admin &

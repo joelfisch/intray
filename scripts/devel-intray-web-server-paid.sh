@@ -13,7 +13,6 @@ check_set INTRAY_SERVER_STRIPE_PLAN
 check_set INTRAY_SERVER_STRIPE_SECRET_KEY
 check_set INTRAY_SERVER_STRIPE_PUBLISHABLE_KEY
 
-
 stack install :intray-web-server \
   --file-watch \
   --fast \

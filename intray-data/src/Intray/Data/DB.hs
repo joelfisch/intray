@@ -50,7 +50,20 @@ User
 Customer
     user AccountUUID
     stripeCustomer Stripe.CustomerId
+    UniqueCustomerUser user
+    UniqueUserCustomer stripeCustomer
+    deriving Show
+    deriving Eq
+    deriving Generic
 
+
+StripeEvent
+    event Stripe.EventId
+    error Text Maybe
+    UniqueStripeEvent event
+    deriving Show
+    deriving Eq
+    deriving Generic
 
 
 IntrayItem

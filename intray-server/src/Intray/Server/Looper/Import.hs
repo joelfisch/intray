@@ -5,6 +5,7 @@ module Intray.Server.Looper.Import
 
 import Import as X
 
+import Database.Persist.Sqlite
 import Control.Monad.Logger as X
 
 import Looper as X
@@ -17,5 +18,6 @@ type Looper = LoggingT (ReaderT LooperEnv IO)
 data LooperEnv =
   LooperEnv
     { looperEnvStripeSettings :: !StripeSettings
+    , looperEnvConnectionPool :: !ConnectionPool
     }
   deriving (Show)

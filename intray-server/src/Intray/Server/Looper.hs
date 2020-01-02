@@ -11,6 +11,7 @@ import Import
 import Control.Monad.Logger
 import qualified Data.Text as T
 import Data.Time
+import Database.Persist.Sqlite
 
 import Looper
 
@@ -21,6 +22,7 @@ import Intray.Server.OptParse.Types
 data LoopersSettings =
   LoopersSettings
     { loopersSetLogLevel :: !LogLevel
+    , loopersSetConnectionPool :: !ConnectionPool
     , loopersSetStripeSettings :: !StripeSettings
     , loopersSetStripeEventsFetcher :: !LooperSettings
     , loopersSetStripeEventsRetrier :: !LooperSettings
@@ -29,7 +31,11 @@ data LoopersSettings =
 
 runIntrayServerLoopers :: LoopersSettings -> IO ()
 runIntrayServerLoopers LoopersSettings {..} =
-  let env = LooperEnv {looperEnvStripeSettings = loopersSetStripeSettings}
+  let env =
+        LooperEnv
+          { looperEnvStripeSettings = loopersSetStripeSettings
+          , looperEnvConnectionPool = loopersSetConnectionPool
+          }
    in flip runReaderT env $
       runStderrLoggingT $
       filterLogger (\_ ll -> ll >= loopersSetLogLevel) $

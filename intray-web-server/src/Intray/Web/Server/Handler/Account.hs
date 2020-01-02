@@ -27,31 +27,50 @@ getAccountR :: Handler Html
 getAccountR =
   withLogin $ \t -> do
     mai <- runClientOrDisallow $ clientGetAccountInfo t
-    accountInfoWidget <- accountInfoSegment mai
-    token <- genToken
     mPricing <- runClientOrErr clientGetPricing
+    accountInfoWidget <- accountInfoSegment mai mPricing
+    token <- genToken
     withNavBar $(widgetFile "account")
 
-pricingStripeForm :: Pricing -> Widget
-pricingStripeForm Pricing {..} =
-  let Stripe.PlanId pricingPlanText = pricingPlan
-   in $(widgetFile "stripe-form")
-
-accountInfoSegment :: Maybe AccountInfo -> Handler Widget
-accountInfoSegment Nothing =
+accountInfoSegment :: Maybe AccountInfo -> Maybe Pricing -> Handler Widget
+accountInfoSegment Nothing _ =
   pure
     [whamlet|
         <div .ui .negative .message>
             You are not authorised to view account info.|]
-accountInfoSegment (Just AccountInfo {..}) = do
+accountInfoSegment (Just ai@AccountInfo {..}) mp = do
   timestampWidget <- makeTimestampWidget accountInfoCreatedTimestamp
-  pure
+  pure $
     [whamlet|
         <div .ui .segment>
           <h1> Account
 
           <p> Username: #{usernameText accountInfoUsername}
-          <p> Created: ^{timestampWidget}|]
+          <p> Created: ^{timestampWidget}|] <>
+    maybe mempty (pricingStripeForm ai) mp
+
+pricingStripeForm :: AccountInfo -> Pricing -> Widget
+pricingStripeForm AccountInfo {..} p =
+  let Stripe.PlanId planText = pricingPlan p
+      clientReferenceId = uuidText accountInfoUUID
+      sf = $(widgetFile "stripe-form")
+   in [whamlet|
+        <div .ui .segment>
+          <h2> Subscribe
+          <p>
+            <ul>
+              <li>
+                #{pricingShowAmountPerMonth p} per month, billed anually
+              <li>
+                Unlimited items
+              <li>
+                Full API access
+              $maybe tp <- pricingTrialPeriod p
+                <li>
+                  #{show tp} day Trial period
+          <p>
+            ^{sf}
+    |]
 
 adminSegment :: Maybe AccountInfo -> Widget
 adminSegment Nothing = mempty

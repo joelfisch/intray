@@ -65,6 +65,7 @@ runIntrayServer ServeSettings {..} =
               Just
                 LoopersSettings
                   { loopersSetLogLevel = serveSetLogLevel
+                  , loopersSetConnectionPool = pool
                   , loopersSetStripeSettings = monetisationSetStripeSettings
                   , loopersSetStripeEventsFetcher = monetisationSetStripeEventsFetcher
                   , loopersSetStripeEventsRetrier = monetisationSetStripeEventsRetrier
