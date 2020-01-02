@@ -90,7 +90,7 @@ postAccessKeysR =
     ps <- runClientOrErr $ clientGetPermissions t
     aac <- runInputPost $ newAccessKeyForm ps
     AccessKeyCreated {..} <- runClientOrErr $ clientPostAddAccessKey t aac
-    timestampWidget <- makeTimestampWidget accessKeyCreatedCreatedTimestamp
+    timestampWidget <- makeTimestampWidgetNow accessKeyCreatedCreatedTimestamp
     withNavBar $(widgetFile "access-key-created")
 
 postAccessKeyRevokeR :: AccessKeyUUID -> Handler Html
@@ -102,5 +102,5 @@ postAccessKeyRevokeR uuid =
 accessKeyWidget :: AccessKeyInfo -> Handler Widget
 accessKeyWidget AccessKeyInfo {..} = do
   token <- genToken
-  timestampWidget <- makeTimestampWidget accessKeyInfoCreatedTimestamp
+  timestampWidget <- makeTimestampWidgetNow accessKeyInfoCreatedTimestamp
   pure $(widgetFile "access-key")

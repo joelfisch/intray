@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Web.Server.Time
-  ( makeTimestampWidget
+  ( makeTimestampWidgetNow
+  , makeTimestampWidget
   , prettyTimestamp
   ) where
 
@@ -14,12 +15,16 @@ import Yesod
 
 import Intray.Web.Server.Foundation
 
-makeTimestampWidget :: UTCTime -> Handler Widget
-makeTimestampWidget timestamp = do
+makeTimestampWidgetNow :: UTCTime -> Handler Widget
+makeTimestampWidgetNow timestamp = do
   now <- liftIO getCurrentTime
+  pure $ makeTimestampWidget now timestamp
+
+makeTimestampWidget :: UTCTime -> UTCTime -> Widget
+makeTimestampWidget now timestamp =
   let timeStr = prettyTimestamp now timestamp
-  let timeAgoString = prettyTimeAuto now timestamp
-  pure $(widgetFile "timestamp")
+      timeAgoString = prettyTimeAuto now timestamp
+   in $(widgetFile "timestamp")
 
 prettyTimestamp :: UTCTime -> UTCTime -> String
 prettyTimestamp now d =

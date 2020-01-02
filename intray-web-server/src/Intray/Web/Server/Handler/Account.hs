@@ -9,6 +9,8 @@ module Intray.Web.Server.Handler.Account
 
 import Import
 
+import Data.Time
+
 import Yesod
 import Yesod.Auth
 
@@ -39,15 +41,28 @@ accountInfoSegment Nothing _ =
         <div .ui .negative .message>
             You are not authorised to view account info.|]
 accountInfoSegment (Just ai@AccountInfo {..}) mp = do
-  timestampWidget <- makeTimestampWidget accountInfoCreatedTimestamp
+  now <- liftIO getCurrentTime
+  let subbedWidget =
+        case accountInfoSubscribed of
+          Nothing -> [whamlet|Not subscribed|]
+          Just subbed -> [whamlet|Subscribed until ^{makeTimestampWidget now subbed}|]
+      createdWidget = makeTimestampWidget now accountInfoCreatedTimestamp
   pure $
-    [whamlet|
+    mconcat
+      [ [whamlet|
         <div .ui .segment>
           <h1> Account
 
           <p> Username: #{usernameText accountInfoUsername}
-          <p> Created: ^{timestampWidget}|] <>
-    maybe mempty (pricingStripeForm ai) mp
+          <p> Created: ^{createdWidget}
+          <p>
+            Status: ^{subbedWidget}
+        |]
+      , case accountInfoSubscribed of
+          Nothing -> maybe mempty (pricingStripeForm ai) mp
+          Just _ -> mempty -- Already subscribed
+          -- TODO a nice indication?
+      ]
 
 pricingStripeForm :: AccountInfo -> Pricing -> Widget
 pricingStripeForm AccountInfo {..} p =

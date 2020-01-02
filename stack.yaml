@@ -9,9 +9,6 @@ packages:
 - intray-server
 - intray-server-test-utils
 - intray-web-server
-- /home/syd/src/stripe/stripe-core
-- /home/syd/src/stripe/stripe-haskell
-- /home/syd/src/stripe/stripe-http-client
 extra-deps:
 - hlint-2.0.15
 - extra-1.6.5
@@ -25,13 +22,13 @@ extra-deps:
 - servant-options-0.1.0.0
 - github: NorfairKing/yesod-static-remote
   commit: 22c0a92c1d62f1b8d432003844ef0636a9131b08
-  # - github: NorfairKing/stripe
-  #   commit: ab23e8d5a7232d81d818095fad3fd361fbd485dd
-  #   subdirs:
-  #     - stripe-core
-  #     - stripe-haskell
-  #     - stripe-http-client
-  #     - stripe-http-streams
+- github: NorfairKing/stripe
+  commit: 7ced8cef1e932d3fb222dfb3c79c25595cdc82ab
+  subdirs:
+    - stripe-core
+    - stripe-haskell
+    - stripe-http-client
+    - stripe-http-streams
 - github: NorfairKing/mergeless
   commit: 3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5
   subdirs:

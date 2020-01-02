@@ -99,9 +99,9 @@ with final.haskell.lib;
             final.fetchFromGitHub {
               owner = "NorfairKing";
               repo = "stripe";
-              rev = "ab23e8d5a7232d81d818095fad3fd361fbd485dd";
+              rev = "7ced8cef1e932d3fb222dfb3c79c25595cdc82ab";
               sha256 =
-                "sha256:1574ns3f547b7aa921q13kwaqv9dnr6q6fm2gp2ysh2ssj4pbgl6";
+                "sha256:04dsfx568hmmrr7zg5gbqwipdiy7lvpckfk2ayln6gh6zf9jxl13";
             };
           yesodStaticRemoteRepo =
             final.fetchFromGitHub {

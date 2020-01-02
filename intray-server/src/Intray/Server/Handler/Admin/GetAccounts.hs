@@ -21,6 +21,7 @@ import Intray.Data
 
 import Intray.Server.Types
 
+import Intray.Server.Handler.GetAccountInfo
 import Intray.Server.Handler.Utils
 
 serveAdminGetAccounts :: AuthResult AuthCookie -> IntrayHandler [AccountInfo]
@@ -30,6 +31,7 @@ serveAdminGetAccounts (Authenticated AuthCookie {..}) =
     users <- runDb $ selectList [] [Asc UserId]
     forM users $ \(Entity _ User {..}) -> do
       c <- runDb $ count ([IntrayItemUserId ==. userIdentifier] :: [Filter IntrayItem])
+      subbed <- getAccountSubscribed userIdentifier
       pure
         AccountInfo
           { accountInfoUUID = userIdentifier
@@ -38,5 +40,6 @@ serveAdminGetAccounts (Authenticated AuthCookie {..}) =
           , accountInfoLastLogin = userLastLogin
           , accountInfoAdmin = userUsername `elem` admins
           , accountInfoCount = c
+          , accountInfoSubscribed = subbed
           }
 serveAdminGetAccounts _ = throwAll err401

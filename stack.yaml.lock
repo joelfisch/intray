@@ -86,6 +86,58 @@ packages:
   original:
     url: https://github.com/NorfairKing/yesod-static-remote/archive/22c0a92c1d62f1b8d432003844ef0636a9131b08.tar.gz
 - completed:
+    size: 65121
+    subdir: stripe-core
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+    name: stripe-core
+    version: 2.5.0
+    sha256: d1a62b836804a8e2648a58c5d8fc8ead04605aba36b87e516ed0f67683b4b0e2
+    pantry-tree:
+      size: 2188
+      sha256: 28ba6ffbf7b7f3ea51bc2528f3743b8652f2657f9a5fc1f32529ab8713ced8f5
+  original:
+    subdir: stripe-core
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+- completed:
+    size: 65121
+    subdir: stripe-haskell
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+    name: stripe-haskell
+    version: 2.5.0
+    sha256: d1a62b836804a8e2648a58c5d8fc8ead04605aba36b87e516ed0f67683b4b0e2
+    pantry-tree:
+      size: 577
+      sha256: 06072a61ce28a02aed96e215aeca288bc5326c4a43795ee25b3c08dc39a6be1a
+  original:
+    subdir: stripe-haskell
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+- completed:
+    size: 65121
+    subdir: stripe-http-client
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+    name: stripe-http-client
+    version: 2.5.0
+    sha256: d1a62b836804a8e2648a58c5d8fc8ead04605aba36b87e516ed0f67683b4b0e2
+    pantry-tree:
+      size: 343
+      sha256: e74cdf831d5ddc34df6da9892b84905c877793be82a879739fadf1711b053aa3
+  original:
+    subdir: stripe-http-client
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+- completed:
+    size: 65121
+    subdir: stripe-http-streams
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+    name: stripe-http-streams
+    version: 2.5.0
+    sha256: d1a62b836804a8e2648a58c5d8fc8ead04605aba36b87e516ed0f67683b4b0e2
+    pantry-tree:
+      size: 345
+      sha256: 78baec8956fde3989e0d7b5e21862e49fdab8d85f86cf6d05d0abbe192ad1e4e
+  original:
+    subdir: stripe-http-streams
+    url: https://github.com/NorfairKing/stripe/archive/7ced8cef1e932d3fb222dfb3c79c25595cdc82ab.tar.gz
+- completed:
     size: 16443
     subdir: mergeless
     url: https://github.com/NorfairKing/mergeless/archive/3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5.tar.gz

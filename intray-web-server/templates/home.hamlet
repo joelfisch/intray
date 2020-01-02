@@ -182,7 +182,7 @@ $maybe p <- mPricing
               <div class="ui center aligned segment">
                  <p> A Free command-line application
               <div class="ui center aligned segment">
-                 <p> Synchronisation accross devices
+                 <p> Unlimited synchronisation accross devices
               $maybe tp <- pricingTrialPeriod p
                 <div class="ui center aligned segment">
                    <p> #{show tp} day Trial period

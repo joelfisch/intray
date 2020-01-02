@@ -11,7 +11,6 @@ import Control.Monad.Logger as X
 import Looper as X
 
 import Intray.Server.OptParse.Types
-import Intray.Server.Stripe
 
 type Looper = LoggingT (ReaderT LooperEnv IO)
 
