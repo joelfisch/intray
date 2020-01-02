@@ -9,9 +9,6 @@ import Import
 
 import Database.Persist.Sqlite (SqlPersistT, runSqlPool)
 
-
-
-
 import Intray.Server.Looper.Import
 
 looperDB :: SqlPersistT IO b -> Looper b

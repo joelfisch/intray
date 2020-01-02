@@ -5,8 +5,8 @@ module Intray.Server.Looper.Import
 
 import Import as X
 
-import Database.Persist.Sqlite
 import Control.Monad.Logger as X
+import Database.Persist.Sqlite
 
 import Looper as X
 

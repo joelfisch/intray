@@ -12,6 +12,7 @@ import Database.Persist.Sql
 deriving instance PersistField CustomerId
 
 deriving instance PersistFieldSql CustomerId
+
 deriving instance PersistField EventId
 
 deriving instance PersistFieldSql EventId

@@ -9,6 +9,7 @@ module Intray.Server.Handler.GetAccountInfo
   ( serveGetAccountInfo
   , getAccountSubscribed
   ) where
+
 import Import
 
 import Data.Ord

@@ -58,7 +58,8 @@ instance ToJSON AccountInfo where
       , "created" .= accountInfoCreatedTimestamp
       , "last-login" .= accountInfoLastLogin
       , "admin" .= accountInfoAdmin
-      , "count" .= accountInfoCount, "subscribed" .= accountInfoSubscribed
+      , "count" .= accountInfoCount
+      , "subscribed" .= accountInfoSubscribed
       ]
 
 instance ToSample AccountInfo
