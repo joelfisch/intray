@@ -85,6 +85,7 @@ tests:
     - intray-server
     - intray-server-test-utils
     - intray-web-server
+    - monad-logger
     - mtl
     - path
     - path-io

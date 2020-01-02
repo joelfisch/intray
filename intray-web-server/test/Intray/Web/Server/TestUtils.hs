@@ -25,6 +25,8 @@ import Network.HTTP.Types
 
 import Database.Persist.Sqlite (mkSqliteConnectionInfo)
 
+import Control.Monad.Logger
+
 import Servant.Client (BaseUrl(..), ClientEnv(..))
 
 import Intray.Data
@@ -48,6 +50,7 @@ intrayTestServeSettings = do
       { serveSetAPISettings =
           API.ServeSettings
             { API.serveSetPort = 8001
+            , API.serveSetLogLevel = LevelError
             , API.serveSetConnectionInfo = connInfo
             , API.serveSetAdmins = [fromJust $ parseUsername "admin"]
             , API.serveSetMonetisationSettings = Nothing
