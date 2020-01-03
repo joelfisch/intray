@@ -50,15 +50,14 @@ with final.haskell.lib;
               url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/themes/default/assets/fonts/icons.woff2;
               sha256 = "sha256:1lqd60f1pml8zc93hgwcm6amkcy6rnbq3cyxqv5a3a25jnsnci23";
             };
-            intrayAndroidPackage = 
+            intrayAndroidRelease = 
               let
-                repo = /home/syd/src/intray-android;
-                # repo = final.fetchgit {
-                #   url = "https://gitlab.com/Norfair/intray-android.git";
-                #   rev = "94637a2848fd02373ed79443bacf02097ad91442";
-                #   sha256 = "sha256:0i32a7vs0zvlgmlclm8ka89pyzrjmfh3g81fn9ibh7vnhvqrwvyj";
-                # };
-              in import (repo + "/default.nix") {  };
+                repo = final.fetchgit {
+                  url = "https://gitlab.com/Norfair/intray-android-release.git";
+                  rev = "d38577e8cd99af2d4508c8bf2be2aa00834eb175";
+                  sha256 = "sha256:1w4rxjlq4f6n46g8chr9vn4g2a34p5g0pm268a0lggjzqkls8ky9";
+                };
+              in repo + "/app-release.apk";
         in overrideCabal (intrayPkg "intray-web-server") (old: {
           preConfigure = ''
             ${old.preConfigure or ""}
@@ -72,7 +71,7 @@ with final.haskell.lib;
             cp ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
             cp ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
             cp ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
-            cp ${intrayAndroidPackage}/intray.apk static/intray.apk
+            cp ${intrayAndroidRelease} static/intray.apk
           '';
         });
       };
