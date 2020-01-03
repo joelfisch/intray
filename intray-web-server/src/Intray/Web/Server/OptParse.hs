@@ -47,8 +47,8 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
           , serveSetHost = serveFlagHost <|> envHost
           , serveSetPort = port
           , serveSetPersistLogins = fromMaybe False serveFlagPersistLogins
-          , serveSetTracking = serveFlagTracking
-          , serveSetVerification = serveFlagVerification
+          , serveSetTracking = serveFlagTracking <|> envTracking
+          , serveSetVerification = serveFlagVerification <|> envVerification
           }
     , Settings)
 
@@ -60,11 +60,16 @@ getEnvironment = do
   env <- System.getEnvironment
   apiEnv <- API.getEnvironment
   let mv k = lookup ("INTRAY_WEB_SERVER_" <> k) env
+      mr :: Read a => String -> Maybe a
+      mr k = mv k >>= readMaybe
+      mt = fmap T.pack . mv
   pure
     Environment
       { envAPIEnvironment = apiEnv
-      , envHost = T.pack <$> mv "HOST"
-      , envPort = mv "PORT" >>= readMaybe
+      , envHost = mt "HOST"
+      , envPort = mr "PORT"
+      , envTracking = mt "ANALYTICS_TRACKING_ID"
+      , envVerification = mt "SEARCH_CONSOLE_VERIFICATION"
       }
 
 getArguments :: IO Arguments
