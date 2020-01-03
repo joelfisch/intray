@@ -17,7 +17,7 @@
     Intray offers a no-nonsense web interface to write down your
     thoughts and ideas anywhere you go, and easily process them.
     It is faster, cleaner and leaner than any of its alternatives,
-    while exposing an elegant API and including a CLI.
+    while exposing an elegant API and including a CLI and an android app.
 
   <h2 .ui .header> Anywhere, anytime
   <p>
@@ -140,6 +140,12 @@
     .
     In addition to the features on the web interface, the command-line client works offline with easy synchronisation.
 
+  <h2 .ui .header> Android-Third
+  <p>
+    There is an intray app available at
+    <a href=@{StaticR static_intray_apk}>
+      Intray Android Apk
+    .
 
 $maybe p <- mPricing
   <div .ui .huge .padded .segment>

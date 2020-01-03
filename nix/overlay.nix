@@ -2,7 +2,6 @@ final: previous:
 with final.haskell.lib;
 
 {
-
   intrayPackages =
     let
       pathFor = name: final.gitignoreSource ( ../. + "/${name}" );
@@ -51,6 +50,14 @@ with final.haskell.lib;
               url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/themes/default/assets/fonts/icons.woff2;
               sha256 = "sha256:1lqd60f1pml8zc93hgwcm6amkcy6rnbq3cyxqv5a3a25jnsnci23";
             };
+            intrayAndroidRelease = 
+              let
+                repo = final.fetchgit {
+                  url = "https://gitlab.com/Norfair/intray-android-release.git";
+                  rev = "d38577e8cd99af2d4508c8bf2be2aa00834eb175";
+                  sha256 = "sha256:1w4rxjlq4f6n46g8chr9vn4g2a34p5g0pm268a0lggjzqkls8ky9";
+                };
+              in repo + "/app-release.apk";
         in overrideCabal (intrayPkg "intray-web-server") (old: {
           preConfigure = ''
             ${old.preConfigure or ""}
@@ -64,6 +71,7 @@ with final.haskell.lib;
             cp ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
             cp ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
             cp ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
+            cp ${intrayAndroidRelease} static/intray.apk
           '';
         });
       };

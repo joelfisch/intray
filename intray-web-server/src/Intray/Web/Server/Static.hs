@@ -17,7 +17,8 @@ import Yesod.EmbeddedStatic.Remote
 mkEmbeddedStatic
   False
   "myStatic"
-  [ embedFile "static/gtd_flowchart.jpg"
+  [ embedFile "static/intray.apk"
+  , embedFile "static/gtd_flowchart.jpg"
   , embedRemoteFileAt
       "static/semantic/themes/default/assets/fonts/icons.ttf"
       "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/themes/default/assets/fonts/icons.ttf"
