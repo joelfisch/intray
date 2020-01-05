@@ -100,6 +100,15 @@
         <td> <i class="green checkmark icon"></i>
       <tr>
         <td .positive>
+          Intray Android App
+        <td .positive>
+          <div .ui .ordered .list>
+            <div .item> Click the intray icon on the launcher
+            <div .item> Start typing
+        <td .positive> 1
+        <td .positive> <i class="red heart icon"></i>
+      <tr>
+        <td .positive>
           Intray Cli
         <td .positive>
           <div .ui .ordered .list>
