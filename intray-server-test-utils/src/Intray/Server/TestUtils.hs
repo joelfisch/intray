@@ -92,7 +92,7 @@ setupIntrayTestApp = do
           , envCookieSettings = cookieCfg
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]
-          , envStripeSettings = Nothing
+          , envMonetisation = Nothing
           , envPlanCache = planCache
           }
   pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))
