@@ -24,8 +24,14 @@ data IntrayServerEnv =
     , envCookieSettings :: !CookieSettings
     , envJWTSettings :: !JWTSettings
     , envAdmins :: ![Username]
-    , envStripeSettings :: !(Maybe StripeSettings)
     , envPlanCache :: !(Cache Stripe.PlanId Stripe.Plan)
+    , envMonetisation :: !(Maybe MonetisationEnv)
+    }
+
+data MonetisationEnv =
+  MonetisationEnv
+    { monetisationEnvStripeSettings :: !StripeSettings
+    , monetisationEnvMaxItemsFree :: !Int
     }
 
 type IntrayHandler = ReaderT IntrayServerEnv Handler

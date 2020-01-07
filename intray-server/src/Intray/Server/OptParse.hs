@@ -65,10 +65,12 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
                serveFlagLooperStripeEventsRetrier
                envLooperStripeEventsFetcher
                Nothing
+       let maxItemsFree = fromMaybe 5 $ serveFlagMaxItemsFree <|> envMaxItemsFree
        pure $
          MonetisationSettings <$> (StripeSettings <$> plan <*> config <*> publicKey) <*>
          pure fetcherSets <*>
-         pure retrierSets
+         pure retrierSets <*>
+         pure maxItemsFree
   pure
     ( DispatchServe
         ServeSettings
@@ -101,6 +103,7 @@ getEnvironment = do
   let envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
   let envLooperStripeEventsFetcher = le "STRIPE_EVENTS_FETCHER"
   let envLooperStripeEventsRetrier = le "STRIPE_EVENTS_RETRIER"
+  envMaxItemsFree <- mr "MAX_ITEMS_FREE"
   pure Environment {..}
 
 getArguments :: IO Arguments
@@ -189,7 +192,15 @@ parseServeFlags =
        , help "The publishable key for stripe"
        ]) <*>
   getLooperFlags "stripe-events-fetcher" <*>
-  getLooperFlags "stripe-events-retrier"
+  getLooperFlags "stripe-events-retrier" <*>
+  option
+    (Just <$> auto)
+    (mconcat
+       [ long "max-items-free"
+       , value Nothing
+       , metavar "INT"
+       , help "How many items a user can sync in the free plan"
+       ])
 
 parseFlags :: Parser Flags
 parseFlags = pure Flags

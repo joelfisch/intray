@@ -174,6 +174,7 @@ data Pricing =
     , pricingPrice :: !Stripe.Amount
     , pricingCurrency :: !Stripe.Currency
     , pricingStripePublishableKey :: !Text
+    , pricingMaxItemsFree :: !Int
     }
   deriving (Show, Eq, Generic)
 
@@ -183,7 +184,8 @@ instance FromJSON Pricing where
   parseJSON =
     withObject "Pricing" $ \o ->
       Pricing <$> o .: "plan" <*> o .:? "trial-period" <*> o .: "price" <*> o .: "currency" <*>
-      o .: "publishable-key"
+      o .: "publishable-key" <*>
+      o .: "max-items-free"
 
 instance ToJSON Pricing where
   toJSON Pricing {..} =
@@ -193,6 +195,7 @@ instance ToJSON Pricing where
       , "price" .= pricingPrice
       , "currency" .= pricingCurrency
       , "publishable-key" .= pricingStripePublishableKey
+      , "max-items-free" .= pricingMaxItemsFree
       ]
 
 instance ToSample Pricing where
@@ -203,7 +206,7 @@ instance ToSample Pricing where
         , pricingTrialPeriod = Just 30
         , pricingCurrency = Stripe.CHF
         , pricingPlan = Stripe.PlanId "plan_FiN2Zsdv0DP0kh"
-        , pricingStripePublishableKey = "pk_test_zV5qVP1IQTjE9QYulRZpfD8C00cqGOnQ91"
+        , pricingStripePublishableKey = "pk_test_zV5qVP1IQTjE9QYulRZpfD8C00cqGOnQ91", pricingMaxItemsFree = 5
         }
 
 instance Validity Stripe.Currency where

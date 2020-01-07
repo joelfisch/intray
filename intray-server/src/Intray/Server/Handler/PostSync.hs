@@ -56,13 +56,21 @@ servePostSync (Authenticated AuthCookie {..}) sr =
         serverSyncProcessorInsertMany ::
              Map ClientId (Added TypedItem)
           -> IntrayHandler (Map ClientId (ClientAddition ItemUUID))
-        serverSyncProcessorInsertMany =
-          traverse $ \Added {..} -> do
-            uuid <- nextRandomUUID
-            let ii = makeIntrayItem authCookieUserUUID uuid now addedValue
-            runDb $ insert_ ii
-            let ca = ClientAddition {clientAdditionId = uuid, clientAdditionTime = now}
-            pure ca
+        serverSyncProcessorInsertMany m = do
+          c <- runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
+          mss <- asks (fmap monetisationEnvMaxItemsFree . envMonetisation)
+          let m' =
+                (case mss of
+                   Nothing -> id
+                   Just maxItemsFree -> take (maxItemsFree - c)) $
+                M.toList m
+          fmap M.fromList $
+            forM m' $ \(cid, Added {..}) -> do
+              uuid <- nextRandomUUID
+              let ii = makeIntrayItem authCookieUserUUID uuid now addedValue
+              runDb $ insert_ ii
+              let ca = ClientAddition {clientAdditionId = uuid, clientAdditionTime = now}
+              pure (cid, ca)
         proc = ServerSyncProcessor {..}
     processServerSyncCustom proc sr
 servePostSync _ _ = throwAll err401

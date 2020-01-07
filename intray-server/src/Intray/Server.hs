@@ -55,7 +55,13 @@ runIntrayServer ServeSettings {..} =
             , envCookieSettings = cookieCfg
             , envJWTSettings = jwtCfg
             , envAdmins = serveSetAdmins
-            , envStripeSettings = monetisationSetStripeSettings <$> serveSetMonetisationSettings
+            , envMonetisation =
+                (\MonetisationSettings {..} ->
+                   MonetisationEnv
+                     { monetisationEnvStripeSettings = monetisationSetStripeSettings
+                     , monetisationEnvMaxItemsFree = monetisationSetMaxItemsFree
+                     }) <$>
+                serveSetMonetisationSettings
             , envPlanCache = planCache
             }
     let mLoopersSets =

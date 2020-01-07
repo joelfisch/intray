@@ -172,7 +172,7 @@ $maybe p <- mPricing
                     <div class="label">
                       Forever
               <div class="ui center aligned segment">
-                 <p> Maximum 5 items
+                 <p> Maximum #{pricingMaxItemsFree p} items
               <div class="ui center aligned segment">
                  <p> Full API access
               <div class="ui center aligned segment">

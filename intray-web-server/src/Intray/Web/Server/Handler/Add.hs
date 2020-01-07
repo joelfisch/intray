@@ -12,6 +12,9 @@ import Import
 
 import Yesod
 
+import qualified Network.HTTP.Types as Http
+import Servant.Client
+
 import Intray.Client
 
 import Intray.Web.Server.Foundation
@@ -34,6 +37,16 @@ postAddR :: Handler Html
 postAddR =
   withLogin $ \t -> do
     NewItem {..} <- runInputPost newItemForm
-    md <- runClientOrDisallow $ clientPostAddItem t $ textTypedItem $ unTextarea newItemText
-    when (isNothing md) $ addNegativeMessage "You are not allowed to add items."
+    errOrRes <- runClient $ clientPostAddItem t $ textTypedItem $ unTextarea newItemText
+    case errOrRes of
+      Left err ->
+        handleStandardServantErrs err $ \resp ->
+          case responseStatusCode resp of
+            c
+              | c == Http.unauthorized401 -> addNegativeMessage "You are not allowed to add items."
+              | c == Http.paymentRequired402 ->
+                addNegativeMessage
+                  "You have reached the limit of the free plan, subscribe to be able to add more items. Click 'Account' to get started."
+              | otherwise -> error $ show resp -- TODO deal with error
+      Right _ -> pure ()
     redirect AddR

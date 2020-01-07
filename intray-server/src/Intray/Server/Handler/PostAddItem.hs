@@ -19,6 +19,7 @@ import Servant.Auth.Server as Auth
 import Servant.Auth.Server.SetCookieOrphan ()
 
 import Intray.API
+import Intray.Data
 
 import Intray.Server.Item
 import Intray.Server.Types
@@ -28,8 +29,18 @@ import Intray.Server.Handler.Utils
 servePostAddItem :: AuthResult AuthCookie -> TypedItem -> IntrayHandler ItemUUID
 servePostAddItem (Authenticated AuthCookie {..}) typedItem =
   withPermission authCookiePermissions PermitAdd $ do
-    now <- liftIO getCurrentTime
-    uuid <- liftIO nextRandomUUID
-    runDb $ insert_ $ makeIntrayItem authCookieUserUUID uuid now typedItem
-    pure uuid
+    mss <- asks (fmap monetisationEnvMaxItemsFree . envMonetisation)
+    case mss of
+      Nothing -> goAhead
+      Just maxFreeItems -> do
+        c <- runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
+        if c >= maxFreeItems
+          then throwAll err402
+          else goAhead
+  where
+    goAhead = do
+      now <- liftIO getCurrentTime
+      uuid <- liftIO nextRandomUUID
+      runDb $ insert_ $ makeIntrayItem authCookieUserUUID uuid now typedItem
+      pure uuid
 servePostAddItem _ _ = throwAll err401

@@ -31,6 +31,7 @@ data ServeFlags =
     , serveFlagStripePublishableKey :: !(Maybe String)
     , serveFlagLooperStripeEventsFetcher :: LooperFlags
     , serveFlagLooperStripeEventsRetrier :: LooperFlags
+    , serveFlagMaxItemsFree :: !(Maybe Int)
     }
   deriving (Show, Eq)
 
@@ -51,6 +52,7 @@ data Environment =
     , envStripePublishableKey :: !(Maybe String)
     , envLooperStripeEventsFetcher :: LooperEnvironment
     , envLooperStripeEventsRetrier :: LooperEnvironment
+    , envMaxItemsFree :: !(Maybe Int)
     }
   deriving (Show, Eq)
 
@@ -77,6 +79,7 @@ data MonetisationSettings =
     { monetisationSetStripeSettings :: !StripeSettings
     , monetisationSetStripeEventsFetcher :: LooperSettings
     , monetisationSetStripeEventsRetrier :: LooperSettings
+    , monetisationSetMaxItemsFree :: !Int
     }
   deriving (Show)
 

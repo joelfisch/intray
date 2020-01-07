@@ -27,13 +27,13 @@ runStripeHandler ::
   => StripeRequest a
   -> IntrayHandler (Maybe (Either StripeError (StripeReturn a)))
 runStripeHandler request = do
-  mStripeSets <- asks envStripeSettings
+  mStripeSets <- asks (fmap monetisationEnvStripeSettings . envMonetisation)
   forM mStripeSets $ \ms -> liftIO $ runStripeWith ms request
 
 runStripeHandlerOrError ::
      FromJSON (StripeReturn a) => StripeRequest a -> IntrayHandler (Maybe (StripeReturn a))
 runStripeHandlerOrError request = do
-  mStripeSets <- asks envStripeSettings
+  mStripeSets <- asks (fmap monetisationEnvStripeSettings . envMonetisation)
   forM mStripeSets $ \ms -> runStripeHandlerOrErrorWith ms request
 
 runStripeHandlerOrErrorWith ::

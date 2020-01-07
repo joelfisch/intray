@@ -20,14 +20,15 @@ import Intray.Server.Types
 
 serveGetPricing :: IntrayHandler (Maybe Pricing)
 serveGetPricing = do
-  mStripe <- asks envStripeSettings
-  forM mStripe $ \ms@StripeSettings {..} -> do
+  mMone <- asks envMonetisation
+  forM mMone $ \MonetisationEnv {..} -> do
     planCache <- asks envPlanCache
+    let StripeSettings {..} = monetisationEnvStripeSettings
     mPlan <- liftIO $ Cache.lookup planCache stripeSetPlan
     Stripe.Plan {..} <-
       case mPlan of
         Nothing -> do
-          plan <- runStripeHandlerOrErrorWith ms $ getPlan stripeSetPlan
+          plan <- runStripeHandlerOrErrorWith monetisationEnvStripeSettings $ getPlan stripeSetPlan
           liftIO $ Cache.insert planCache stripeSetPlan plan
           pure plan
         Just plan -> pure plan
@@ -36,4 +37,5 @@ serveGetPricing = do
         pricingPrice = Stripe.Amount planAmount
         pricingCurrency = planCurrency
         pricingStripePublishableKey = stripeSetPublishableKey
+        pricingMaxItemsFree = monetisationEnvMaxItemsFree
     pure Pricing {..}
