@@ -33,10 +33,18 @@ servePostAddItem (Authenticated AuthCookie {..}) typedItem =
     case mss of
       Nothing -> goAhead
       Just maxFreeItems -> do
-        c <- runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
-        if c >= maxFreeItems
-          then throwAll err402
-          else goAhead
+        mu <- runDb $ getBy $ UniqueUserIdentifier authCookieUserUUID
+        case mu of
+          Nothing -> throwAll err404
+          Just (Entity _ User {..}) -> do
+            isAdmin <- asks ((userUsername `elem`) . envAdmins)
+            if isAdmin
+              then goAhead
+              else do
+                c <- runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
+                if c >= maxFreeItems
+                  then throwAll err402
+                  else goAhead
   where
     goAhead = do
       now <- liftIO getCurrentTime

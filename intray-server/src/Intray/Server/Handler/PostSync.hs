@@ -59,11 +59,20 @@ servePostSync (Authenticated AuthCookie {..}) sr =
         serverSyncProcessorInsertMany m = do
           c <- runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
           mss <- asks (fmap monetisationEnvMaxItemsFree . envMonetisation)
-          let m' =
-                (case mss of
-                   Nothing -> id
-                   Just maxItemsFree -> take (maxItemsFree - c)) $
-                M.toList m
+          mFunc <-
+            case mss of
+              Nothing -> pure id
+              Just maxItemsFree -> do
+                mu <- runDb $ getBy $ UniqueUserIdentifier authCookieUserUUID
+                case mu of
+                  Nothing -> throwAll err404
+                  Just (Entity _ User {..}) -> do
+                    isAdmin <- asks ((userUsername `elem`) . envAdmins)
+                    pure $
+                      if isAdmin
+                        then id
+                        else take (maxItemsFree - c)
+          let m' = mFunc $ M.toList m
           fmap M.fromList $
             forM m' $ \(cid, Added {..}) -> do
               uuid <- nextRandomUUID
