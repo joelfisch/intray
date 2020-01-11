@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Cli.OptParse
@@ -82,27 +83,37 @@ getDispatch cmd =
     CommandLogout -> pure DispatchLogout
     CommandSync -> pure DispatchSync
 
+-- TODO rework this to correctly fail when the file at the path in the flags doesn't exist
 getConfig :: Flags -> IO Configuration
 getConfig Flags {..} = do
-  path <- maybe (defaultConfigFile flagIntrayDir) resolveFile' flagConfigFile
-  mContents <- forgivingAbsence $ SB.readFile $ fromAbsFile path
-  case mContents of
-    Nothing -> pure emptyConfiguration
-    Just contents ->
-      case Yaml.decodeEither contents of
-        Left err ->
-          die $ unlines ["Failed to parse config file", fromAbsFile path, "with error:", err]
-        Right conf -> pure conf
+  paths <-
+    case flagConfigFile of
+      Nothing -> defaultConfigFiles flagIntrayDir
+      Just f -> (: []) <$> resolveFile' f
+  let go [] = pure emptyConfiguration
+      go (path:fs) = do
+        mc <- forgivingAbsence $ SB.readFile $ fromAbsFile path
+        case mc of
+          Nothing -> go fs
+          Just contents ->
+            case Yaml.decodeEither contents of
+              Left err ->
+                die $ unlines ["Failed to parse config file", fromAbsFile path, "with error:", err]
+              Right conf -> pure conf
+  go paths
 
-defaultConfigFile :: Maybe FilePath -> IO (Path Abs File)
-defaultConfigFile mid = do
-  i <-
+defaultConfigFiles :: Maybe FilePath -> IO [Path Abs File]
+defaultConfigFiles mid = do
+  xdgConfigDir <- getXdgDir XdgConfig (Just [reldir|intray|])
+  f1 <- resolveFile xdgConfigDir "config.yaml"
+  intrayDir <-
     case mid of
       Nothing -> do
         homeDir <- getHomeDir
         resolveDir homeDir ".intray"
       Just i -> resolveDir' i
-  resolveFile i "config.yaml"
+  f2 <- resolveFile intrayDir "config.yaml"
+  pure [f1, f2]
 
 getArguments :: IO Arguments
 getArguments = do
