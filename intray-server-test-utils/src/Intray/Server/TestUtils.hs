@@ -87,7 +87,8 @@ setupIntrayTestApp = do
   let cookieCfg = defaultCookieSettings
   let intrayEnv =
         IntrayServerEnv
-          { envConnectionPool = pool
+          { envHost = "localhost"
+          , envConnectionPool = pool
           , envCookieSettings = cookieCfg
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]

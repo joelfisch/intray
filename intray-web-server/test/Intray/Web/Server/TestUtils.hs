@@ -49,7 +49,8 @@ intrayTestServeSettings = do
     ServeSettings
       { serveSetAPISettings =
           API.ServeSettings
-            { API.serveSetPort = 8001
+            { API.serveSetHost = "localhost"
+            , API.serveSetPort = 8001
             , API.serveSetLogLevel = LevelError
             , API.serveSetConnectionInfo = connInfo
             , API.serveSetAdmins = [fromJust $ parseUsername "admin"]
