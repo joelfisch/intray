@@ -2,8 +2,8 @@
 
 $maybe itemWidget <- mItemWidget
   <div .ui .segment>
-    <h1> #{nrItems} items left.
+    <h2> #{nrItems} items left.
     ^{itemWidget}
 $nothing
   <div .ui .segment>
-    <h1> Your intray is empty, no more processing to do!
+    <h2> You are done processing.

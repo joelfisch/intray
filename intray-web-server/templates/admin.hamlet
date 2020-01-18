@@ -1,4 +1,6 @@
 <div .ui .segment>
+  <h3>
+    Main stats:
   <div class="ui two huge statistics">
     <div class="statistic">
       <div class="value">
@@ -13,7 +15,8 @@
         Items
 
 
-  <h2>
+<div .ui .segment>
+  <h3>
     Active users:
   <div class="ui four big statistics">
     <div class="statistic">

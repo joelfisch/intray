@@ -51,12 +51,13 @@ accountInfoSegment (Just ai@AccountInfo {..}) mp = do
     mconcat
       [ [whamlet|
         <div .ui .segment>
-          <h1> Account
-
+          <h3>
+            Info
           <p> Username: #{usernameText accountInfoUsername}
           <p> Created: ^{createdWidget}
-          <p>
-            Status: ^{subbedWidget}
+          $maybe _ <- mp
+            <p>
+              Status: ^{subbedWidget}
         |]
       , case accountInfoSubscribed of
           Nothing -> maybe mempty (pricingStripeForm ai) mp
@@ -93,6 +94,8 @@ adminSegment (Just AccountInfo {..})
   | accountInfoAdmin =
     [whamlet|
             <div .ui .segment>
+                <h3>
+                  Admin
                 <p>
                   This account is an administrator.
                 <p>

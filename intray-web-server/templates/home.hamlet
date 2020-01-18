@@ -151,9 +151,9 @@
     .
     In addition to the features on the web interface, the command-line client works offline with easy synchronisation.
 
-  <h2 .ui .header> Android-Third
+  <h2 .ui .header> Mobile-Third
   <p>
-    There is an intray app available at
+    There is an Intray Android application available at
     <a href=@{StaticR static_intray_apk}>
       Intray Android Apk
     .
@@ -266,8 +266,7 @@ $maybe p <- mPricing
           <p>
             All data submitted via Intray is secured while it is being submitted and while it is being stored.
             Users will never be tracked and their data will never be exposed to third parties.
-            Administrators cannot see intray items via the web interface, they can only see usernames.
-            The data is not end-to-end encrypted.
+            Administrators cannot see intray items via the web interface.
 
     <div .item>
       <i .question .icon>
@@ -288,7 +287,7 @@ $maybe p <- mPricing
         <div .description>
           <p>
             Yes, intray is free software, so anyone can host an Intray server themselves.
-            The code and instructions are available 
+            The code is available 
             <a href="https://github.com/NorfairKing/intray">
               on Github.
 
@@ -297,11 +296,14 @@ $maybe p <- mPricing
       <div .content>
         <div .header>
           <p>
-            Is there an Android or Iphone application?
+            Is there an Iphone application?
         <div .description>
           <p>
-            Intray is currently not available on Android or Iphone.
-            This may change in the future if there is enough demand.
+            Intray is currently not available on Iphone.
+            If you are interested in writing an Iphone application, please 
+            <a href="mailto:intray@cs-syd.eu">
+              contact us
+            .
 
     <div .item>
       <i .question .icon>
@@ -313,7 +315,7 @@ $maybe p <- mPricing
           <p>
             Notes and intray Items serve a fundamentally different purpose.
             Intray items are meant to be short term, ephemeral and for prosessing.
-            Notes have an indeterminate life-time and do not lend themselves well for processing.
+            Notes have an indeterminate life-time and do not lend themselves well to processing.
             Intray incorporates the best-practices for processing and is not cluttered by unnecessary features.
 
             Moreover, Intray items will persist beyond eventual damage to your phone.

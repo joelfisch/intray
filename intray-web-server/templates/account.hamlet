@@ -3,7 +3,7 @@
 ^{accountInfoWidget}
 
 <div .ui .segment>
-  <h2> Danger zone
+  <h3> Danger zone
 
   <p>
     <a .ui .button
