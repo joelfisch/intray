@@ -6,6 +6,7 @@ module Intray.Client
   , module Servant.API
   , module Servant.Client
   , module Servant.Auth.Client
+  , module Data.Mergeless
   , module Data.UUID.Typed
   ) where
 
