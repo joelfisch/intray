@@ -1,6 +1,7 @@
 .shake/
 *.cabal
 .stack-work/
+stack.yaml.lock
 result*
 /out/
 /tmp/
