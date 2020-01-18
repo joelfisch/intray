@@ -9,11 +9,7 @@ module Intray.Cli.Commands.Show
 
 import Import
 
-import qualified Data.Text as T
 import Data.Time
-import Text.Time.Pretty
-
-import Intray.API
 
 import Intray.Cli.OptParse
 import Intray.Cli.Store
@@ -32,29 +28,3 @@ showItem = do
       writeLastSeen li
       now <- liftIO getCurrentTime
       liftIO $ putStrLn $ prettyItem now li
-
-prettyItem :: UTCTime -> LastItem -> String
-prettyItem now li =
-  let lastItemTimestamp =
-        case li of
-          LastItemUnsynced _ a -> addedCreated a
-          LastItemSynced _ s -> syncedCreated s
-      lastItemData =
-        case li of
-          LastItemUnsynced _ a -> addedValue a
-          LastItemSynced _ s -> syncedValue s
-      timeStr = prettyTimestamp now lastItemTimestamp
-      timeAgoString = prettyTimeAuto now lastItemTimestamp
-   in case typedItemCase lastItemData of
-        Left err -> unlines ["Invalid item:", err]
-        Right i ->
-          case i of
-            CaseTextItem t -> unlines [concat [timeStr, " (", timeAgoString, ")"], T.unpack t]
-
-prettyTimestamp :: UTCTime -> UTCTime -> String
-prettyTimestamp now d =
-  let year = (\(y, _, _) -> y) . toGregorian . utctDay
-   in (if year now == year d
-         then formatTime defaultTimeLocale "%A %B %e at %H:%M"
-         else formatTime defaultTimeLocale "%A %B %e %Y at %H:%M")
-        d
