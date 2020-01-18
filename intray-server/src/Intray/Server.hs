@@ -29,7 +29,6 @@ import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Generic
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.OptParse.Types
 import Intray.Server.Types

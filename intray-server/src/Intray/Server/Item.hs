@@ -9,7 +9,6 @@ module Intray.Server.Item
 import Data.Time
 
 import Intray.API
-import Intray.Data
 
 makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> TypedItem -> IntrayItem
 makeIntrayItem u i ts TypedItem {..} =

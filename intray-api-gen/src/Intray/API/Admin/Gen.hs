@@ -8,7 +8,10 @@ import Import
 import Intray.API
 import Intray.Data.Gen ()
 
-instance GenUnchecked AdminStats
-
 instance GenValid AdminStats where
   genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally
+
+instance GenValid ActiveUsers where
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally

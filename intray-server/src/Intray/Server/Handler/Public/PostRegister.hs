@@ -22,7 +22,6 @@ import Servant hiding (BadPassword, NoSuchUser)
 import Servant.Auth.Server.SetCookieOrphan ()
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.Types
 

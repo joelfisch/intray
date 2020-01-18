@@ -19,7 +19,6 @@ import Database.Persist.Sqlite
 import Servant
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.Types
 

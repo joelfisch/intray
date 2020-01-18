@@ -6,66 +6,11 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API
-  ( IntrayAPI
-  , intrayAPI
-  , IntraySite(..)
-  , IntrayOpenAPI
-  , intrayOpenAPI
-  , IntrayOpenSite(..)
-  , IntrayProtectedAPI
-  , IntrayProtectedSite(..)
-  , IntrayProtectedItemAPI
-  , IntrayProtectedItemSite(..)
-  , IntrayProtectedAccountAPI
-  , IntrayProtectedAccountSite(..)
-  , IntrayProtectedAccessKeyAPI
-  , IntrayProtectedAccessKeySite(..)
-  , IntrayPublicAPI
-  , IntrayPublicSite(..)
-  , IntrayAdminAPI
-  , IntrayAdminSite(..)
-  , AuthCookie(..)
-  , Permission(..)
-  , userPermissions
-  , adminPermissions
-  , ItemType(..)
-  , TypedItem(..)
-  , textTypedItem
-  , TypedItemCase(..)
-  , typedItemCase
-  , ItemInfo(..)
-  , Added(..)
-  , Synced(..)
-  , SyncRequest(..)
-  , SyncResponse(..)
-  , AccountInfo(..)
-  , AccessKeyInfo(..)
-  , AddAccessKey(..)
-  , AccessKeyCreated(..)
-  , accessKeySecretText
-  , DeleteAccessKey
-  , Registration(..)
-  , PostRegister
-  , LoginForm(..)
-  , PostLogin
-  , GetDocs
-  , GetDocsResponse(..)
-  , GetPricing
-  , Pricing(..)
-  , AdminStats(..)
-  , AdminGetStats
-  , AdminDeleteAccount
-  , AdminGetAccounts
-  , HashedPassword
-  , passwordHash
-  , validatePassword
-  , ItemUUID
-  , AccountUUID
-  , AccessKeyUUID
-  , Username
-  , parseUsername
-  , parseUsernameWithError
-  , usernameText
+  ( module Intray.Data
+  , module Intray.API
+  , module Intray.API.Admin
+  , module Intray.API.Protected
+  , module Intray.API.Types
   , module Data.UUID.Typed
   ) where
 

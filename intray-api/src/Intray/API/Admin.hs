@@ -6,12 +6,9 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Admin
-  ( IntrayAdminAPI
-  , IntrayAdminSite(..)
-  , AdminStats(..)
-  , AdminGetStats
-  , AdminDeleteAccount
-  , AdminGetAccounts
+  ( module Intray.API.Admin
+  , module Intray.API.Protected.Account.Types
+  , module Intray.API.Admin.Types
   ) where
 
 import Import
@@ -20,8 +17,6 @@ import Servant.API
 import Servant.Auth.Docs ()
 import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Generic
-
-import Intray.Data
 
 import Intray.API.Admin.Types
 import Intray.API.Protected.Account.Types

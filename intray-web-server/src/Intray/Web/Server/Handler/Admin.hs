@@ -10,6 +10,8 @@ import Import
 
 import Data.Time
 
+import Text.Time.Pretty
+
 import Yesod
 
 import Intray.Client
@@ -21,6 +23,7 @@ getAdminR :: Handler Html
 getAdminR =
   withAdminCreds $ \t -> do
     AdminStats {..} <- runClientOrErr $ clientAdminGetStats t
+    let ActiveUsers {..} = adminStatsActiveUsers
     users <- fmap (sortOn accountInfoLastLogin) $ runClientOrErr $ clientAdminGetAccounts t
     now <- liftIO getCurrentTime
     token <- genToken

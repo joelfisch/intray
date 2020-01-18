@@ -2,7 +2,7 @@ module Import
   ( module X
   ) where
 
-import Prelude as X
+import Prelude as X hiding (fail)
 
 import Data.Function as X
 import Data.List as X
@@ -13,11 +13,12 @@ import Data.Text as X (Text)
 import Data.UUID.Typed as X
 
 import Control.Applicative as X
-import Control.Monad as X
+import Control.Monad as X hiding (fail)
+import Control.Monad.Fail as X
 
 import System.Exit as X
 
-import GHC.Generics as X
+import GHC.Generics as X (Generic)
 
 import Path as X
 import Path.IO as X

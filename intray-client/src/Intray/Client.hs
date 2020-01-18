@@ -1,61 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Client
-  ( clientGetShowItem
-  , clientGetSize
-  , clientGetItemUUIDs
-  , clientGetItems
-  , clientPostAddItem
-  , clientGetItem
-  , clientDeleteItem
-  , clientPostSync
-  , clientPostLogin
-  , clientGetDocs
-  , clientGetPricing
-  , clientGetAccountInfo
-  , clientDeleteAccount
-  , clientPostAddAccessKey
-  , clientGetAccessKey
-  , clientGetAccessKeys
-  , clientDeleteAccessKey
-  , clientGetPermissions
-  , clientPostRegister
-  , clientAdminGetStats
-  , clientAdminDeleteAccount
-  , clientAdminGetAccounts
-  , ItemType(..)
-  , TypedItem(..)
-  , textTypedItem
-  , TypedItemCase(..)
-  , typedItemCase
-  , ItemInfo(..)
-  , Added(..)
-  , Synced(..)
-  , SyncRequest(..)
-  , SyncResponse(..)
-  , ClientStore(..)
-  , makeSyncRequest
-  , mergeSyncResponse
-  , AccountInfo(..)
-  , Permission(..)
-  , AddAccessKey(..)
-  , accessKeySecretText
-  , AccessKeyCreated(..)
-  , AccessKeyUUID
-  , AccessKeyInfo(..)
-  , Registration(..)
-  , LoginForm(..)
-  , Pricing(..)
-  , GetDocsResponse(..)
-  , AdminStats(..)
-  , ItemUUID
-  , AccountUUID
-  , Username
-  , parseUsername
-  , parseUsernameWithError
-  , usernameText
-  , NoContent(..)
-  , Token
+  ( module Intray.Client
+  , module Intray.API
+  , module Servant.API
+  , module Servant.Client
+  , module Servant.Auth.Client
   , module Data.UUID.Typed
   ) where
 

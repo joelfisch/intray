@@ -14,7 +14,5 @@ import Intray.API.Admin.Gen ()
 
 spec :: Spec
 spec = do
-  eqSpec @AdminStats
-  ordSpec @AdminStats
   genValidSpec @AdminStats
   jsonSpecOnValid @AdminStats

@@ -103,6 +103,9 @@ instance ToSample (UUID a) where
 instance ToSample Int where
   toSamples Proxy = singleSample 42
 
+instance ToSample Word where
+  toSamples Proxy = singleSample 42
+
 data Registration =
   Registration
     { registrationUsername :: Username

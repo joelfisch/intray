@@ -15,7 +15,6 @@ import Servant hiding (BadPassword, NoSuchUser)
 import Servant.Auth.Server as Auth
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.Types
 

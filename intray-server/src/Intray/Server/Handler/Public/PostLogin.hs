@@ -20,7 +20,6 @@ import Servant.Auth.Server as Auth
 import Servant.Auth.Server.SetCookieOrphan ()
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.Types
 

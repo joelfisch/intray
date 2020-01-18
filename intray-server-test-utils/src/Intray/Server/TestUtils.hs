@@ -51,7 +51,6 @@ import Network.Wai.Handler.Warp (testWithApplication)
 
 import Intray.API
 import Intray.Client
-import Intray.Data
 import Intray.Server
 import Intray.Server.Types
 

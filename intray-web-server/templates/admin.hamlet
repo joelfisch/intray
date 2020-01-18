@@ -2,15 +2,44 @@
   <div class="ui two huge statistics">
     <div class="statistic">
       <div class="value">
-        #{adminStatsNbUsers}
+        #{adminStatsNbAccounts}
       <div class="label">
-        Members
+        Accounts
 
     <div class="statistic">
       <div class="value">
         #{adminStatsNbItems}
       <div class="label">
         Items
+
+
+  <h2>
+    Active users:
+  <div class="ui four big statistics">
+    <div class="statistic">
+      <div class="value">
+        #{activeUsersWeekly}
+      <div class="label">
+        Daily
+
+    <div class="statistic">
+      <div class="value">
+        #{activeUsersWeekly}
+      <div class="label">
+        Weekly
+
+    <div class="statistic">
+      <div class="value">
+        #{activeUsersMonthly}
+      <div class="label">
+        Monthly
+
+    <div class="statistic">
+      <div class="value">
+        #{activeUsersYearly}
+      <div class="label">
+        Yearly
+
 
 <div .ui .segment>
   <table .ui .celled .table>
@@ -39,10 +68,12 @@
           <td>
             #{usernameText $ accountInfoUsername u}
           <td>
-            #{prettyTimestamp now $ accountInfoCreatedTimestamp u}
+            <div data-tooltip="#{prettyTimestamp now $ accountInfoCreatedTimestamp u}">
+              #{prettyTimeAuto now $ accountInfoCreatedTimestamp u}
           <td>
             $maybe ll <- accountInfoLastLogin u
-              #{prettyTimestamp now ll}
+              <div data-tooltip="#{prettyTimestamp now ll}">
+                #{prettyTimeAuto now ll}
           <td>
             #{accountInfoCount u}
           <td>
