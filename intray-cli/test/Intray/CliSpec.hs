@@ -15,77 +15,16 @@ spec =
   it "Going through the usual manual steps 'just works'" $ \(ClientEnv _ burl _) ->
     withSystemTempDir "intray-cli-test-cache" $ \cacheDir ->
       withSystemTempDir "intray-cli-test-data" $ \dataDir -> do
-        intray
-          [ "register"
-          , "--username"
-          , "testuser"
-          , "--password"
-          , "testpass"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray
-          [ "login"
-          , "--username"
-          , "testuser"
-          , "--password"
-          , "testpass"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray
-          [ "add"
-          , "hello"
-          , "world"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray
-          [ "show"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray
-          [ "done"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray
-          [ "size"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray
-          [ "sync"
-          , "--url"
-          , showBaseUrl burl
-          , "--cache-dir"
-          , fromAbsDir cacheDir
-          , "--data-dir"
-          , fromAbsDir dataDir
-          ]
-        intray ["logout", "--cache-dir", fromAbsDir cacheDir, "--data-dir", fromAbsDir dataDir]
+        setEnv "INTRAY_USERNAME" "testuser"
+        setEnv "INTRAY_PASSWORD" "testpassword"
+        setEnv "INTRAY_URL" $ showBaseUrl burl
+        setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
+        setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
+        intray ["register"]
+        intray ["login"]
+        intray ["add", "hello", "world"]
+        intray ["show"]
+        intray ["done"]
+        intray ["size"]
+        intray ["sync"]
+        intray ["logout"]

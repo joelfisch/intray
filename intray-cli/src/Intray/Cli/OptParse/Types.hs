@@ -58,10 +58,23 @@ data Flags =
     }
   deriving (Show, Eq, Generic)
 
+data Environment =
+  Environment
+    { envConfigFile :: Maybe FilePath
+    , envUrl :: Maybe String
+    , envUsername :: Maybe String
+    , envPassword :: Maybe String
+    , envCacheDir :: Maybe FilePath
+    , envDataDir :: Maybe FilePath
+    , envSyncStrategy :: Maybe SyncStrategy
+    }
+  deriving (Show, Eq, Generic)
+
 data Configuration =
   Configuration
     { configUrl :: Maybe String
-    , configUsername :: Maybe Username
+    , configUsername :: Maybe String
+    , configPassword :: Maybe String
     , configCacheDir :: Maybe FilePath
     , configDataDir :: Maybe FilePath
     , configSyncStrategy :: Maybe SyncStrategy
@@ -71,7 +84,8 @@ data Configuration =
 instance FromJSON Configuration where
   parseJSON =
     withObject "Configuration" $ \o ->
-      Configuration <$> o .:? "url" <*> o .:? "username" <*> o .:? "cache-dir" <*> o .:? "data-dir" <*>
+      Configuration <$> o .:? "url" <*> o .:? "username" <*> o .:? "password" <*> o .:? "cache-dir" <*>
+      o .:? "data-dir" <*>
       o .:? "sync"
 
 data Settings =
@@ -87,7 +101,7 @@ data Settings =
 data SyncStrategy
   = NeverSync
   | AlwaysSync
-  deriving (Show, Eq, Generic)
+  deriving (Show, Read, Eq, Generic)
 
 instance FromJSON SyncStrategy
 

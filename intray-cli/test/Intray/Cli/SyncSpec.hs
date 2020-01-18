@@ -29,21 +29,12 @@ spec =
         withSystemTempDir "intray-cli-test-data" $ \dataDir ->
           withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
             let (ClientEnv _ burl _) = cenv
-            let u = T.unpack $ usernameText un
-            let p = T.unpack pw
-            intray
-              [ "login"
-              , "--username"
-              , u
-              , "--password"
-              , p
-              , "--url"
-              , showBaseUrl burl
-              , "--cache-dir"
-              , fromAbsDir cacheDir
-              , "--data-dir"
-              , fromAbsDir dataDir
-              ]
+            setEnv "INTRAY_USERNAME" $ T.unpack $ usernameText un
+            setEnv "INTRAY_PASSWORD" $ T.unpack pw
+            setEnv "INTRAY_URL" $ showBaseUrl burl
+            setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
+            setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
+            intray ["login"]
             let sets =
                   Settings
                     { setBaseUrl = Just burl
@@ -60,35 +51,11 @@ spec =
                   undefined
                 Just t -> pure t
             uuid <- runClientOrError cenv $ clientPostAddItem token ti
-            intray
-              [ "sync"
-              , "--url"
-              , showBaseUrl burl
-              , "--cache-dir"
-              , fromAbsDir cacheDir
-              , "--data-dir"
-              , fromAbsDir dataDir
-              ]
-            intray
-              [ "show"
-              , "--url"
-              , showBaseUrl burl
-              , "--cache-dir"
-              , fromAbsDir cacheDir
-              , "--data-dir"
-              , fromAbsDir dataDir
-              ]
+            intray ["sync"]
+            intray ["show"]
             mLastSeen1 <- runReaderT readLastSeen sets
             mLastSeen1 `shouldSatisfy` isJust
             NoContent <- runClientOrError cenv $ clientDeleteItem token uuid
-            intray
-              [ "sync"
-              , "--url"
-              , showBaseUrl burl
-              , "--cache-dir"
-              , fromAbsDir cacheDir
-              , "--data-dir"
-              , fromAbsDir dataDir
-              ]
+            intray ["sync"]
             mLastSeen2 <- runReaderT readLastSeen sets
             mLastSeen2 `shouldSatisfy` isNothing

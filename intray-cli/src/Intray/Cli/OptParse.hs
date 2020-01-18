@@ -21,9 +21,10 @@ import Import
 import qualified Data.ByteString as SB
 import qualified Data.Text as T
 import Data.Yaml as Yaml (decodeEither)
+import Text.Read (readMaybe)
 
 import Options.Applicative
-import System.Environment
+import qualified System.Environment as System
 
 import Servant.Client
 
@@ -32,65 +33,76 @@ import Intray.Data
 
 getInstructions :: IO Instructions
 getInstructions = do
-  Arguments cmd flags <- getArguments
-  config <- getConfiguration flags
-  dispatch <- getDispatch cmd
-  settings <- getSettings flags config
-  pure $ Instructions dispatch settings
+  args@(Arguments _ flags) <- getArguments
+  env <- getEnvironment
+  config <- getConfiguration flags env
+  combineToInstructions args env config
 
-getSettings :: Flags -> Maybe Configuration -> IO Settings
-getSettings Flags {..} mConf = do
-  let mc :: (Configuration -> Maybe a) -> Maybe a
-      mc f = mConf >>= f
-  setBaseUrl <-
-    case flagUrl `mplus` mc configUrl of
-      Nothing -> pure Nothing
-      Just url -> Just <$> parseBaseUrl url
-  setCacheDir <-
-    case flagCacheDir <|> mc configCacheDir of
-      Nothing -> getXdgDir XdgCache (Just [reldir|intray|])
-      Just d -> resolveDir' d
-  setDataDir <-
-    case flagDataDir <|> mc configDataDir of
-      Nothing -> getXdgDir XdgData (Just [reldir|intray|])
-      Just d -> resolveDir' d
-  let setSyncStrategy =
-        fromMaybe
-          (case setBaseUrl of
-             Nothing -> NeverSync
-             Just _ -> AlwaysSync) $
-        flagSyncStrategy `mplus` mc configSyncStrategy
-  let setUsername = mc configUsername
-  pure Settings {..}
+combineToInstructions :: Arguments -> Environment -> Maybe Configuration -> IO Instructions
+combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
+  Instructions <$> getDispatch <*> getSettings
+  where
+    mc :: (Configuration -> Maybe a) -> Maybe a
+    mc f = mConf >>= f
+    getSettings = do
+      setBaseUrl <-
+        case flagUrl <|> envUrl <|> mc configUrl of
+          Nothing -> pure Nothing
+          Just url -> Just <$> parseBaseUrl url
+      setCacheDir <-
+        case flagCacheDir <|> envCacheDir <|> mc configCacheDir of
+          Nothing -> getXdgDir XdgCache (Just [reldir|intray|])
+          Just d -> resolveDir' d
+      setDataDir <-
+        case flagDataDir <|> envDataDir <|> mc configDataDir of
+          Nothing -> getXdgDir XdgData (Just [reldir|intray|])
+          Just d -> resolveDir' d
+      let setSyncStrategy =
+            fromMaybe
+              (case setBaseUrl of
+                 Nothing -> NeverSync
+                 Just _ -> AlwaysSync) $
+            flagSyncStrategy <|> envSyncStrategy <|> mc configSyncStrategy
+      setUsername <-
+        case envUsername <|> mc configUsername of
+          Nothing -> pure Nothing
+          Just us ->
+            case parseUsername (T.pack us) of
+              Nothing -> die $ "Invalid username: " <> us
+              Just un -> pure $ Just un
+      pure Settings {..}
+    getDispatch =
+      case cmd of
+        CommandRegister RegisterArgs {..} ->
+          pure $
+          DispatchRegister
+            RegisterSettings
+              { registerSetUsername =
+                  (T.pack <$> (registerArgUsername <|> envUsername <|> mc configUsername)) >>=
+                  parseUsername
+              , registerSetPassword = T.pack <$> (registerArgPassword <|> envPassword)
+              }
+        CommandLogin LoginArgs {..} ->
+          pure $
+          DispatchLogin
+            LoginSettings
+              { loginSetUsername =
+                  (T.pack <$> (loginArgUsername <|> envUsername <|> mc configUsername)) >>=
+                  parseUsername
+              , loginSetPassword =
+                  T.pack <$> (loginArgPassword <|> envPassword <|> mc configPassword)
+              }
+        CommandPostPostAddItem ss -> pure $ DispatchPostPostAddItem $ T.unwords $ map T.pack ss
+        CommandShowItem -> pure DispatchShowItem
+        CommandDoneItem -> pure DispatchDoneItem
+        CommandSize -> pure DispatchSize
+        CommandReview -> pure DispatchReview
+        CommandLogout -> pure DispatchLogout
+        CommandSync -> pure DispatchSync
 
-getDispatch :: Command -> IO Dispatch
-getDispatch cmd =
-  case cmd of
-    CommandRegister RegisterArgs {..} ->
-      pure $
-      DispatchRegister
-        RegisterSettings
-          { registerSetUsername = (T.pack <$> registerArgUsername) >>= parseUsername
-          , registerSetPassword = T.pack <$> registerArgPassword
-          }
-    CommandLogin LoginArgs {..} ->
-      pure $
-      DispatchLogin
-        LoginSettings
-          { loginSetUsername = (T.pack <$> loginArgUsername) >>= parseUsername
-          , loginSetPassword = T.pack <$> loginArgPassword
-          }
-    CommandPostPostAddItem ss -> pure $ DispatchPostPostAddItem $ T.unwords $ map T.pack ss
-    CommandShowItem -> pure DispatchShowItem
-    CommandDoneItem -> pure DispatchDoneItem
-    CommandSize -> pure DispatchSize
-    CommandReview -> pure DispatchReview
-    CommandLogout -> pure DispatchLogout
-    CommandSync -> pure DispatchSync
-
-getConfiguration :: Flags -> IO (Maybe Configuration)
-getConfiguration Flags {..} =
-  case flagConfigFile of
+getConfiguration :: Flags -> Environment -> IO (Maybe Configuration)
+getConfiguration Flags {..} Environment {..} =
+  case flagConfigFile <|> envConfigFile of
     Nothing -> defaultConfigFiles >>= getFirstConfigFile
     Just cf -> do
       p <- resolveFile' cf
@@ -128,9 +140,29 @@ defaultConfigFiles =
          resolveFile intrayDir "config.yaml"
     ]
 
+getEnvironment :: IO Environment
+getEnvironment = do
+  env <- System.getEnvironment
+  let ms key = lookup ("INTRAY_" <> key) env
+      mr key =
+        case ms key of
+          Nothing -> pure Nothing
+          Just s ->
+            case readMaybe s of
+              Nothing -> die $ "Un-read-able value: " <> s
+              Just r -> pure $ Just r
+  let envConfigFile = ms "CONFIG_FILE"
+      envUrl = ms "URL"
+      envCacheDir = ms "CACHE_DIR"
+      envDataDir = ms "DATA_DIR"
+  envSyncStrategy <- mr "SYNC_STRATEGY"
+  let envUsername = ms "USERNAME"
+  let envPassword = ms "PASSWORD"
+  pure Environment {..}
+
 getArguments :: IO Arguments
 getArguments = do
-  args <- getArgs
+  args <- System.getArgs
   let result = runArgumentsParser args
   handleParseResult result
 
