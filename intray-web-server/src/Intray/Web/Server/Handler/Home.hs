@@ -1,12 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Web.Server.Handler.Home
-    ( getHomeR
-    ) where
+  ( getHomeR
+  ) where
+
+import Import
 
 import Yesod
 
+import Intray.Client
 import Intray.Web.Server.Foundation
+import Intray.Web.Server.Handler.Pricing
 
 getHomeR :: Handler Html
-getHomeR = withNavBar $(widgetFile "home")
+getHomeR = do
+  mPricing <- runClientOrErr clientGetPricing
+  withNavBar $(widgetFile "home")

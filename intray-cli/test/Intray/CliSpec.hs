@@ -1,6 +1,6 @@
 module Intray.CliSpec
-    ( spec
-    ) where
+  ( spec
+  ) where
 
 import TestImport
 
@@ -11,41 +11,20 @@ import Intray.Server.TestUtils
 
 spec :: Spec
 spec =
-    withIntrayServer $
-    it "Going through the usual manual steps 'just works'" $ \(ClientEnv _ burl _) -> do
-        intray
-            [ "register"
-            , "--username"
-            , "testuser"
-            , "--password"
-            , "testpass"
-            , "--url"
-            , showBaseUrl burl
-            , "--intray-dir"
-            , "/tmp"
-            ]
-        intray
-            [ "login"
-            , "--username"
-            , "testuser"
-            , "--password"
-            , "testpass"
-            , "--url"
-            , showBaseUrl burl
-            , "--intray-dir"
-            , "/tmp"
-            ]
-        intray
-            [ "add"
-            , "hello"
-            , "world"
-            , "--url"
-            , showBaseUrl burl
-            , "--intray-dir"
-            , "/tmp"
-            ]
-        intray ["show", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["done", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["size", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["sync", "--url", showBaseUrl burl, "--intray-dir", "/tmp"]
-        intray ["logout", "--intray-dir", "/tmp"]
+  withIntrayServer $
+  it "Going through the usual manual steps 'just works'" $ \(ClientEnv _ burl _) ->
+    withSystemTempDir "intray-cli-test-cache" $ \cacheDir ->
+      withSystemTempDir "intray-cli-test-data" $ \dataDir -> do
+        setEnv "INTRAY_USERNAME" "testuser"
+        setEnv "INTRAY_PASSWORD" "testpassword"
+        setEnv "INTRAY_URL" $ showBaseUrl burl
+        setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
+        setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
+        intray ["register"]
+        intray ["login"]
+        intray ["add", "hello", "world"]
+        intray ["show"]
+        intray ["done"]
+        intray ["size"]
+        intray ["sync"]
+        intray ["logout"]

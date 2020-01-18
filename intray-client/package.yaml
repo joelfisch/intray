@@ -14,7 +14,6 @@ library:
   ghc-options: -Wall
   exposed-modules:
   - Intray.Client
-  - Intray.Client.Store
 
   dependencies:
   - base >=4.7 && <5
@@ -23,6 +22,7 @@ library:
   - containers
   - intray-api
   - intray-data
+  - mergeless
   - servant
   - servant-auth-client
   - servant-auth-server

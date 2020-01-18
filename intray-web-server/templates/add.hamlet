@@ -1,6 +1,6 @@
-<div .ui .segment>
-  <h1> Add Item
+<h1> Add Item
 
+<div .ui .segment>
   <form
     .ui .form
     method=post

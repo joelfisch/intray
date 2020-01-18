@@ -1,57 +1,102 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Intray.Cli.Store
-    ( Store(..)
-    , StoreItem(..)
-    , readStore
-    , readStoreOrEmpty
-    , writeStore
-    , addItemToStore
-    , LastItem(..)
-    , lastItemInStore
-    , doneLastItem
-    , storeSize
-    ) where
+  ( ClientStore(..)
+  , readClientStore
+  , readClientStoreOrEmpty
+  , writeClientStore
+  , addItemToClientStore
+  , LastItem(..)
+  , lastItemInClientStore
+  , doneLastItem
+  , storeSize
+  , writeLastSeen
+  , readLastSeen
+  , clearLastSeen
+  ) where
 
 import Import
 
+import Data.Aeson
+import qualified Data.Map as M
+import Data.Mergeless
+
 import Intray.API
-import Intray.Client.Store
 
 import Intray.Cli.JSON
-import Intray.Cli.LastSeen
 import Intray.Cli.OptParse
 import Intray.Cli.Path
 
 {-# ANN module "HLint: ignore Use &&" #-}
 
-readStore :: CliM (Maybe Store)
-readStore = storePath >>= readJSON
+{-# ANN module "HLint: ignore Use lambda-case" #-}
 
-readStoreOrEmpty :: CliM Store
-readStoreOrEmpty = fromMaybe emptyStore <$> readStore
+readClientStore :: CliM (Maybe (ClientStore ItemUUID TypedItem))
+readClientStore = storePath >>= readJSON
 
-writeStore :: Store -> CliM ()
-writeStore s = do
-    checkLastSeenAfter s
-    storePath >>= (`writeJSON` s)
+readClientStoreOrEmpty :: CliM (ClientStore ItemUUID TypedItem)
+readClientStoreOrEmpty = fromMaybe emptyClientStore <$> readClientStore
 
-checkLastSeenAfter :: Store -> CliM ()
+writeClientStore :: ClientStore ItemUUID TypedItem -> CliM ()
+writeClientStore s = do
+  checkLastSeenAfter s
+  storePath >>= (`writeJSON` s)
+
+checkLastSeenAfter :: ClientStore ItemUUID TypedItem -> CliM ()
 checkLastSeenAfter s = do
-    mLs <- readLastSeen
-    case mLs of
-        Nothing -> pure () -- Nothing was last seen, cannot be out of date
-        Just ls -> unless (lastSeenInStore ls s) clearLastSeen
+  mLs <- readLastSeen
+  case mLs of
+    Nothing -> pure () -- Nothing was last seen, cannot be out of date
+    Just ls -> unless (lastSeenInClientStore ls s) clearLastSeen
 
-lastSeenInStore :: LastItem -> Store -> Bool
-lastSeenInStore LastItem {..} Store {..} = any matches storeItems
-  where
-    matches (Unsynced t ts) =
-        and [lastItemTimestamp == ts, lastItemData == t, isNothing lastItemUUID]
-    matches (Synced ItemInfo {..}) =
-        and
-            [ lastItemTimestamp == itemInfoTimestamp
-            , lastItemData == itemInfoContents
-            , lastItemUUID == Just itemInfoIdentifier
-            ]
-    matches (Undeleted _) = False -- If it's deleted locally, we should report it's not in the store, even if we haven't synced yet.
+lastSeenInClientStore :: LastItem -> ClientStore ItemUUID TypedItem -> Bool
+lastSeenInClientStore li ClientStore {..} =
+  case li of
+    LastItemUnsynced ci Added {..} ->
+      M.member ci clientStoreAdded ||
+      any -- An unsynced item could have gotten synced.
+        (\Synced {..} -> and [syncedCreated == addedCreated, syncedValue == addedValue])
+        clientStoreSynced
+    LastItemSynced uuid _ -> M.member uuid clientStoreSynced
+
+data LastItem
+  = LastItemSynced ItemUUID (Synced TypedItem)
+  | LastItemUnsynced ClientId (Added TypedItem)
+  deriving (Show, Eq, Ord, Generic)
+
+instance FromJSON LastItem
+
+instance ToJSON LastItem
+
+readLastSeen :: CliM (Maybe LastItem)
+readLastSeen = do
+  p <- lastSeenItemPath
+  readJSON p
+
+writeLastSeen :: LastItem -> CliM ()
+writeLastSeen i = do
+  p <- lastSeenItemPath
+  writeJSON p i
+
+clearLastSeen :: CliM ()
+clearLastSeen = do
+  p <- lastSeenItemPath
+  liftIO $ ignoringAbsence $ removeFile p
+
+lastItemInClientStore :: ClientStore ItemUUID TypedItem -> Maybe LastItem
+lastItemInClientStore ClientStore {..} =
+  let lasts =
+        concat
+          [ map (uncurry LastItemUnsynced) (M.toList clientStoreAdded)
+          , map (uncurry LastItemSynced) (M.toList clientStoreSynced)
+          ]
+   in case lasts of
+        [] -> Nothing
+        (li:_) -> Just li
+
+doneLastItem :: LastItem -> ClientStore ItemUUID TypedItem -> ClientStore ItemUUID TypedItem
+doneLastItem li cs =
+  case li of
+    LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs
+    LastItemSynced u _ -> deleteSyncedFromClientStore u cs

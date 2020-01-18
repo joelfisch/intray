@@ -9,33 +9,31 @@ copyright: ! 'Copyright: (c) 2016-2018 Tom Sydney Kerckhove'
 license: AllRightsReserved
 github: NorfairKing/intray-server
 
+dependencies:
+- base >=4.7 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
   default-extensions:
   - NoImplicitPrelude
-  exposed-modules:
-  - IntrayServer
-  - Intray.Server
-  - Intray.Server.Handler.PostSync
-  - Intray.Server.Handler.Utils
-  - Intray.Server.Types
-  - Intray.Server.OptParse
-  - Intray.Server.OptParse.Types
-
   dependencies:
   - aeson
   - aeson-pretty
-  - base >=4.7 && <5
+  - async
   - bytestring
+  - cache
+  - containers
   - file-embed
   - intray-api
   - intray-data
   - jose
+  - looper
+  - markdown
+  - mergeless
   - monad-logger
   - mtl >=2.2
   - optparse-applicative >=0.13
-  - pandoc
   - path
   - path-io
   - persistent >=2.7
@@ -47,6 +45,8 @@ library:
   - servant-docs
   - servant-generic
   - servant-server
+  - stripe-core
+  - stripe-haskell
   - text
   - time
   - typed-uuid

@@ -1,19 +1,37 @@
-module Intray.Server.Types where
+module Intray.Server.Types
+  ( module Intray.Server.Types
+  , MonetisationSettings(..)
+  ) where
 
-import Control.Monad.Reader
+import Import
 
 import Database.Persist.Sqlite
+
+import Data.Cache
 
 import Servant
 import Servant.Auth.Server
 
+import Web.Stripe.Plan as Stripe
+
 import Intray.API
 
-data IntrayServerEnv = IntrayServerEnv
-    { envConnectionPool :: ConnectionPool
-    , envCookieSettings :: CookieSettings
-    , envJWTSettings :: JWTSettings
-    , envAdmins :: [Username]
+import Intray.Server.OptParse.Types
+
+data IntrayServerEnv =
+  IntrayServerEnv
+    { envConnectionPool :: !ConnectionPool
+    , envCookieSettings :: !CookieSettings
+    , envJWTSettings :: !JWTSettings
+    , envAdmins :: ![Username]
+    , envPlanCache :: !(Cache Stripe.PlanId Stripe.Plan)
+    , envMonetisation :: !(Maybe MonetisationEnv)
+    }
+
+data MonetisationEnv =
+  MonetisationEnv
+    { monetisationEnvStripeSettings :: !StripeSettings
+    , monetisationEnvMaxItemsFree :: !Int
     }
 
 type IntrayHandler = ReaderT IntrayServerEnv Handler

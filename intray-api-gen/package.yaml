@@ -10,24 +10,33 @@ github: NorfairKing/intray
 default-extensions:
 - NoImplicitPrelude
 
+dependencies:
+- base >=4.7 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
   exposed-modules:
   - Intray.API.Gen
+  - Intray.API.Admin.Gen
+  - Intray.API.Protected.Gen
+  - Intray.API.Protected.Account.Gen
+  - Intray.API.Protected.Item.Gen
 
   dependencies:
   - QuickCheck
-  - base >=4.7 && <5
   - bytestring
   - genvalidity
   - genvalidity-bytestring
+  - genvalidity-mergeless
   - genvalidity-text
   - genvalidity-time
   - genvalidity-uuid
   - intray-api
   - intray-data
   - intray-data-gen
+  - stripe-core
+  - stripe-haskell
   - text
   - validity
   - validity-bytestring

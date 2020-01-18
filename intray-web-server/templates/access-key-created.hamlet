@@ -1,0 +1,17 @@
+<div .ui .segment>
+  <h1> Access Key Created
+
+  <p>
+    Name: #{addAccessKeyName aac}
+
+  <p>
+    Created: ^{timestampWidget}
+
+  <p>
+    Secret:
+    <pre>
+      #{accessKeySecretText accessKeyCreatedKey}
+
+  <p>
+    This message will dissappear.
+    Please make sure that you have saved the access key secret.

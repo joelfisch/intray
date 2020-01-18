@@ -1,0 +1,20 @@
+<p>
+  Name: #{accessKeyInfoName}
+
+<p>
+  Created: ^{timestampWidget}
+
+<p>
+  Permissions:
+  <ul>
+    $forall perm <- S.toList accessKeyInfoPermissions
+      <li>
+        #{show perm}
+<form
+  method=post
+  action=@{AccessKeyRevokeR accessKeyInfoUUID}>
+  ^{token}
+  <button 
+    .ui .negative .button
+    type=submit>
+    Revoke

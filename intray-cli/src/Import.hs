@@ -1,11 +1,12 @@
 module Import
-    ( module X
-    ) where
+  ( module X
+  ) where
 
 import Prelude as X
 
 import Data.ByteString as X (ByteString)
 import Data.Either as X
+import Data.Function as X
 import Data.List as X
 import Data.Maybe as X
 import Data.Monoid as X

@@ -10,21 +10,35 @@ github: NorfairKing/intray
 default-extensions:
 - NoImplicitPrelude
 
+dependencies:
+- base >=4.7 && <5
+
 library:
   source-dirs: src
   ghc-options: -Wall
   exposed-modules:
   - Intray.API
+  - Intray.API.Admin
+  - Intray.API.Admin.Types
+  - Intray.API.Protected
+  - Intray.API.Protected.AccessKey
+  - Intray.API.Protected.AccessKey.Types
+  - Intray.API.Protected.Account
+  - Intray.API.Protected.Account.Types
+  - Intray.API.Protected.Item
+  - Intray.API.Protected.Item.Types
+  - Intray.API.Types
   dependencies:
   - aeson
-  - base >=4.7 && <5
   - base64-bytestring
   - blaze-html
   - blaze-markup
   - bytestring >=0.10 && <0.11
+  - containers
   - cookie
+  - hashable
   - intray-data
-  - pandoc
+  - mergeless
   - servant
   - servant-auth
   - servant-auth-docs
@@ -32,12 +46,14 @@ library:
   - servant-blaze
   - servant-docs
   - servant-generic
+  - stripe-core
   - text
   - time
   - typed-uuid
   - uuid >=1.3 && <1.4
   - validity >=0.4
   - validity-bytestring >=0.2
+  - validity-containers
   - validity-text >=0.2
   - validity-time >=0.1
   - validity-uuid >=0.0

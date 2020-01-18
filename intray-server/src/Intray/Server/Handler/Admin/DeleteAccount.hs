@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.Admin.DeleteAccount
-    ( serveAdminDeleteAccount
-    ) where
+  ( serveAdminDeleteAccount
+  ) where
 
 import Import
 
@@ -20,10 +20,9 @@ import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
-serveAdminDeleteAccount ::
-       AuthResult AuthCookie -> AccountUUID -> IntrayHandler NoContent
+serveAdminDeleteAccount :: AuthResult AuthCookie -> AccountUUID -> IntrayHandler NoContent
 serveAdminDeleteAccount (Authenticated AuthCookie {..}) uuid =
-    withAdminCreds authCookieUserUUID $ do
-        deleteAccountFully uuid
-        pure NoContent
+  withPermission authCookiePermissions PermitAdminDeleteAccount $ do
+    deleteAccountFully uuid
+    pure NoContent
 serveAdminDeleteAccount _ _ = throwAll err401

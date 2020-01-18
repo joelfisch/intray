@@ -3,51 +3,51 @@
 
 module Intray.Data.Gen where
 
-import Import
+import Intray.Data.Gen.Import
 
-import Data.GenValidity
-import Data.GenValidity.ByteString ()
-import Data.GenValidity.Text ()
-import Data.GenValidity.Time ()
-import Data.GenValidity.UUID ()
+import System.IO.Unsafe
+
 import qualified Data.Text as T
 
 import Intray.Data
 
-instance GenUnchecked ItemUUID
-
-instance GenValid ItemUUID
-
-instance GenUnchecked AccountUUID
-
-instance GenValid AccountUUID
-
-instance GenUnchecked ItemType
-
-instance GenValid ItemType
-
-instance GenUnchecked IntrayItem
+instance GenValid ItemType where
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
 
 instance GenValid IntrayItem where
-    genValid =
-        IntrayItem <$> genValid <*> genValid <*> genValid <*> genValid <*>
-        genValid
-
-instance GenUnchecked Username
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
 
 instance GenValid Username where
-    genValid = do
-        username <- parseUsername <$> textGen
-        case username of
-            Just name -> pure name
-            Nothing -> genValid
-      where
-        textGen =
-            T.pack <$>
-            ((:) <$> charGen <*>
-             ((:) <$> charGen <*> ((:) <$> charGen <*> genListOf charGen)))
-        charGen = genValid `suchThat` validUsernameChar
+  genValid = do
+    username <- parseUsername <$> textGen
+    case username of
+      Just name -> pure name
+      Nothing -> genValid
+    where
+      textGen =
+        T.pack <$>
+        ((:) <$> charGen <*> ((:) <$> charGen <*> ((:) <$> charGen <*> genListOf charGen)))
+      charGen = choose ('\NUL', '\255') `suchThat` validUsernameChar
+  shrinkValid = shrinkValidStructurally
 
-instance GenUnchecked User
+instance GenValid User where
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally
 
-instance GenUnchecked HashedPassword
+instance GenValid HashedPassword where
+  genValid = do
+    t <- genValid
+    case unsafePerformIO $ passwordHash t of
+      Nothing -> error "unable to hash password during generation, for some reason"
+      Just hp -> pure hp
+  shrinkValid _ = [] -- Doesn't help anyway
+
+instance GenValid Permission where
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
+
+instance GenValid AccessKeySecret where
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally

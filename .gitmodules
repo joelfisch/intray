@@ -1,3 +1,0 @@
-[submodule "intray-web-server/static/semantic"]
-	path = intray-web-server/static/semantic
-	url = git@github.com:Semantic-Org/Semantic-UI.git

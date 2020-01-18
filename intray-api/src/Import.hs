@@ -1,6 +1,6 @@
 module Import
-    ( module X
-    ) where
+  ( module X
+  ) where
 
 import Prelude as X hiding (fail, head, init, last, tail)
 
@@ -19,6 +19,7 @@ import Data.Text as X (Text)
 
 import Data.Validity as X
 import Data.Validity.ByteString as X ()
+import Data.Validity.Containers as X ()
 import Data.Validity.Text as X ()
 import Data.Validity.Time as X ()
 import Data.Validity.UUID as X ()

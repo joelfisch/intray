@@ -1,6 +1,6 @@
 module Intray.Cli.TestUtils
-    ( intray
-    ) where
+  ( intray
+  ) where
 
 import TestImport
 
@@ -8,5 +8,5 @@ import Intray.Cli (intrayCli)
 
 intray :: [String] -> IO ()
 intray args = do
-    putStrLn $ unwords $ "RUNNING:" : "intray" : args
-    withArgs args intrayCli
+  putStrLn $ unwords $ "RUNNING:" : "intray" : args
+  withArgs args intrayCli

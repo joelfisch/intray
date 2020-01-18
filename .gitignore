@@ -1,8 +1,11 @@
 .shake/
 *.cabal
 .stack-work/
+result*
 /out/
 /tmp/
 /src/
 dist/
 *.db*
+.pre-commit-hooks
+.pre-commit-config.yaml

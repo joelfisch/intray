@@ -25,8 +25,8 @@
 
 
 <!-- Messages -->
-$forall (_, msg) <- msgs
-  <div .ui .bottom .attached .message>
+$forall (msgtype, msg) <- msgs
+  <div .ui .bottom .attached .#{msgtype} .message>
     ^{msg}
 
 <div .ui .main .container>

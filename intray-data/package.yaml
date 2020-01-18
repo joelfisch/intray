@@ -7,35 +7,36 @@ maintainer: syd.kerckhove@gmail.com
 copyright: ! 'Copyright: (c) 2017-2018 Tom Sydney Kerckhove'
 license: AllRightsReserved
 github: NorfairKing/intray
+
+dependencies:
+- base >=4.7 && <5
+
 default-extensions:
 - NoImplicitPrelude
 
 library:
   source-dirs: src
   ghc-options: -Wall
-  exposed-modules:
-  - Intray.Data
-  - Intray.Data.AccountUUID
-  - Intray.Data.HashedPassword
-  - Intray.Data.ItemType
-  - Intray.Data.ItemUUID
-  - Intray.Data.UUID
-  - Intray.Data.Username
 
   dependencies:
   - aeson
-  - base >=4.7 && <5
   - bcrypt
   - bytestring
+  - containers
   - hashable
   - persistent
   - persistent-template
+  - random
+  - base16-bytestring
   - text
   - time
   - typed-uuid
   - uuid
   - validity
   - validity-bytestring
+  - stripe-core
+  - stripe-haskell
+  - validity-containers
   - validity-text
   - validity-time
   - validity-uuid

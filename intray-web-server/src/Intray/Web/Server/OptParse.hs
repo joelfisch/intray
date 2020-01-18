@@ -2,87 +2,87 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Intray.Web.Server.OptParse
-    ( getInstructions
-    , Instructions
-    , Dispatch(..)
-    , Settings(..)
-    , ServeSettings(..)
-    ) where
+  ( getInstructions
+  , Instructions
+  , Dispatch(..)
+  , Settings(..)
+  , ServeSettings(..)
+  ) where
 
 import Import
 
 import qualified Data.Text as T
-import System.Environment (getArgs, getEnvironment)
+import qualified System.Environment as System
 import Text.Read
-
-import Database.Persist.Sqlite
 
 import Options.Applicative
 
-import Intray.API
+import qualified Intray.Server.OptParse as API
+
 import Intray.Web.Server.OptParse.Types
 
 getInstructions :: IO Instructions
 getInstructions = do
-    (cmd, flags) <- getArguments
-    config <- getConfiguration cmd flags
-    env <- getEnv
-    combineToInstructions cmd flags config env
+  (cmd, flags) <- getArguments
+  env <- getEnvironment
+  config <- getConfiguration cmd flags
+  combineToInstructions cmd flags env config
 
-combineToInstructions ::
-       Command -> Flags -> Configuration -> Environment -> IO Instructions
-combineToInstructions (CommandServe ServeFlags {..}) Flags Configuration Environment {..} = do
-    let port = fromMaybe 8000 $ serveFlagPort `mplus` envPort
-    let apiPort = fromMaybe 8001 $ serveFlagAPIPort `mplus` envAPIPort
-    let connInfo = mkSqliteConnectionInfo $ fromMaybe "intray.db" serveFlagAPIDB
-    let connCount = fromMaybe 4 serveFlagAPIConnectionCount
-    when (apiPort == port) $
-        die $
-        unlines
-            [ "Web server port and API port must not be the same."
-            , "They are both: " ++ show port
-            ]
-    admins <-
-        forM serveFlagAPIAdmins $ \s ->
-            case parseUsername $ T.pack s of
-                Nothing -> die $ unwords ["Invalid admin username:", s]
-                Just u -> pure u
-    pure
-        ( DispatchServe
-              ServeSettings
-              { serveSetPort = port
-              , serveSetPersistLogins = fromMaybe False serveFlagPersistLogins
-              , serveSetAPIPort = apiPort
-              , serveSetAPIConnectionInfo = connInfo
-              , serveSetAPIConnectionCount = connCount
-              , serveSetAPIAdmins = admins
-              }
-        , Settings)
+combineToInstructions :: Command -> Flags -> Environment -> Configuration -> IO Instructions
+combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Configuration = do
+  (API.DispatchServe apiSets, API.Settings) <-
+    API.combineToInstructions
+      (API.CommandServe serveFlagAPIFlags)
+      API.Flags
+      envAPIEnvironment
+      API.Configuration
+  let port = fromMaybe 8000 $ serveFlagPort <|> envPort
+  when (API.serveSetPort apiSets == port) $
+    die $
+    unlines ["Web server port and API port must not be the same.", "They are both: " ++ show port]
+  pure
+    ( DispatchServe
+        ServeSettings
+          { serveSetAPISettings = apiSets
+          , serveSetHost = serveFlagHost <|> envHost
+          , serveSetPort = port
+          , serveSetPersistLogins = fromMaybe False serveFlagPersistLogins
+          , serveSetTracking = serveFlagTracking <|> envTracking
+          , serveSetVerification = serveFlagVerification <|> envVerification
+          }
+    , Settings)
 
 getConfiguration :: Command -> Flags -> IO Configuration
 getConfiguration _ _ = pure Configuration
 
-getEnv :: IO Environment
-getEnv = do
-    env <- getEnvironment
-    let mv k = lookup k env
-    pure
-        Environment
-        { envPort = mv "PORT" >>= readMaybe
-        , envAPIPort = mv "API_PORT" >>= readMaybe
-        }
+getEnvironment :: IO Environment
+getEnvironment = do
+  env <- System.getEnvironment
+  apiEnv <- API.getEnvironment
+  let mv k = lookup ("INTRAY_WEB_SERVER_" <> k) env
+      mr :: Read a => String -> Maybe a
+      mr k = mv k >>= readMaybe
+      mt = fmap T.pack . mv
+  pure
+    Environment
+      { envAPIEnvironment = apiEnv
+      , envHost = mt "HOST"
+      , envPort = mr "PORT"
+      , envTracking = mt "ANALYTICS_TRACKING_ID"
+      , envVerification = mt "SEARCH_CONSOLE_VERIFICATION"
+      }
 
 getArguments :: IO Arguments
 getArguments = do
-    args <- getArgs
-    let result = runArgumentsParser args
-    handleParseResult result
+  args <- System.getArgs
+  let result = runArgumentsParser args
+  handleParseResult result
 
 runArgumentsParser :: [String] -> ParserResult Arguments
 runArgumentsParser = execParserPure prefs_ argParser
   where
     prefs_ =
-        ParserPrefs
+      ParserPrefs
         { prefMultiSuffix = ""
         , prefDisambiguate = True
         , prefShowHelpOnError = True
@@ -107,54 +107,38 @@ parseCommandServe :: ParserInfo Command
 parseCommandServe = info parser modifier
   where
     parser =
-        CommandServe <$>
-        (ServeFlags <$>
-         option
-             (Just <$> auto)
-             (mconcat
-                  [ long "port"
-                  , metavar "PORT"
-                  , value Nothing
-                  , help "the port to serve on"
-                  ]) <*>
-         flag
-             Nothing
-             (Just True)
-             (mconcat
-                  [ long "persist-logins"
-                  , help
-                        "Whether to persist logins accross restarts. This should not be used in production."
-                  ]) <*>
-         option
-             (Just <$> auto)
-             (mconcat
-                  [ long "api-port"
-                  , value Nothing
-                  , help "the port to serve the API on"
-                  ]) <*>
-         option
-             (Just . T.pack <$> str)
-             (mconcat
-                  [ long "database"
-                  , value Nothing
-                  , metavar "DATABASE_CONNECTION_STRING"
-                  , help "The sqlite connection string"
-                  ]) <*>
-         option
-             (Just <$> auto)
-             (mconcat
-                  [ long "connection-count"
-                  , value Nothing
-                  , metavar "CONNECTION_COUNT"
-                  , help "the number of database connections to use"
-                  ]) <*>
-         many
-             (strOption
-                  (mconcat
-                       [ long "admin"
-                       , metavar "USERNAME"
-                       , help "An admin to use"
-                       ])))
+      CommandServe <$>
+      (ServeFlags <$> API.parseServeFlags <*>
+       option
+         (Just <$> auto)
+         (mconcat [long "web-host", metavar "HOST", value Nothing, help "the host to serve on"]) <*>
+       option
+         (Just <$> auto)
+         (mconcat [long "web-port", metavar "PORT", value Nothing, help "the port to serve on"]) <*>
+       flag
+         Nothing
+         (Just True)
+         (mconcat
+            [ long "persist-logins"
+            , help
+                "Whether to persist logins accross restarts. This should not be used in production."
+            ]) <*>
+       option
+         (Just . T.pack <$> str)
+         (mconcat
+            [ long "analytics-tracking-id"
+            , value Nothing
+            , metavar "TRACKING_ID"
+            , help "The google analytics tracking ID"
+            ]) <*>
+       option
+         (Just . T.pack <$> str)
+         (mconcat
+            [ long "search-console-verification"
+            , value Nothing
+            , metavar "VERIFICATION_TAG"
+            , help "The contents of the google search console verification tag"
+            ]))
     modifier = fullDesc <> progDesc "Serve."
 
 parseFlags :: Parser Flags

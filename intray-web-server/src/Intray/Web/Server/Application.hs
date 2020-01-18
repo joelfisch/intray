@@ -9,12 +9,6 @@ import Yesod
 import Yesod.Auth
 
 import Intray.Web.Server.Foundation
-import Intray.Web.Server.Handler.APIDocs
-import Intray.Web.Server.Handler.Account
-import Intray.Web.Server.Handler.Add
-import Intray.Web.Server.Handler.Admin
-import Intray.Web.Server.Handler.Error
-import Intray.Web.Server.Handler.Home
-import Intray.Web.Server.Handler.Process
+import Intray.Web.Server.Handler
 
 mkYesodDispatch "App" resourcesApp

@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.DeleteItem
-    ( serveDeleteItem
-    ) where
+  ( serveDeleteItem
+  ) where
 
 import Import
 
@@ -17,14 +17,14 @@ import Servant.Auth.Server as Auth
 import Servant.Auth.Server.SetCookieOrphan ()
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
 serveDeleteItem :: AuthResult AuthCookie -> ItemUUID -> IntrayHandler NoContent
-serveDeleteItem (Authenticated AuthCookie {..}) id_ = do
-    runDb . deleteBy $ UniqueIdentifier id_ authCookieUserUUID
+serveDeleteItem (Authenticated AuthCookie {..}) id_ =
+  withPermission authCookiePermissions PermitDelete $ do
+    runDb . deleteBy $ UniqueItemIdentifier id_
     pure NoContent
 serveDeleteItem _ _ = throwAll err401

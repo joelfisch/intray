@@ -5,8 +5,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Intray.Server.Handler.Admin.GetAccounts
-    ( serveAdminGetAccounts
-    ) where
+  ( serveAdminGetAccounts
+  ) where
 
 import Import
 
@@ -17,24 +17,28 @@ import Servant.Auth.Server as Auth
 import Servant.Auth.Server.SetCookieOrphan ()
 
 import Intray.API
-import Intray.Data
 
 import Intray.Server.Types
 
+import Intray.Server.Handler.GetAccountInfo
 import Intray.Server.Handler.Utils
 
 serveAdminGetAccounts :: AuthResult AuthCookie -> IntrayHandler [AccountInfo]
 serveAdminGetAccounts (Authenticated AuthCookie {..}) =
-    withAdminCreds authCookieUserUUID $ do
-        admins <- asks envAdmins
-        users <- runDb $ selectList [] [Asc UserId]
-        pure $
-            flip map users $ \(Entity _ User {..}) ->
-                AccountInfo
-                { accountInfoUUID = userIdentifier
-                , accountInfoUsername = userUsername
-                , accountInfoCreatedTimestamp = userCreatedTimestamp
-                , accountInfoLastLogin = userLastLogin
-                , accountInfoAdmin = userUsername `elem` admins
-                }
+  withPermission authCookiePermissions PermitAdminGetAccounts $ do
+    admins <- asks envAdmins
+    users <- runDb $ selectList [] [Asc UserId]
+    forM users $ \(Entity _ User {..}) -> do
+      c <- runDb $ count ([IntrayItemUserId ==. userIdentifier] :: [Filter IntrayItem])
+      subbed <- getAccountSubscribed userIdentifier
+      pure
+        AccountInfo
+          { accountInfoUUID = userIdentifier
+          , accountInfoUsername = userUsername
+          , accountInfoCreatedTimestamp = userCreatedTimestamp
+          , accountInfoLastLogin = userLastLogin
+          , accountInfoAdmin = userUsername `elem` admins
+          , accountInfoCount = c
+          , accountInfoSubscribed = subbed
+          }
 serveAdminGetAccounts _ = throwAll err401

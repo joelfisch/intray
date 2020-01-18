@@ -20,22 +20,25 @@ library:
   dependencies:
   - QuickCheck >=2.9
   - base
-  - bytestring >=0.10 && <0.11
-  - cookie >=0.4 && <0.5
+  - bytestring >=0.10 
+  - cookie >=0.4
+  - containers
   - genvalidity-bytestring
+  - genvalidity-containers
   - genvalidity-hspec
+  - genvalidity-mergeless
   - genvalidity-text
   - genvalidity-time
+  - cache
   - hspec
   - http-client
   - http-types
   - intray-api
   - intray-client
-  - intray-client-gen
   - intray-data
   - intray-data-gen
   - intray-server
-  - microlens >=0.4 && <0.5
+  - microlens >=0.4
   - monad-logger
   - path
   - path-io
@@ -46,7 +49,7 @@ library:
   - servant-auth-server
   - servant-client
   - servant-server
-  - text >=1.2 && <1.3
+  - text >=1.2
   - typed-uuid
   - wai
   - warp
@@ -73,14 +76,15 @@ tests:
     - hspec
     - http-types
     - intray-api
+    - intray-api-gen
     - intray-client
-    - intray-client-gen
     - intray-data
     - intray-data-gen
     - intray-server-test-utils
     - path
     - path-io
     - servant
+    - servant-server
     - servant-client
     - text
 
