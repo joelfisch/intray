@@ -21,16 +21,18 @@ import Intray.API
 import Intray.Server.Types
 
 serveGetDocs :: IntrayHandler GetDocsResponse
-serveGetDocs = pure intrayHtmlResponse
+serveGetDocs = do
+  host <- asks envHost
+  pure $ intrayHtmlResponse host
 
-intrayHtmlResponse :: GetDocsResponse
-intrayHtmlResponse =
+intrayHtmlResponse :: Text -> GetDocsResponse
+intrayHtmlResponse host =
   GetDocsResponse $
   Markdown.markdown Markdown.defaultMarkdownSettings {Markdown.msXssProtect = False} $
-  LT.fromStrict intrayDocs
+  LT.fromStrict $ intrayDocs host
 
-intrayDocs :: Text
-intrayDocs =
+intrayDocs :: Text -> Text
+intrayDocs host =
   T.unlines .
   map
     (\t ->
@@ -45,4 +47,5 @@ intrayDocs =
         "Intray API"
         [ unlines
             ["<style>", T.unpack $ TE.decodeUtf8 $(embedFile "res/style/docs.css"), "</style>"]
+        , "Please find the api endpoints at " <> T.unpack host <> "."
         ]

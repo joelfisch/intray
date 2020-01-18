@@ -50,7 +50,8 @@ runIntrayServer ServeSettings {..} =
     planCache <- liftIO $ newCache Nothing
     let intrayEnv =
           IntrayServerEnv
-            { envConnectionPool = pool
+            { envHost = serveSetHost
+            , envConnectionPool = pool
             , envCookieSettings = cookieCfg
             , envJWTSettings = jwtCfg
             , envAdmins = serveSetAdmins

@@ -34,6 +34,7 @@ getInstructions = do
 combineToInstructions :: Command -> Flags -> Environment -> Configuration -> IO Instructions
 combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Configuration = do
   let port = fromMaybe 8001 $ serveFlagPort <|> envPort
+  let host = T.pack $ fromMaybe ("localhost:" <> show port) $ serveFlagHost <|> envHost
   let logLevel = fromMaybe LevelInfo $ serveFlagLogLevel <|> envLogLevel
   let connInfo = mkSqliteConnectionInfo $ fromMaybe "intray.db" serveFlagDb
   admins <-
@@ -74,7 +75,8 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
   pure
     ( DispatchServe
         ServeSettings
-          { serveSetPort = port
+          { serveSetHost = host
+          , serveSetPort = port
           , serveSetLogLevel = logLevel
           , serveSetConnectionInfo = connInfo
           , serveSetAdmins = admins
@@ -96,7 +98,8 @@ getEnvironment = do
             Nothing -> die $ "Un-Read-able value: " <> s
             Just val -> pure val
       le n = readLooperEnvironment "INTRAY_SERVER_LOOPER_" n env
-  let envPort = mv "PORT" >>= readMaybe
+  envPort <- mr "PORT"
+  let envHost = mv "HOST"
   envLogLevel <- mr "LOG_LEVEL"
   let envStripePlan = mv "STRIPE_PLAN"
   let envStripeSecretKey = mv "STRIPE_SECRET_KEY"
@@ -146,6 +149,9 @@ parseCommandServe = info parser modifier
 parseServeFlags :: Parser ServeFlags
 parseServeFlags =
   ServeFlags <$>
+  option
+    (Just <$> str)
+    (mconcat [long "api-host", value Nothing, metavar "HOST", help "the host to serve on"]) <*>
   option
     (Just <$> auto)
     (mconcat [long "api-port", value Nothing, metavar "PORT", help "the port to serve on"]) <*>

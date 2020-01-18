@@ -22,7 +22,8 @@ newtype Command =
 
 data ServeFlags =
   ServeFlags
-    { serveFlagPort :: !(Maybe Int)
+    { serveFlagHost :: !(Maybe String)
+    , serveFlagPort :: !(Maybe Int)
     , serveFlagDb :: !(Maybe Text)
     , serveFlagAdmins :: ![String]
     , serveFlagLogLevel :: Maybe LogLevel
@@ -45,7 +46,8 @@ data Configuration =
 
 data Environment =
   Environment
-    { envPort :: !(Maybe Int)
+    { envHost :: !(Maybe String)
+    , envPort :: !(Maybe Int)
     , envLogLevel :: !(Maybe LogLevel)
     , envStripePlan :: !(Maybe String)
     , envStripeSecretKey :: !(Maybe String)
@@ -66,7 +68,8 @@ data Settings =
 
 data ServeSettings =
   ServeSettings
-    { serveSetPort :: !Int
+    { serveSetHost :: !Text
+    , serveSetPort :: !Int
     , serveSetLogLevel :: !LogLevel
     , serveSetConnectionInfo :: !SqliteConnectionInfo
     , serveSetAdmins :: ![Username]

@@ -20,7 +20,8 @@ import Intray.Server.OptParse.Types
 
 data IntrayServerEnv =
   IntrayServerEnv
-    { envConnectionPool :: !ConnectionPool
+    { envHost :: Text
+    , envConnectionPool :: !ConnectionPool
     , envCookieSettings :: !CookieSettings
     , envJWTSettings :: !JWTSettings
     , envAdmins :: ![Username]

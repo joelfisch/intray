@@ -158,6 +158,13 @@
       Intray Android Apk
     .
 
+  <h2 .ui .header> Roadmap
+  <p>
+    You can vote on the feature roadmap
+    <a href="">
+      Roadmap vote
+    .
+
 $maybe p <- mPricing
   <div .ui .huge .padded .segment>
     <h2 .ui .header> Pricing
