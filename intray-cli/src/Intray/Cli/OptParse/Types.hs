@@ -16,9 +16,11 @@ import Intray.Data
 
 data Arguments =
   Arguments Command Flags
+  deriving (Show, Eq, Generic)
 
 data Instructions =
   Instructions Dispatch Settings
+  deriving (Show, Eq, Generic)
 
 data Command
   = CommandRegister RegisterArgs
@@ -50,7 +52,8 @@ data Flags =
   Flags
     { flagConfigFile :: Maybe FilePath
     , flagUrl :: Maybe String
-    , flagIntrayDir :: Maybe FilePath
+    , flagCacheDir :: Maybe FilePath
+    , flagDataDir :: Maybe FilePath
     , flagSyncStrategy :: Maybe SyncStrategy
     }
   deriving (Show, Eq, Generic)
@@ -59,7 +62,8 @@ data Configuration =
   Configuration
     { configUrl :: Maybe String
     , configUsername :: Maybe Username
-    , configIntrayDir :: Maybe FilePath
+    , configCacheDir :: Maybe FilePath
+    , configDataDir :: Maybe FilePath
     , configSyncStrategy :: Maybe SyncStrategy
     }
   deriving (Show, Eq, Generic)
@@ -67,22 +71,15 @@ data Configuration =
 instance FromJSON Configuration where
   parseJSON =
     withObject "Configuration" $ \o ->
-      Configuration <$> o .:? "url" <*> o .:? "username" <*> o .:? "intray-dir" <*> o .:? "sync"
-
-emptyConfiguration :: Configuration
-emptyConfiguration =
-  Configuration
-    { configUrl = Nothing
-    , configUsername = Nothing
-    , configIntrayDir = Nothing
-    , configSyncStrategy = Nothing
-    }
+      Configuration <$> o .:? "url" <*> o .:? "username" <*> o .:? "cache-dir" <*> o .:? "data-dir" <*>
+      o .:? "sync"
 
 data Settings =
   Settings
     { setBaseUrl :: Maybe BaseUrl
     , setUsername :: Maybe Username
-    , setIntrayDir :: Path Abs Dir
+    , setCacheDir :: Path Abs Dir
+    , setDataDir :: Path Abs Dir
     , setSyncStrategy :: SyncStrategy
     }
   deriving (Show, Eq, Generic)

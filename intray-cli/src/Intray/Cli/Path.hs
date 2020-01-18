@@ -8,20 +8,17 @@ import Import
 
 import Intray.Cli.OptParse
 
-intrayDir :: CliM (Path Abs Dir)
-intrayDir = asks setIntrayDir
-
 sessionPath :: CliM (Path Abs File)
 sessionPath = do
-  d <- intrayDir
+  d <- asks setCacheDir
   resolveFile d "session.cookie"
 
 lastSeenItemPath :: CliM (Path Abs File)
 lastSeenItemPath = do
-  d <- intrayDir
+  d <- asks setCacheDir
   resolveFile d "last-seen-item.json"
 
 storePath :: CliM (Path Abs File)
 storePath = do
-  d <- intrayDir
+  d <- asks setDataDir
   resolveFile d "store.json"

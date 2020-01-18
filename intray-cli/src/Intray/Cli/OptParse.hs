@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
@@ -31,31 +32,35 @@ import Intray.Data
 
 getInstructions :: IO Instructions
 getInstructions = do
-  Arguments cmd flg <- getArguments
-  cfg <- getConfig flg
+  Arguments cmd flags <- getArguments
+  config <- getConfiguration flags
   dispatch <- getDispatch cmd
-  settings <- getSettings cfg flg
+  settings <- getSettings flags config
   pure $ Instructions dispatch settings
 
-getSettings :: Configuration -> Flags -> IO Settings
-getSettings Configuration {..} Flags {..} = do
+getSettings :: Flags -> Maybe Configuration -> IO Settings
+getSettings Flags {..} mConf = do
+  let mc :: (Configuration -> Maybe a) -> Maybe a
+      mc f = mConf >>= f
   setBaseUrl <-
-    case flagUrl `mplus` configUrl of
+    case flagUrl `mplus` mc configUrl of
       Nothing -> pure Nothing
       Just url -> Just <$> parseBaseUrl url
-  setIntrayDir <-
-    case flagIntrayDir `mplus` configIntrayDir of
-      Nothing -> do
-        home <- getHomeDir
-        resolveDir home ".intray"
+  setCacheDir <-
+    case flagCacheDir <|> mc configCacheDir of
+      Nothing -> getXdgDir XdgCache (Just [reldir|intray|])
+      Just d -> resolveDir' d
+  setDataDir <-
+    case flagDataDir <|> mc configDataDir of
+      Nothing -> getXdgDir XdgData (Just [reldir|intray|])
       Just d -> resolveDir' d
   let setSyncStrategy =
         fromMaybe
           (case setBaseUrl of
              Nothing -> NeverSync
              Just _ -> AlwaysSync) $
-        flagSyncStrategy `mplus` configSyncStrategy
-  let setUsername = configUsername
+        flagSyncStrategy `mplus` mc configSyncStrategy
+  let setUsername = mc configUsername
   pure Settings {..}
 
 getDispatch :: Command -> IO Dispatch
@@ -83,37 +88,45 @@ getDispatch cmd =
     CommandLogout -> pure DispatchLogout
     CommandSync -> pure DispatchSync
 
--- TODO rework this to correctly fail when the file at the path in the flags doesn't exist
-getConfig :: Flags -> IO Configuration
-getConfig Flags {..} = do
-  paths <-
-    case flagConfigFile of
-      Nothing -> defaultConfigFiles flagIntrayDir
-      Just f -> (: []) <$> resolveFile' f
-  let go [] = pure emptyConfiguration
-      go (path:fs) = do
-        mc <- forgivingAbsence $ SB.readFile $ fromAbsFile path
-        case mc of
-          Nothing -> go fs
-          Just contents ->
-            case Yaml.decodeEither contents of
-              Left err ->
-                die $ unlines ["Failed to parse config file", fromAbsFile path, "with error:", err]
-              Right conf -> pure conf
-  go paths
+getConfiguration :: Flags -> IO (Maybe Configuration)
+getConfiguration Flags {..} =
+  case flagConfigFile of
+    Nothing -> defaultConfigFiles >>= getFirstConfigFile
+    Just cf -> do
+      p <- resolveFile' cf
+      mc <- forgivingAbsence $ SB.readFile $ fromAbsFile p
+      case mc of
+        Nothing -> die $ "Config file not found: " <> fromAbsFile p
+        Just contents ->
+          case Yaml.decodeEither contents of
+            Left err ->
+              die $ unlines ["Failed to parse given config file", fromAbsFile p, "with error:", err]
+            Right conf -> pure $ Just conf
 
-defaultConfigFiles :: Maybe FilePath -> IO [Path Abs File]
-defaultConfigFiles mid = do
-  xdgConfigDir <- getXdgDir XdgConfig (Just [reldir|intray|])
-  f1 <- resolveFile xdgConfigDir "config.yaml"
-  intrayDir <-
-    case mid of
-      Nothing -> do
-        homeDir <- getHomeDir
-        resolveDir homeDir ".intray"
-      Just i -> resolveDir' i
-  f2 <- resolveFile intrayDir "config.yaml"
-  pure [f1, f2]
+getFirstConfigFile :: [Path Abs File] -> IO (Maybe Configuration)
+getFirstConfigFile =
+  \case
+    [] -> pure Nothing
+    (p:ps) -> do
+      mc <- forgivingAbsence $ SB.readFile $ fromAbsFile p
+      case mc of
+        Nothing -> getFirstConfigFile ps
+        Just contents ->
+          case Yaml.decodeEither contents of
+            Left err ->
+              die $
+              unlines ["Failed to parse default config file", fromAbsFile p, "with error:", err]
+            Right conf -> pure $ Just conf
+
+defaultConfigFiles :: IO [Path Abs File]
+defaultConfigFiles =
+  sequence
+    [ do xdgConfigDir <- getXdgDir XdgConfig (Just [reldir|intray|])
+         resolveFile xdgConfigDir "config.yaml"
+    , do homeDir <- getHomeDir
+         intrayDir <- resolveDir homeDir ".intray"
+         resolveFile intrayDir "config.yaml"
+    ]
 
 getArguments :: IO Arguments
 getArguments = do
@@ -256,11 +269,15 @@ parseFlags =
   option
     (Just <$> str)
     (mconcat
-       [ long "intray-dir"
-       , help "The directory to use for caching and state"
+       [ long "cache-dir"
+       , help "The directory to use for caching"
        , value Nothing
-       , metavar "URL"
+       , metavar "FILEPATH"
        ]) <*>
+  option
+    (Just <$> str)
+    (mconcat
+       [long "data-dir", help "The directory to use for data", value Nothing, metavar "FILEPATH"]) <*>
   syncStrategyOpt
 
 syncStrategyOpt :: Parser (Maybe SyncStrategy)
