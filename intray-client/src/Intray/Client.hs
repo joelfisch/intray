@@ -20,7 +20,6 @@ import Servant.API
 import Servant.API.Flatten
 import Servant.Auth.Client
 import Servant.Auth.Server
-import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Client
 
 import Intray.API

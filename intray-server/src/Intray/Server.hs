@@ -25,8 +25,7 @@ import Network.Wai.Middleware.Cors
 
 import Servant hiding (BadPassword, NoSuchUser)
 import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
-import Servant.Generic
+import Servant.Server.Generic
 
 import Intray.API
 
@@ -97,7 +96,7 @@ makeIntrayServer cfg =
     intrayAPI
     (Proxy :: Proxy IntrayContext)
     (`runReaderT` cfg)
-    (toServant intrayServer)
+    (genericServerT intrayServer)
 
 intrayAppContext :: IntrayServerEnv -> Context IntrayContext
 intrayAppContext IntrayServerEnv {..} = envCookieSettings :. envJWTSettings :. EmptyContext

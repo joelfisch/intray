@@ -206,7 +206,7 @@ postNewAccountR = do
       case errOrOk of
         Left err -> do
           case err of
-            FailureResponse resp ->
+            FailureResponse _ resp ->
               case Http.statusCode $ responseStatusCode resp of
                 409 -> setMessage "An account with this username already exists"
                 _ -> setMessage "Failed to register for unknown reasons."
@@ -245,7 +245,7 @@ genToken = do
       Nothing -> mempty
       Just n -> [shamlet|<input type=hidden name=#{tokenKey} value=#{n}>|]
 
-runClient :: ClientM a -> Handler (Either ServantError a)
+runClient :: ClientM a -> Handler (Either ClientError a)
 runClient func = do
   man <- getsYesod appHttpManager
   burl <- getsYesod appAPIBaseUrl
@@ -270,10 +270,10 @@ runClientOrDisallow func = do
           else error $ show resp -- TODO deal with error
     Right r -> pure $ Just r
 
-handleStandardServantErrs :: ServantError -> (Response -> Handler a) -> Handler a
+handleStandardServantErrs :: ClientError -> (Response -> Handler a) -> Handler a
 handleStandardServantErrs err func =
   case err of
-    FailureResponse resp -> func resp
+    FailureResponse _ resp -> func resp
     ConnectionError e -> redirect $ ErrorAPIDownR $ T.pack $ show e
     e -> error $ unwords ["Error while calling API:", show e]
 

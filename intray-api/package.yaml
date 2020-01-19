@@ -45,7 +45,6 @@ library:
   - servant-auth-server
   - servant-blaze
   - servant-docs
-  - servant-generic
   - stripe-core
   - text
   - time

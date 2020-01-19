@@ -20,7 +20,7 @@ import Import
 
 import qualified Data.ByteString as SB
 import qualified Data.Text as T
-import Data.Yaml as Yaml (decodeEither)
+import qualified Data.Yaml as Yaml
 import Text.Read (readMaybe)
 
 import Options.Applicative
@@ -110,9 +110,15 @@ getConfiguration Flags {..} Environment {..} =
       case mc of
         Nothing -> die $ "Config file not found: " <> fromAbsFile p
         Just contents ->
-          case Yaml.decodeEither contents of
+          case Yaml.decodeEither' contents of
             Left err ->
-              die $ unlines ["Failed to parse given config file", fromAbsFile p, "with error:", err]
+              die $
+              unlines
+                [ "Failed to parse given config file"
+                , fromAbsFile p
+                , "with error:"
+                , Yaml.prettyPrintParseException err
+                ]
             Right conf -> pure $ Just conf
 
 getFirstConfigFile :: [Path Abs File] -> IO (Maybe Configuration)
@@ -124,10 +130,15 @@ getFirstConfigFile =
       case mc of
         Nothing -> getFirstConfigFile ps
         Just contents ->
-          case Yaml.decodeEither contents of
+          case Yaml.decodeEither' contents of
             Left err ->
               die $
-              unlines ["Failed to parse default config file", fromAbsFile p, "with error:", err]
+              unlines
+                [ "Failed to parse default config file"
+                , fromAbsFile p
+                , "with error:"
+                , Yaml.prettyPrintParseException err
+                ]
             Right conf -> pure $ Just conf
 
 defaultConfigFiles :: IO [Path Abs File]

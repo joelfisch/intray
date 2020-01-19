@@ -8,8 +8,6 @@ import Import
 
 import Data.Cache as Cache
 
-import Servant.Auth.Server.SetCookieOrphan ()
-
 import Web.Stripe.Plan as Stripe
 
 import Intray.API

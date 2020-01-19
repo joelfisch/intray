@@ -28,7 +28,6 @@ library:
   - servant-auth-server
   - servant-client
   - servant-flatten
-  - servant-generic
   - text
   - time
   - typed-uuid

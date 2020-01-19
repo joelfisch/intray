@@ -42,7 +42,6 @@ import Web.Cookie
 import Servant
 import Servant.Auth.Client
 import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Client
 
 import Database.Persist.Sqlite
@@ -107,7 +106,7 @@ cleanupIntrayTestServer = do
   f <- resolveFile' testdbFile
   ignoringAbsence $ removeFile f
 
-runClient :: ClientEnv -> ClientM a -> IO (Either ServantError a)
+runClient :: ClientEnv -> ClientM a -> IO (Either ClientError a)
 runClient = flip runClientM
 
 runClientOrError :: ClientEnv -> ClientM a -> IO a
@@ -152,7 +151,7 @@ requiresAdmin cenv func =
     case errOrStats of
       Left err ->
         case err of
-          FailureResponse resp ->
+          FailureResponse _ resp ->
             HTTP.statusCode (Servant.Client.responseStatusCode resp) `shouldBe` 401
           _ -> failure "Should have got a failure response."
       Right _ -> failure "Should not have been allowed."
@@ -188,7 +187,7 @@ failsWithOutPermissions cenv ps func =
       case res of
         Left err ->
           case err of
-            FailureResponse resp ->
+            FailureResponse _ resp ->
               HTTP.statusCode (Servant.Client.responseStatusCode resp) `shouldBe` 401
             _ -> failure "Should have gotten a failure response."
         _ -> failure "Should not have been allowed."

@@ -12,8 +12,6 @@ import Import
 
 import Database.Persist
 
-import Servant.Auth.Server.SetCookieOrphan ()
-
 import Intray.API
 
 import Intray.Server.Types

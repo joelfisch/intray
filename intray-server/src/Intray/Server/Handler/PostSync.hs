@@ -17,7 +17,6 @@ import Database.Persist
 
 import Servant hiding (BadPassword, NoSuchUser)
 import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
 
 import Intray.API
 

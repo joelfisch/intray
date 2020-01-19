@@ -32,7 +32,7 @@ spec =
             Left err ->
               let snf = expectationFailure $ "Should not fail with error: " <> show err
                in case err of
-                    FailureResponse resp ->
+                    FailureResponse _ resp ->
                       if HTTP.statusCode (responseStatusCode resp) == 409
                         then pure ()
                         else snf
@@ -48,7 +48,7 @@ spec =
             Left err ->
               let snf = expectationFailure $ "Should not fail with error: " <> show err
                in case err of
-                    FailureResponse resp ->
+                    FailureResponse _ resp ->
                       if HTTP.statusCode (responseStatusCode resp) == 409
                         then pure ()
                         else snf

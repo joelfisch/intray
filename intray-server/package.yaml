@@ -43,7 +43,6 @@ library:
   - servant
   - servant-auth-server
   - servant-docs
-  - servant-generic
   - servant-server
   - stripe-core
   - stripe-haskell

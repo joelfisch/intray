@@ -14,8 +14,6 @@ import Database.Persist
 
 import Data.Time
 
-import Servant.Auth.Server.SetCookieOrphan ()
-
 import Intray.API
 
 import Intray.Server.Types

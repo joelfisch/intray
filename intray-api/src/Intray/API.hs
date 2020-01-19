@@ -21,9 +21,8 @@ import Data.UUID.Typed
 import Web.Cookie
 
 import Servant.API
+import Servant.API.Generic
 import Servant.Auth.Docs ()
-import Servant.Auth.Server.SetCookieOrphan ()
-import Servant.Generic
 import Servant.HTML.Blaze
 
 import Intray.Data
@@ -35,28 +34,28 @@ import Intray.API.Types
 intrayAPI :: Proxy IntrayAPI
 intrayAPI = Proxy
 
-type IntrayAPI = ToServant (IntraySite AsApi)
+type IntrayAPI = ToServantApi IntraySite
 
 data IntraySite route =
   IntraySite
-    { openSite :: !(route :- ToServant (IntrayOpenSite AsApi))
-    , adminSite :: !(route :- "admin" :> ToServant (IntrayAdminSite AsApi))
+    { openSite :: !(route :- ToServantApi IntrayOpenSite)
+    , adminSite :: !(route :- "admin" :> ToServantApi IntrayAdminSite)
     }
   deriving (Generic)
 
 intrayOpenAPI :: Proxy IntrayOpenAPI
 intrayOpenAPI = Proxy
 
-type IntrayOpenAPI = ToServant (IntrayOpenSite AsApi)
+type IntrayOpenAPI = ToServantApi IntrayOpenSite
 
 data IntrayOpenSite route =
   IntrayOpenSite
-    { protectedSite :: !(route :- ToServant (IntrayProtectedSite AsApi))
-    , publicSite :: !(route :- ToServant (IntrayPublicSite AsApi))
+    { protectedSite :: !(route :- ToServantApi IntrayProtectedSite)
+    , publicSite :: !(route :- ToServantApi IntrayPublicSite)
     }
   deriving (Generic)
 
-type IntrayPublicAPI = ToServant (IntrayPublicSite AsApi)
+type IntrayPublicAPI = ToServantApi IntrayPublicSite
 
 data IntrayPublicSite route =
   IntrayPublicSite

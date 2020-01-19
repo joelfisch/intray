@@ -6,8 +6,8 @@ import Data.Set (Set)
 import qualified Data.Set as S
 
 import Servant.Auth.Server
-import Servant.Generic
 import Servant.Server
+import Servant.Server.Generic
 
 import Intray.API
 
@@ -17,19 +17,22 @@ import Intray.Server.Handler
 
 intrayServer :: IntraySite (AsServerT IntrayHandler)
 intrayServer =
-  IntraySite {openSite = toServant intrayOpenServer, adminSite = toServant intrayAdminServer}
+  IntraySite
+    {openSite = genericServerT intrayOpenServer, adminSite = genericServerT intrayAdminServer}
 
 intrayOpenServer :: IntrayOpenSite (AsServerT IntrayHandler)
 intrayOpenServer =
   IntrayOpenSite
-    {protectedSite = toServant intrayProtectedServer, publicSite = toServant intrayPublicServer}
+    { protectedSite = genericServerT intrayProtectedServer
+    , publicSite = genericServerT intrayPublicServer
+    }
 
 intrayProtectedServer :: IntrayProtectedSite (AsServerT IntrayHandler)
 intrayProtectedServer =
   IntrayProtectedSite
-    { protectedItemSite = toServant intrayProtectedItemServer
-    , protectedAccountSite = toServant intrayProtectedAccountServer
-    , protectedAccessKeySite = toServant intrayProtectedAccessKeyServer
+    { protectedItemSite = genericServerT intrayProtectedItemServer
+    , protectedAccountSite = genericServerT intrayProtectedAccountServer
+    , protectedAccessKeySite = genericServerT intrayProtectedAccessKeyServer
     , getPermissions = withAuthResultAndPermission PermitGetPermissions serveGetPermissions
     }
 

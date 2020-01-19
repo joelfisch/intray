@@ -10,7 +10,6 @@ import Data.Aeson.Encode.Pretty as JSON
 import qualified Data.ByteString.Lazy as LB
 
 import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
 
 signingKeyFile :: IO (Path Abs File)
 signingKeyFile = resolveFile' "signing-key.json"

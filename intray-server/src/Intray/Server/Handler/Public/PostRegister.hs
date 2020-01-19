@@ -18,8 +18,7 @@ import Data.Time
 import Data.UUID.Typed
 import Database.Persist
 
-import Servant hiding (BadPassword, NoSuchUser)
-import Servant.Auth.Server.SetCookieOrphan ()
+import Servant
 
 import Intray.API
 
