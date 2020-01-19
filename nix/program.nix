@@ -59,7 +59,7 @@ in {
     };
   config =
     let
-      intrayPkgs = import ./nix/pkgs.nix;
+      intrayPkgs = import ./pkgs.nix;
 
       nullOrOption =
         name: opt: optionalString ( opt != null ) "${name}: ${opt}";
@@ -114,7 +114,6 @@ in {
               Unit = "${syncIntrayName}.service";
             };
         };
-      packages = [ cli ];
       services =
         optionalAttrs ( cfg.sync != null && cfg.sync.enable ) {
           "${syncIntrayName}" = syncIntrayService;
