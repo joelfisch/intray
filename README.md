@@ -107,7 +107,7 @@ See `intray --help` or `intray <command> --help` for more information about the 
 --data-dir:       The data dir
 --sync:           Definitely sync every time it's appropriate
 --no-sync:        Never try to sync automatically
---url:            The sync server api url.
+--url:            The sync server api url
 --username:       The sync username
 --password:       The sync password
 ```
@@ -119,7 +119,7 @@ INTRAY_CONFIG_FILE:    Config file
 INTRAY_CACHE_DIR:      The cache dir
 INTRAY_DATA_DIR:       The data dir
 INTRAY_SYNC_STRATEGY:  The sync strategy
-INTRAY_URL:            The sync server api url.
+INTRAY_URL:            The sync server api url
 INTRAY_USERNAME:       The sync username
 INTRAY_PASSWORD:       The sync password
 ```
@@ -130,7 +130,7 @@ Every option can also be specified in the config file.
 cache-dir:      The cache dir
 data-dir:       The data dir
 sync:           The sync strategy
-url:            The sync server api url.
+url:            The sync server api url
 username:       The sync username
 password:       The sync password
 ```
