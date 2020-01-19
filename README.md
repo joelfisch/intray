@@ -199,6 +199,14 @@ in
     intrayModule
     # [...]
   ];
+  intray = {
+    enable = true;
+    sync = {
+      enable = true;
+      username = "YOUR_USERNAME_HERE";
+      password = "YOUR_PASSWORD_HERE;
+    };
+  };
 }
 ```
 

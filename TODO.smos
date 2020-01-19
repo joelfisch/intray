@@ -4,12 +4,9 @@
     forest:
     - Change last login to last unautomated login or to last use
     - Allow for audio and picture items
-    - email notifications
   - entry: Web server
     forest:
     - 'Typo on main page: things of your mind should be things off your mind'
-    - More spacing on homepage?
-    - Donation button
     - Documentation about how to add intray to desktop
     - Documentation about how to add intray to launcher on android from a browser
     - Explain how and why to use intray, not the interface
