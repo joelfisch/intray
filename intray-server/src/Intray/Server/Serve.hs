@@ -2,6 +2,9 @@ module Intray.Server.Serve
   ( intrayServer
   ) where
 
+import Data.Set (Set)
+import qualified Data.Set as S
+
 import Servant.Auth.Server
 import Servant.Generic
 import Servant.Server
@@ -27,7 +30,7 @@ intrayProtectedServer =
     { protectedItemSite = toServant intrayProtectedItemServer
     , protectedAccountSite = toServant intrayProtectedAccountServer
     , protectedAccessKeySite = toServant intrayProtectedAccessKeyServer
-    , getPermissions = serveGetPermissions
+    , getPermissions = withAuthResultAndPermission PermitGetPermissions serveGetPermissions
     }
 
 intrayProtectedItemServer :: IntrayProtectedItemSite (AsServerT IntrayHandler)
@@ -87,3 +90,9 @@ withAuthResultAndPermission ::
      ThrowAll a => Permission -> (AuthCookie -> a) -> (AuthResult AuthCookie -> a)
 withAuthResultAndPermission p func =
   withAuthResult (\ac -> withPermission (authCookiePermissions ac) p (func ac))
+
+withPermission :: ThrowAll a => Set Permission -> Permission -> a -> a
+withPermission ps p func =
+  if S.member p ps
+    then func
+    else throwAll err401
