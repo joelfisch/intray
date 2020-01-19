@@ -178,3 +178,28 @@ If you would prefer to schedule syncing manually to decrease latency locally, yo
 ```
 sync: NeverSync
 ```
+
+
+### Setting up intray in Nix Home Manager
+
+Within your `home.nix`, add the intray module from this repository:
+
+``` nix
+{ pkgs, lib, ... }:
+with lib;
+let
+  intrayModule = (builtins.fetchGit {
+    url = "https://github.com/NorfairKing/intray";
+    ref = "master";
+    rev = "0000000000000000000000000000000000000000"; # Add a recent version here.
+  } + "/nix/program.nix");
+in
+{
+  imports = [
+    intrayModule
+    # [...]
+  ];
+}
+```
+
+Note that we have to use `builtins.fetchGit` and cannot use `fetchFromGitHub` because this needs to be fetched at evaluation time.
