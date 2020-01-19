@@ -4,8 +4,8 @@
 
 module Intray.Server.Handler.Utils
   ( runDb
-  , withPermission
   , deleteAccountFully
+  , withPermission
   ) where
 
 import Import
@@ -17,6 +17,7 @@ import Database.Persist
 import Database.Persist.Sqlite
 
 import Servant
+import Servant.Auth.Server
 
 import Intray.API
 
@@ -27,11 +28,12 @@ runDb query = do
   pool <- asks envConnectionPool
   liftIO $ runSqlPool query pool
 
-withPermission :: Set Permission -> Permission -> IntrayHandler a -> IntrayHandler a
+-- TODO move to Intray.Server.Serve
+withPermission :: ThrowAll a => Set Permission -> Permission -> a -> a
 withPermission ps p func =
   if S.member p ps
     then func
-    else throwError err401
+    else throwAll err401
 
 deleteAccountFully :: AccountUUID -> IntrayHandler ()
 deleteAccountFully uuid = do

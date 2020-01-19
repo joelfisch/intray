@@ -18,9 +18,7 @@ import Data.Time
 import Database.Persist
 import Web.Stripe.Subscription as Stripe
 
-import Servant hiding (BadPassword, NoSuchUser)
-import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
+import Servant
 
 import Intray.API
 
@@ -29,27 +27,25 @@ import Intray.Server.Types
 import Intray.Server.Handler.Stripe
 import Intray.Server.Handler.Utils
 
-serveGetAccountInfo :: AuthResult AuthCookie -> IntrayHandler AccountInfo
-serveGetAccountInfo (Authenticated AuthCookie {..}) =
-  withPermission authCookiePermissions PermitGetAccountInfo $ do
-    admins <- asks envAdmins
-    mUser <- runDb $ getBy $ UniqueUserIdentifier authCookieUserUUID
-    case mUser of
-      Nothing -> throwError err404 {errBody = "User not found."}
-      Just (Entity _ User {..}) -> do
-        c <- runDb $ count ([IntrayItemUserId ==. authCookieUserUUID] :: [Filter IntrayItem])
-        subbed <- getAccountSubscribed authCookieUserUUID
-        pure
-          AccountInfo
-            { accountInfoUUID = authCookieUserUUID
-            , accountInfoUsername = userUsername
-            , accountInfoCreatedTimestamp = userCreatedTimestamp
-            , accountInfoLastLogin = userLastLogin
-            , accountInfoAdmin = userUsername `elem` admins
-            , accountInfoCount = c
-            , accountInfoSubscribed = subbed
-            }
-serveGetAccountInfo _ = throwAll err401
+serveGetAccountInfo :: AuthCookie -> IntrayHandler AccountInfo
+serveGetAccountInfo AuthCookie {..} = do
+  admins <- asks envAdmins
+  mUser <- runDb $ getBy $ UniqueUserIdentifier authCookieUserUUID
+  case mUser of
+    Nothing -> throwError err404 {errBody = "User not found."}
+    Just (Entity _ User {..}) -> do
+      c <- runDb $ count ([IntrayItemUserId ==. authCookieUserUUID] :: [Filter IntrayItem])
+      subbed <- getAccountSubscribed authCookieUserUUID
+      pure
+        AccountInfo
+          { accountInfoUUID = authCookieUserUUID
+          , accountInfoUsername = userUsername
+          , accountInfoCreatedTimestamp = userCreatedTimestamp
+          , accountInfoLastLogin = userLastLogin
+          , accountInfoAdmin = userUsername `elem` admins
+          , accountInfoCount = c
+          , accountInfoSubscribed = subbed
+          }
 
 getAccountSubscribed :: AccountUUID -> IntrayHandler (Maybe UTCTime)
 getAccountSubscribed aid = do
