@@ -14,15 +14,14 @@ module Intray.API.Admin
 import Import
 
 import Servant.API
+import Servant.API.Generic
 import Servant.Auth.Docs ()
-import Servant.Auth.Server.SetCookieOrphan ()
-import Servant.Generic
 
 import Intray.API.Admin.Types
 import Intray.API.Protected.Account.Types
 import Intray.API.Types
 
-type IntrayAdminAPI = ToServant (IntrayAdminSite AsApi)
+type IntrayAdminAPI = ToServantApi IntrayAdminSite
 
 data IntrayAdminSite route =
   IntrayAdminSite

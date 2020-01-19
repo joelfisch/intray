@@ -22,9 +22,8 @@ module Intray.API.Protected.AccessKey
 import Import
 
 import Servant.API
+import Servant.API.Generic
 import Servant.Auth.Docs ()
-import Servant.Auth.Server.SetCookieOrphan ()
-import Servant.Generic
 
 import Data.UUID.Typed
 
@@ -33,7 +32,7 @@ import Intray.Data
 import Intray.API.Protected.AccessKey.Types
 import Intray.API.Types
 
-type IntrayProtectedAccessKeyAPI = ToServant (IntrayProtectedAccessKeySite AsApi)
+type IntrayProtectedAccessKeyAPI = ToServantApi IntrayProtectedAccessKeySite
 
 data IntrayProtectedAccessKeySite route =
   IntrayProtectedAccessKeySite

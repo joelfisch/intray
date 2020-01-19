@@ -25,8 +25,7 @@ import Network.Wai.Middleware.Cors
 
 import Servant hiding (BadPassword, NoSuchUser)
 import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
-import Servant.Generic
+import Servant.Server.Generic
 
 import Intray.API
 
@@ -47,7 +46,15 @@ runIntrayServer ServeSettings {..} =
     signingKey <- liftIO loadSigningKey
     let jwtCfg = defaultJWTSettings signingKey
     let cookieCfg = defaultCookieSettings
-    planCache <- liftIO $ newCache Nothing
+    mMonetisationEnv <-
+      forM serveSetMonetisationSettings $ \MonetisationSettings {..} -> do
+        planCache <- liftIO $ newCache Nothing
+        pure
+          MonetisationEnv
+            { monetisationEnvStripeSettings = monetisationSetStripeSettings
+            , monetisationEnvMaxItemsFree = monetisationSetMaxItemsFree
+            , monetisationEnvPlanCache = planCache
+            }
     let intrayEnv =
           IntrayServerEnv
             { envHost = serveSetHost
@@ -55,14 +62,7 @@ runIntrayServer ServeSettings {..} =
             , envCookieSettings = cookieCfg
             , envJWTSettings = jwtCfg
             , envAdmins = serveSetAdmins
-            , envMonetisation =
-                (\MonetisationSettings {..} ->
-                   MonetisationEnv
-                     { monetisationEnvStripeSettings = monetisationSetStripeSettings
-                     , monetisationEnvMaxItemsFree = monetisationSetMaxItemsFree
-                     }) <$>
-                serveSetMonetisationSettings
-            , envPlanCache = planCache
+            , envMonetisation = mMonetisationEnv
             }
     let mLoopersSets =
           case serveSetMonetisationSettings of
@@ -97,7 +97,7 @@ makeIntrayServer cfg =
     intrayAPI
     (Proxy :: Proxy IntrayContext)
     (`runReaderT` cfg)
-    (toServant intrayServer)
+    (genericServerT intrayServer)
 
 intrayAppContext :: IntrayServerEnv -> Context IntrayContext
 intrayAppContext IntrayServerEnv {..} = envCookieSettings :. envJWTSettings :. EmptyContext

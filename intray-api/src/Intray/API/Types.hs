@@ -53,7 +53,6 @@ import Servant.API
 import Servant.Auth
 import Servant.Auth.Docs ()
 import Servant.Auth.Server
-import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Docs
 import Servant.HTML.Blaze
 

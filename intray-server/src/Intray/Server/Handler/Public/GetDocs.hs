@@ -13,7 +13,6 @@ import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Lazy as LT
 import qualified Text.Markdown as Markdown
 
-import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Docs as Docs
 
 import Intray.API

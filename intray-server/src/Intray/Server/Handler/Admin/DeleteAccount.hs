@@ -10,9 +10,7 @@ module Intray.Server.Handler.Admin.DeleteAccount
 
 import Import
 
-import Servant hiding (BadPassword, NoSuchUser)
-import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
+import Servant
 
 import Intray.API
 
@@ -20,9 +18,7 @@ import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
-serveAdminDeleteAccount :: AuthResult AuthCookie -> AccountUUID -> IntrayHandler NoContent
-serveAdminDeleteAccount (Authenticated AuthCookie {..}) uuid =
-  withPermission authCookiePermissions PermitAdminDeleteAccount $ do
-    deleteAccountFully uuid
-    pure NoContent
-serveAdminDeleteAccount _ _ = throwAll err401
+serveAdminDeleteAccount :: AuthCookie -> AccountUUID -> IntrayHandler NoContent
+serveAdminDeleteAccount AuthCookie {..} uuid = do
+  deleteAccountFully uuid
+  pure NoContent

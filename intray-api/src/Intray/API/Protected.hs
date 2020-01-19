@@ -55,7 +55,7 @@ module Intray.API.Protected
 import Import
 
 import Servant.API
-import Servant.Generic
+import Servant.API.Generic
 
 import Data.Set (Set)
 
@@ -66,13 +66,13 @@ import Intray.API.Protected.Account
 import Intray.API.Protected.Item
 import Intray.API.Types
 
-type IntrayProtectedAPI = ToServant (IntrayProtectedSite AsApi)
+type IntrayProtectedAPI = ToServantApi IntrayProtectedSite
 
 data IntrayProtectedSite route =
   IntrayProtectedSite
-    { protectedItemSite :: !(route :- "intray" :> ToServant (IntrayProtectedItemSite AsApi))
-    , protectedAccountSite :: !(route :- "account" :> ToServant (IntrayProtectedAccountSite AsApi))
-    , protectedAccessKeySite :: !(route :- "access-key" :> ToServant (IntrayProtectedAccessKeySite AsApi))
+    { protectedItemSite :: !(route :- "intray" :> ToServantApi IntrayProtectedItemSite)
+    , protectedAccountSite :: !(route :- "account" :> ToServantApi IntrayProtectedAccountSite)
+    , protectedAccessKeySite :: !(route :- "access-key" :> ToServantApi IntrayProtectedAccessKeySite)
     , getPermissions :: !(route :- GetPermissions)
     }
   deriving (Generic)

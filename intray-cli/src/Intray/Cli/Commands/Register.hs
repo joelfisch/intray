@@ -9,8 +9,6 @@ module Intray.Cli.Commands.Register
 
 import Import
 
-import Servant.Auth.Server.SetCookieOrphan ()
-
 import Intray.API
 
 import Intray.Client

@@ -29,7 +29,6 @@ import Import
 
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
-import Data.Cache
 import qualified Data.Set as S
 import Data.Set (Set)
 import qualified Data.Text as T
@@ -42,7 +41,6 @@ import Web.Cookie
 import Servant
 import Servant.Auth.Client
 import Servant.Auth.Server as Auth
-import Servant.Auth.Server.SetCookieOrphan ()
 import Servant.Client
 
 import Database.Persist.Sqlite
@@ -82,7 +80,6 @@ setupIntrayTestApp = do
   pool <- setupIntrayTestConn
   man <- setupTestHttpManager
   signingKey <- Auth.generateKey
-  planCache <- newCache Nothing
   let jwtCfg = defaultJWTSettings signingKey
   let cookieCfg = defaultCookieSettings
   let intrayEnv =
@@ -93,7 +90,6 @@ setupIntrayTestApp = do
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]
           , envMonetisation = Nothing
-          , envPlanCache = planCache
           }
   pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))
 
@@ -107,7 +103,7 @@ cleanupIntrayTestServer = do
   f <- resolveFile' testdbFile
   ignoringAbsence $ removeFile f
 
-runClient :: ClientEnv -> ClientM a -> IO (Either ServantError a)
+runClient :: ClientEnv -> ClientM a -> IO (Either ClientError a)
 runClient = flip runClientM
 
 runClientOrError :: ClientEnv -> ClientM a -> IO a
@@ -152,7 +148,7 @@ requiresAdmin cenv func =
     case errOrStats of
       Left err ->
         case err of
-          FailureResponse resp ->
+          FailureResponse _ resp ->
             HTTP.statusCode (Servant.Client.responseStatusCode resp) `shouldBe` 401
           _ -> failure "Should have got a failure response."
       Right _ -> failure "Should not have been allowed."
@@ -188,7 +184,7 @@ failsWithOutPermissions cenv ps func =
       case res of
         Left err ->
           case err of
-            FailureResponse resp ->
+            FailureResponse _ resp ->
               HTTP.statusCode (Servant.Client.responseStatusCode resp) `shouldBe` 401
             _ -> failure "Should have gotten a failure response."
         _ -> failure "Should not have been allowed."
