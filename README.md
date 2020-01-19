@@ -144,3 +144,37 @@ The `intray` cli application looks for config files in these locations by defaul
 - $HOME/.config/intray/config.yaml
 - $HOME/.intray/config.yaml
 ```
+
+## Setting up synchronisation with `intray.eu`
+
+Put this in your config file:
+
+```
+url: 'https://api.intray.eu'
+username: 'YOUR USERNAME HERE'
+```
+
+Then register:
+
+``` shell
+intray register
+```
+
+and login:
+
+``` shell
+intray login
+```
+
+Now you can sync manually:
+
+``` shell
+intray sync
+```
+
+Note that syncing will occur automatically any time you change anything locally.
+If you would prefer to schedule syncing manually to decrease latency locally, you can use a different syncing strategy:
+
+```
+sync: NeverSync
+```
