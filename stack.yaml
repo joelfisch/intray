@@ -28,7 +28,7 @@ extra-deps:
     - mergeless
     - genvalidity-mergeless
 - github: NorfairKing/validity
-  commit: a0fcd782138dac7200e6544c2f40208649ecb0e9
+  commit: 165c75d350460c0f936600b17795ba40b298786b
   subdirs:
     - validity
     - validity-bytestring
