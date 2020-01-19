@@ -46,7 +46,15 @@ runIntrayServer ServeSettings {..} =
     signingKey <- liftIO loadSigningKey
     let jwtCfg = defaultJWTSettings signingKey
     let cookieCfg = defaultCookieSettings
-    planCache <- liftIO $ newCache Nothing
+    mMonetisationEnv <-
+      forM serveSetMonetisationSettings $ \MonetisationSettings {..} -> do
+        planCache <- liftIO $ newCache Nothing
+        pure
+          MonetisationEnv
+            { monetisationEnvStripeSettings = monetisationSetStripeSettings
+            , monetisationEnvMaxItemsFree = monetisationSetMaxItemsFree
+            , monetisationEnvPlanCache = planCache
+            }
     let intrayEnv =
           IntrayServerEnv
             { envHost = serveSetHost
@@ -54,14 +62,7 @@ runIntrayServer ServeSettings {..} =
             , envCookieSettings = cookieCfg
             , envJWTSettings = jwtCfg
             , envAdmins = serveSetAdmins
-            , envMonetisation =
-                (\MonetisationSettings {..} ->
-                   MonetisationEnv
-                     { monetisationEnvStripeSettings = monetisationSetStripeSettings
-                     , monetisationEnvMaxItemsFree = monetisationSetMaxItemsFree
-                     }) <$>
-                serveSetMonetisationSettings
-            , envPlanCache = planCache
+            , envMonetisation = mMonetisationEnv
             }
     let mLoopersSets =
           case serveSetMonetisationSettings of

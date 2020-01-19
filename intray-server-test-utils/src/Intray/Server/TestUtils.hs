@@ -29,7 +29,6 @@ import Import
 
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
-import Data.Cache
 import qualified Data.Set as S
 import Data.Set (Set)
 import qualified Data.Text as T
@@ -81,7 +80,6 @@ setupIntrayTestApp = do
   pool <- setupIntrayTestConn
   man <- setupTestHttpManager
   signingKey <- Auth.generateKey
-  planCache <- newCache Nothing
   let jwtCfg = defaultJWTSettings signingKey
   let cookieCfg = defaultCookieSettings
   let intrayEnv =
@@ -92,7 +90,6 @@ setupIntrayTestApp = do
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]
           , envMonetisation = Nothing
-          , envPlanCache = planCache
           }
   pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))
 

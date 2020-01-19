@@ -20,14 +20,13 @@ serveGetPricing :: IntrayHandler (Maybe Pricing)
 serveGetPricing = do
   mMone <- asks envMonetisation
   forM mMone $ \MonetisationEnv {..} -> do
-    planCache <- asks envPlanCache
     let StripeSettings {..} = monetisationEnvStripeSettings
-    mPlan <- liftIO $ Cache.lookup planCache stripeSetPlan
+    mPlan <- liftIO $ Cache.lookup monetisationEnvPlanCache stripeSetPlan
     Stripe.Plan {..} <-
       case mPlan of
         Nothing -> do
           plan <- runStripeHandlerOrErrorWith monetisationEnvStripeSettings $ getPlan stripeSetPlan
-          liftIO $ Cache.insert planCache stripeSetPlan plan
+          liftIO $ Cache.insert monetisationEnvPlanCache stripeSetPlan plan
           pure plan
         Just plan -> pure plan
     let pricingPlan = stripeSetPlan
