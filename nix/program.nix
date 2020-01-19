@@ -59,7 +59,7 @@ in {
     };
   config =
     let
-      intrayPkgs = import ./pkgs.nix;
+      intrayPkgs = (import ./pkgs.nix).intrayPackages;
 
       nullOrOption =
         name: opt: optionalString ( opt != null ) "${name}: ${opt}";
