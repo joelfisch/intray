@@ -68,12 +68,13 @@ withPaidIntrayServer :: Int -> SpecWith ClientEnv -> Spec
 withPaidIntrayServer maxFree specFunc =
   afterAll_ cleanupIntrayTestServer $
   beforeAll (setupPaidIntrayTestApp maxFree) $
-  aroundWith withIntrayApp $ modifyMaxSuccess (`div` 20) specFunc
+  aroundWith withIntrayApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
 
 withFreeIntrayServer :: SpecWith ClientEnv -> Spec
 withFreeIntrayServer specFunc =
   afterAll_ cleanupIntrayTestServer $
-  beforeAll setupFreeIntrayTestApp $ aroundWith withIntrayApp $ modifyMaxSuccess (`div` 20) specFunc
+  beforeAll setupFreeIntrayTestApp $
+  aroundWith withIntrayApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
 
 testdbFile :: String
 testdbFile = "test.db"
