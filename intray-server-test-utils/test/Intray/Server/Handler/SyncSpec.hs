@@ -36,7 +36,7 @@ spec =
             let secondStore = mergeSyncResponse firstStore sr2
             secondStore `shouldBe` firstStore
     let maxFree = 2
-    withPaidIntrayServer maxFree $ do
+    withPaidIntrayServer maxFree $
       it "syncs at most two items if noly two items are free" $ \cenv ->
         forAllValid $ \(i1, i2, i3) ->
           withValidNewUser cenv $ \token -> do

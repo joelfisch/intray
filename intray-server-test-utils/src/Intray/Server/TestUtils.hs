@@ -31,15 +31,17 @@ import Import
 
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
-import Data.Cache
+import Data.Cache as Cache
 import qualified Data.Set as S
 import Data.Set (Set)
 import qualified Data.Text as T
+import Data.Time
 import Data.UUID.Typed
 import Lens.Micro
 import qualified Network.HTTP.Client as HTTP
 import qualified Network.HTTP.Types as HTTP
 import Web.Cookie
+import Web.Stripe.Plan as Stripe
 
 import Servant
 import Servant.Auth.Client
@@ -53,6 +55,7 @@ import Network.Wai.Handler.Warp (testWithApplication)
 import Intray.API
 import Intray.Client
 import Intray.Server
+import Intray.Server.OptParse.Types
 import Intray.Server.Types
 
 import Intray.Data.Gen ()
@@ -92,8 +95,31 @@ setupTestHttpManager = HTTP.newManager HTTP.defaultManagerSettings
 
 setupPaidIntrayTestApp :: Int -> IO (HTTP.Manager, Wai.Application)
 setupPaidIntrayTestApp maxFree = do
+  now <- getCurrentTime
+  let planName = PlanId "dummyPlan"
+      dummyPlan =
+        Stripe.Plan
+          { planInterval = Year
+          , planName = "dummy plan"
+          , planCreated = now
+          , planAmount = 1200
+          , planCurrency = CHF
+          , planId = planName
+          , planObject = "plan"
+          , planLiveMode = False
+          , planIntervalCount = Nothing
+          , planTrialPeriodDays = Nothing
+          , planMetaData = MetaData []
+          , planDescription = Nothing
+          }
   monetisationEnvPlanCache <- newCache Nothing
-  let monetisationEnvStripeSettings = error "should not try to access stripe during testing"
+  Cache.insert monetisationEnvPlanCache planName dummyPlan
+  let monetisationEnvStripeSettings =
+        StripeSettings
+          { stripeSetPlan = planName
+          , stripeSetStripeConfig = error "should not try to access stripe during testing"
+          , stripeSetPublishableKey = "Example, should not be used."
+          }
   let monetisationEnvMaxItemsFree = maxFree
   setupIntrayTestApp $ Just MonetisationEnv {..}
 
