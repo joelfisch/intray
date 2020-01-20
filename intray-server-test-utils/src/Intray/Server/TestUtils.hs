@@ -6,6 +6,8 @@
 
 module Intray.Server.TestUtils
   ( withIntrayServer
+  , withFreeIntrayServer
+  , withPaidIntrayServer
   , setupIntrayTestConn
   , setupTestHttpManager
   , setupIntrayTestApp
@@ -29,6 +31,7 @@ import Import
 
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
+import Data.Cache
 import qualified Data.Set as S
 import Data.Set (Set)
 import qualified Data.Text as T
@@ -57,9 +60,20 @@ import Intray.Data.Gen ()
 {-# ANN module ("HLint: ignore Use camelCase" :: String) #-}
 
 withIntrayServer :: SpecWith ClientEnv -> Spec
-withIntrayServer specFunc =
+withIntrayServer specFunc = do
+  context "Paying" $ withPaidIntrayServer 5 specFunc
+  context "Free" $ withFreeIntrayServer specFunc
+
+withPaidIntrayServer :: Int -> SpecWith ClientEnv -> Spec
+withPaidIntrayServer maxFree specFunc =
   afterAll_ cleanupIntrayTestServer $
-  beforeAll setupIntrayTestApp $ aroundWith withIntrayApp $ modifyMaxSuccess (`div` 20) specFunc
+  beforeAll (setupPaidIntrayTestApp maxFree) $
+  aroundWith withIntrayApp $ modifyMaxSuccess (`div` 20) specFunc
+
+withFreeIntrayServer :: SpecWith ClientEnv -> Spec
+withFreeIntrayServer specFunc =
+  afterAll_ cleanupIntrayTestServer $
+  beforeAll setupFreeIntrayTestApp $ aroundWith withIntrayApp $ modifyMaxSuccess (`div` 20) specFunc
 
 testdbFile :: String
 testdbFile = "test.db"
@@ -75,8 +89,18 @@ setupIntrayTestConn = do
 setupTestHttpManager :: IO HTTP.Manager
 setupTestHttpManager = HTTP.newManager HTTP.defaultManagerSettings
 
-setupIntrayTestApp :: IO (HTTP.Manager, Wai.Application)
-setupIntrayTestApp = do
+setupPaidIntrayTestApp :: Int -> IO (HTTP.Manager, Wai.Application)
+setupPaidIntrayTestApp maxFree = do
+  monetisationEnvPlanCache <- newCache Nothing
+  let monetisationEnvStripeSettings = error "should not try to access stripe during testing"
+  let monetisationEnvMaxItemsFree = maxFree
+  setupIntrayTestApp $ Just MonetisationEnv {..}
+
+setupFreeIntrayTestApp :: IO (HTTP.Manager, Wai.Application)
+setupFreeIntrayTestApp = setupIntrayTestApp Nothing
+
+setupIntrayTestApp :: Maybe MonetisationEnv -> IO (HTTP.Manager, Wai.Application)
+setupIntrayTestApp menv = do
   pool <- setupIntrayTestConn
   man <- setupTestHttpManager
   signingKey <- Auth.generateKey
@@ -89,7 +113,7 @@ setupIntrayTestApp = do
           , envCookieSettings = cookieCfg
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]
-          , envMonetisation = Nothing
+          , envMonetisation = menv
           }
   pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))
 

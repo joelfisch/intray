@@ -69,6 +69,7 @@ tests:
     - QuickCheck
     - base >=4.9 && <5
     - bytestring
+    - containers
     - genvalidity-bytestring
     - genvalidity-hspec
     - genvalidity-text
@@ -81,11 +82,12 @@ tests:
     - intray-data
     - intray-data-gen
     - intray-server-test-utils
+    - mergeless
     - path
     - path-io
     - servant
-    - servant-server
     - servant-client
+    - servant-server
     - text
 
 benchmarks:

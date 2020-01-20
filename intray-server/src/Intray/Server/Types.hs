@@ -30,7 +30,7 @@ data IntrayServerEnv =
 
 data MonetisationEnv =
   MonetisationEnv
-    { monetisationEnvStripeSettings :: !StripeSettings
+    { monetisationEnvStripeSettings :: StripeSettings
     , monetisationEnvMaxItemsFree :: !Int
     , monetisationEnvPlanCache :: !(Cache Stripe.PlanId Stripe.Plan)
     }
