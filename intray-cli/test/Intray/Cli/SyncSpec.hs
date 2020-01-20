@@ -21,10 +21,47 @@ import Intray.Cli.Store
 import Intray.Cli.TestUtils
 
 spec :: Spec
-spec =
+spec = do
   withIntrayServer $
-  it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \cenv ->
-    forAllValid $ \ti ->
+    it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \cenv ->
+      forAllValid $ \ti ->
+        withValidNewUserAndData cenv $ \un pw _ ->
+          withSystemTempDir "intray-cli-test-data" $ \dataDir ->
+            withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
+              let (ClientEnv _ burl _) = cenv
+              setEnv "INTRAY_USERNAME" $ T.unpack $ usernameText un
+              setEnv "INTRAY_PASSWORD" $ T.unpack pw
+              setEnv "INTRAY_URL" $ showBaseUrl burl
+              setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
+              setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
+              intray ["login"]
+              let sets =
+                    Settings
+                      { setBaseUrl = Just burl
+                      , setUsername = Just un
+                      , setCacheDir = cacheDir
+                      , setDataDir = dataDir
+                      , setSyncStrategy = NeverSync
+                      }
+              mToken <- runReaderT loadToken sets
+              token <-
+                case mToken of
+                  Nothing -> do
+                    expectationFailure "Should have a token after logging in"
+                    undefined
+                  Just t -> pure t
+              uuid <- runClientOrError cenv $ clientPostAddItem token ti
+              intray ["sync"]
+              intray ["show"]
+              mLastSeen1 <- runReaderT readLastSeen sets
+              mLastSeen1 `shouldSatisfy` isJust
+              NoContent <- runClientOrError cenv $ clientDeleteItem token uuid
+              intray ["sync"]
+              mLastSeen2 <- runReaderT readLastSeen sets
+              mLastSeen2 `shouldSatisfy` isNothing
+  let maxFree = 2
+  withPaidIntrayServer maxFree $
+    it "Can add items past the maximum allowed number of free items locally" $ \cenv ->
       withValidNewUserAndData cenv $ \un pw _ ->
         withSystemTempDir "intray-cli-test-data" $ \dataDir ->
           withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
@@ -34,6 +71,7 @@ spec =
             setEnv "INTRAY_URL" $ showBaseUrl burl
             setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
             setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
+            setEnv "INTRAY_SYNC_STRATEGY" "AlwaysSync"
             intray ["login"]
             let sets =
                   Settings
@@ -41,21 +79,18 @@ spec =
                     , setUsername = Just un
                     , setCacheDir = cacheDir
                     , setDataDir = dataDir
-                    , setSyncStrategy = NeverSync
+                    , setSyncStrategy = AlwaysSync
                     }
-            mToken <- runReaderT loadToken sets
-            token <-
-              case mToken of
-                Nothing -> do
-                  expectationFailure "Should have a token after logging in"
-                  undefined
-                Just t -> pure t
-            uuid <- runClientOrError cenv $ clientPostAddItem token ti
-            intray ["sync"]
-            intray ["show"]
-            mLastSeen1 <- runReaderT readLastSeen sets
-            mLastSeen1 `shouldSatisfy` isJust
-            NoContent <- runClientOrError cenv $ clientDeleteItem token uuid
-            intray ["sync"]
-            mLastSeen2 <- runReaderT readLastSeen sets
-            mLastSeen2 `shouldSatisfy` isNothing
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 0
+            intray ["add", "one"]
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 1
+            intray ["size"]
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 1
+            intray ["add", "two"]
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 2
+            intray ["size"]
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 2
+            intray ["add", "three"]
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 3
+            intray ["size"]
+            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 3
