@@ -49,7 +49,7 @@ stack install autoexporter
 Finally, install the intray cli:
 
 ``` shell
-stack install intray
+stack install :intray
 ```
 
 To also install the other intray applications like the server and web server:

@@ -134,9 +134,6 @@ with final.haskell.lib;
                   typedUuidPkg =
                     name:
                       self.callCabal2nix name ( typedUuidRepo + "/${name}" ) {};
-                  validityPkg =
-                    name:
-                      self.callCabal2nix name ( validityRepo + "/${name}" ) {};
                   mergelessPkg =
                     name:
                       self.callCabal2nix name ( mergelessRepo + "/${name}" ) {};
