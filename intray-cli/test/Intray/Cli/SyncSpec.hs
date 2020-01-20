@@ -81,16 +81,17 @@ spec = do
                     , setDataDir = dataDir
                     , setSyncStrategy = AlwaysSync
                     }
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 0
+            let size = runReaderT (storeSize <$> readClientStoreOrEmpty) sets
+            size `shouldReturn` 0
             intray ["add", "one"]
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 1
+            size `shouldReturn` 1
             intray ["size"]
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 1
+            size `shouldReturn` 1
             intray ["add", "two"]
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 2
+            size `shouldReturn` 2
             intray ["size"]
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 2
+            size `shouldReturn` 2
             intray ["add", "three"]
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 3
+            size `shouldReturn` 3
             intray ["size"]
-            runReaderT (storeSize <$> readClientStoreOrEmpty) sets `shouldReturn` 3
+            size `shouldReturn` 3
