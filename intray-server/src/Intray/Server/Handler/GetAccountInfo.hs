@@ -35,7 +35,12 @@ serveGetAccountInfo AuthCookie {..} = do
     Nothing -> throwError err404 {errBody = "User not found."}
     Just (Entity _ User {..}) -> do
       c <- runDb $ count ([IntrayItemUserId ==. authCookieUserUUID] :: [Filter IntrayItem])
-      subbed <- getAccountSubscribed authCookieUserUUID
+      ups <- getUserPaidStatus authCookieUserUUID
+      let subbed =
+            case ups of
+              HasNotPaid _ -> Nothing
+              HasPaid u -> Just u
+              NoPaymentNecessary -> Nothing
       pure
         AccountInfo
           { accountInfoUUID = authCookieUserUUID

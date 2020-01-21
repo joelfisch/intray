@@ -23,7 +23,7 @@ extra-deps:
     - stripe-http-client
     - stripe-http-streams
 - github: NorfairKing/mergeless
-  commit: 3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5
+  commit: d88f685da44caa67ca0b4f72b7b0446a5e20bacd
   subdirs:
     - mergeless
     - genvalidity-mergeless

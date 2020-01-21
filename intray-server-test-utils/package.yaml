@@ -12,8 +12,6 @@ github: NorfairKing/intray-server
 library:
   source-dirs: src
   ghc-options: -Wall
-  exposed-modules:
-  - Intray.Server.TestUtils
   default-extensions:
   - NoImplicitPrelude
 
@@ -27,9 +25,9 @@ library:
   - genvalidity-containers
   - genvalidity-hspec
   - genvalidity-mergeless
+  - cache
   - genvalidity-text
   - genvalidity-time
-  - cache
   - hspec
   - http-client
   - http-types
@@ -49,7 +47,9 @@ library:
   - servant-auth-server
   - servant-client
   - servant-server
+  - stripe-core
   - text >=1.2
+  - time
   - typed-uuid
   - wai
   - warp
@@ -69,6 +69,7 @@ tests:
     - QuickCheck
     - base >=4.9 && <5
     - bytestring
+    - containers
     - genvalidity-bytestring
     - genvalidity-hspec
     - genvalidity-text
@@ -81,12 +82,14 @@ tests:
     - intray-data
     - intray-data-gen
     - intray-server-test-utils
+    - mergeless
     - path
     - path-io
     - servant
-    - servant-server
     - servant-client
+    - servant-server
     - text
+    - time
 
 benchmarks:
   intray-server-bench:

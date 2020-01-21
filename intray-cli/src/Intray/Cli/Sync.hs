@@ -34,7 +34,7 @@ withClientStoreAndSync func = do
             liftIO $
               putStrLn $ unlines ["Sync failed, but store still modified succesfully:", show err]
             pure processed
-          Right r -> pure $ mergeSyncResponse before r
+          Right r -> pure $ mergeSyncResponse processed r
   writeClientStore after
 
 modifyClientStoreAndSync ::

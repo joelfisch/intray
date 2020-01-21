@@ -19,6 +19,7 @@ import Servant.Auth.Server as Auth
 
 import Intray.API
 
+import Intray.Server.Handler.Stripe
 import Intray.Server.Item
 import Intray.Server.Types
 
@@ -26,22 +27,14 @@ import Intray.Server.Handler.Utils
 
 servePostAddItem :: AuthCookie -> TypedItem -> IntrayHandler ItemUUID
 servePostAddItem AuthCookie {..} typedItem = do
-  mss <- asks (fmap monetisationEnvMaxItemsFree . envMonetisation)
-  case mss of
-    Nothing -> goAhead
-    Just maxFreeItems -> do
-      mu <- runDb $ getBy $ UniqueUserIdentifier authCookieUserUUID
-      case mu of
-        Nothing -> throwAll err404
-        Just (Entity _ User {..}) -> do
-          isAdmin <- asks ((userUsername `elem`) . envAdmins)
-          if isAdmin
-            then goAhead
-            else do
-              c <- runDb $ count [IntrayItemUserId ==. authCookieUserUUID]
-              if c >= maxFreeItems
-                then throwAll err402
-                else goAhead
+  ps <- getUserPaidStatus authCookieUserUUID
+  case ps of
+    HasNotPaid i ->
+      if i >= 1
+        then goAhead
+        else throwAll err402
+    HasPaid _ -> goAhead
+    NoPaymentNecessary -> goAhead
   where
     goAhead = do
       now <- liftIO getCurrentTime

@@ -6,6 +6,8 @@
 
 module Intray.Server.TestUtils
   ( withIntrayServer
+  , withFreeIntrayServer
+  , withPaidIntrayServer
   , setupIntrayTestConn
   , setupTestHttpManager
   , setupIntrayTestApp
@@ -29,14 +31,17 @@ import Import
 
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
+import Data.Cache as Cache
 import qualified Data.Set as S
 import Data.Set (Set)
 import qualified Data.Text as T
+import Data.Time
 import Data.UUID.Typed
 import Lens.Micro
 import qualified Network.HTTP.Client as HTTP
 import qualified Network.HTTP.Types as HTTP
 import Web.Cookie
+import Web.Stripe.Plan as Stripe
 
 import Servant
 import Servant.Auth.Client
@@ -50,6 +55,7 @@ import Network.Wai.Handler.Warp (testWithApplication)
 import Intray.API
 import Intray.Client
 import Intray.Server
+import Intray.Server.OptParse.Types
 import Intray.Server.Types
 
 import Intray.Data.Gen ()
@@ -57,9 +63,21 @@ import Intray.Data.Gen ()
 {-# ANN module ("HLint: ignore Use camelCase" :: String) #-}
 
 withIntrayServer :: SpecWith ClientEnv -> Spec
-withIntrayServer specFunc =
+withIntrayServer specFunc = do
+  context "Paying" $ withPaidIntrayServer 5 specFunc
+  context "Free" $ withFreeIntrayServer specFunc
+
+withPaidIntrayServer :: Int -> SpecWith ClientEnv -> Spec
+withPaidIntrayServer maxFree specFunc =
   afterAll_ cleanupIntrayTestServer $
-  beforeAll setupIntrayTestApp $ aroundWith withIntrayApp $ modifyMaxSuccess (`div` 20) specFunc
+  beforeAll (setupPaidIntrayTestApp maxFree) $
+  aroundWith withIntrayApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
+
+withFreeIntrayServer :: SpecWith ClientEnv -> Spec
+withFreeIntrayServer specFunc =
+  afterAll_ cleanupIntrayTestServer $
+  beforeAll setupFreeIntrayTestApp $
+  aroundWith withIntrayApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
 
 testdbFile :: String
 testdbFile = "test.db"
@@ -75,8 +93,41 @@ setupIntrayTestConn = do
 setupTestHttpManager :: IO HTTP.Manager
 setupTestHttpManager = HTTP.newManager HTTP.defaultManagerSettings
 
-setupIntrayTestApp :: IO (HTTP.Manager, Wai.Application)
-setupIntrayTestApp = do
+setupPaidIntrayTestApp :: Int -> IO (HTTP.Manager, Wai.Application)
+setupPaidIntrayTestApp maxFree = do
+  now <- getCurrentTime
+  let planName = PlanId "dummyPlan"
+      dummyPlan =
+        Stripe.Plan
+          { planInterval = Year
+          , planName = "dummy plan"
+          , planCreated = now
+          , planAmount = 1200
+          , planCurrency = CHF
+          , planId = planName
+          , planObject = "plan"
+          , planLiveMode = False
+          , planIntervalCount = Nothing
+          , planTrialPeriodDays = Nothing
+          , planMetaData = MetaData []
+          , planDescription = Nothing
+          }
+  monetisationEnvPlanCache <- newCache Nothing
+  Cache.insert monetisationEnvPlanCache planName dummyPlan
+  let monetisationEnvStripeSettings =
+        StripeSettings
+          { stripeSetPlan = planName
+          , stripeSetStripeConfig = error "should not try to access stripe during testing"
+          , stripeSetPublishableKey = "Example, should not be used."
+          }
+  let monetisationEnvMaxItemsFree = maxFree
+  setupIntrayTestApp $ Just MonetisationEnv {..}
+
+setupFreeIntrayTestApp :: IO (HTTP.Manager, Wai.Application)
+setupFreeIntrayTestApp = setupIntrayTestApp Nothing
+
+setupIntrayTestApp :: Maybe MonetisationEnv -> IO (HTTP.Manager, Wai.Application)
+setupIntrayTestApp menv = do
   pool <- setupIntrayTestConn
   man <- setupTestHttpManager
   signingKey <- Auth.generateKey
@@ -89,7 +140,7 @@ setupIntrayTestApp = do
           , envCookieSettings = cookieCfg
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]
-          , envMonetisation = Nothing
+          , envMonetisation = menv
           }
   pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))
 

@@ -89,7 +89,7 @@ data MonetisationSettings =
 data StripeSettings =
   StripeSettings
     { stripeSetPlan :: !Stripe.PlanId
-    , stripeSetStripeConfig :: !StripeConfig
-    , stripeSetPublishableKey :: !Text
+    , stripeSetStripeConfig :: StripeConfig
+    , stripeSetPublishableKey :: Text
     }
   deriving (Show)

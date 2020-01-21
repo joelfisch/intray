@@ -95,9 +95,9 @@ with final.haskell.lib;
                     final.fetchFromGitHub {
                       owner = "NorfairKing";
                       repo = "mergeless";
-                      rev = "3d5f4b54cc2c4c8c6f33a716bc6b67f376b8d1d5";
+                      rev = "d88f685da44caa67ca0b4f72b7b0446a5e20bacd";
                       sha256 =
-                        "sha256:0far86wdprvyk8i50y4i5wzc0vcqj5ksdf90jnyyalrbklgxxgkv";
+                        "sha256:09lrclkc4m0zhvfm352ml70bvd4xbjahfdjq97slk4jgz6m78mgx";
                     };
                   prettyRelativeTimeRepo =
                     final.fetchFromGitHub {
