@@ -59,7 +59,7 @@ doSync ps userId sr = do
         fmap M.fromList $
           forM m' $ \(cid, Added {..}) -> do
             uuid <- nextRandomUUID
-            let ii = makeIntrayItem userId uuid now addedValue
+            let ii = makeIntrayItem userId uuid addedCreated now addedValue
             runDb $ insert_ ii
             let ca = ClientAddition {clientAdditionId = uuid, clientAdditionTime = now}
             pure (cid, ca)

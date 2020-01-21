@@ -10,14 +10,14 @@ import Data.Time
 
 import Intray.API
 
-makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> TypedItem -> IntrayItem
-makeIntrayItem u i ts TypedItem {..} =
+makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> UTCTime -> TypedItem -> IntrayItem
+makeIntrayItem u i at st TypedItem {..} =
   IntrayItem
     { intrayItemIdentifier = i
     , intrayItemType = itemType
     , intrayItemContents = itemData
-    , intrayItemCreated = ts
-    , intrayItemSynced = ts
+    , intrayItemCreated = at
+    , intrayItemSynced = st
     , intrayItemUserId = u
     }
 
