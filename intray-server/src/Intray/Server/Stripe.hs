@@ -10,7 +10,7 @@ import Import
 
 import Data.Aeson
 
-import Web.Stripe as Stripe
+import Web.Stripe as Stripe (StripeError, StripeRequest, StripeReturn, stripe)
 
 import Intray.Server.OptParse.Types
 
