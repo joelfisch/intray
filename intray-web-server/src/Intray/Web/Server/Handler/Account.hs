@@ -39,7 +39,8 @@ accountInfoSegment Nothing _ =
   pure
     [whamlet|
         <div .ui .negative .message>
-            You are not authorised to view account info.|]
+            You are not authorised to view account info.
+            |]
 accountInfoSegment (Just ai@AccountInfo {..}) mp = do
   now <- liftIO getCurrentTime
   let subbedWidget =
@@ -73,6 +74,7 @@ pricingStripeForm AccountInfo {..} p =
    in [whamlet|
         <div .ui .segment>
           <h2> Subscribe
+
           <p>
             <ul>
               <li>

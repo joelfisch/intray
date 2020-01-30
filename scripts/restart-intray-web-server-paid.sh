@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -x
 
 cd $HOME
 
-pkill -f 'intray-web-server serve' || true
+killall -f 'intray-web-server serve' || true
 
 set -e
 
