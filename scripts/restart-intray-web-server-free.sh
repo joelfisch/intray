@@ -3,7 +3,7 @@ set -x
 
 cd $HOME
 
-killall -f 'intray-web-server serve' || true
+pkill -f 'intray-web-server serve' || true
 
 set -e
 

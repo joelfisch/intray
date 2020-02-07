@@ -65,4 +65,4 @@ nix:
   - zlib
   - unzip
   - haskellPackages.autoexporter
-
+  - procps
