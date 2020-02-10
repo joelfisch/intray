@@ -32,7 +32,9 @@ clientPostAddItem :: Token -> TypedItem -> ClientM ItemUUID
 clientGetItem :: Token -> ItemUUID -> ClientM (ItemInfo TypedItem)
 clientDeleteItem :: Token -> ItemUUID -> ClientM NoContent
 clientPostSync ::
-     Token -> SyncRequest ItemUUID TypedItem -> ClientM (SyncResponse ItemUUID TypedItem)
+     Token
+  -> SyncRequest ItemUUID (AddedItem TypedItem)
+  -> ClientM (SyncResponse ItemUUID (AddedItem TypedItem))
 clientGetAccountInfo :: Token -> ClientM AccountInfo
 clientDeleteAccount :: Token -> ClientM NoContent
 clientPostAddAccessKey :: Token -> AddAccessKey -> ClientM AccessKeyCreated

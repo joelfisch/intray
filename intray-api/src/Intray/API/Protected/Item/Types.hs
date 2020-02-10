@@ -13,6 +13,7 @@ module Intray.API.Protected.Item.Types
   , textTypedItem
   , TypedItemCase(..)
   , typedItemCase
+  , AddedItem(..)
   , ItemInfo(..)
   , ItemUUID
   , module Data.UUID.Typed
@@ -72,11 +73,28 @@ newtype TypedItemCase =
   CaseTextItem Text
   deriving (Show, Read, Eq, Ord, Generic)
 
+data AddedItem a =
+  AddedItem
+    { addedItemContents :: a
+    , addedItemCreated :: UTCTime
+    }
+  deriving (Show, Read, Eq, Ord, Generic)
+
+instance Validity a => Validity (AddedItem a)
+
+instance ToJSON a => ToJSON (AddedItem a) where
+  toJSON AddedItem {..} = object ["contents" .= addedItemContents, "created" .= addedItemCreated]
+
+instance FromJSON a => FromJSON (AddedItem a) where
+  parseJSON = withObject "AddedItem" $ \o -> AddedItem <$> o .: "contents" <*> o .: "created"
+
+instance (ToSample a) => ToSample (AddedItem a)
+
 data ItemInfo a =
   ItemInfo
     { itemInfoIdentifier :: ItemUUID
     , itemInfoContents :: a
-    , itemInfoTimestamp :: UTCTime
+    , itemInfoCreated :: UTCTime
     }
   deriving (Show, Read, Eq, Ord, Generic)
 
@@ -85,23 +103,17 @@ instance Validity a => Validity (ItemInfo a)
 instance ToJSON a => ToJSON (ItemInfo a) where
   toJSON ItemInfo {..} =
     object
-      ["id" .= itemInfoIdentifier, "contents" .= itemInfoContents, "timestamp" .= itemInfoTimestamp]
+      ["id" .= itemInfoIdentifier, "contents" .= itemInfoContents, "created" .= itemInfoCreated]
 
 instance FromJSON a => FromJSON (ItemInfo a) where
   parseJSON =
     withObject "ItemInfo TypedItem" $ \o ->
-      ItemInfo <$> o .: "id" <*> o .: "contents" <*> o .: "timestamp"
+      ItemInfo <$> o .: "id" <*> o .: "contents" <*> o .: "created"
 
 instance ToSample ClientId where
   toSamples Proxy = singleSample (ClientId 0)
 
 instance ToSample a => ToSample (ItemInfo a)
-
-instance ToSample a => ToSample (Added a)
-
-instance ToSample a => ToSample (Synced a)
-
-instance ToSample i => ToSample (ClientAddition i)
 
 instance (Ord i, ToSample i, ToSample a) => ToSample (SyncRequest i a)
 

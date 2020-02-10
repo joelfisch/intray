@@ -15,7 +15,8 @@ import Intray.Cli.Session
 import Intray.Cli.Store
 
 withClientStoreAndSync ::
-     (ClientStore ItemUUID TypedItem -> CliM (ClientStore ItemUUID TypedItem)) -> CliM ()
+     (ClientStore ItemUUID (AddedItem TypedItem) -> CliM (ClientStore ItemUUID (AddedItem TypedItem)))
+  -> CliM ()
 withClientStoreAndSync func = do
   before <- readClientStoreOrEmpty
   processed <- func before
@@ -38,10 +39,11 @@ withClientStoreAndSync func = do
   writeClientStore after
 
 modifyClientStoreAndSync ::
-     (ClientStore ItemUUID TypedItem -> ClientStore ItemUUID TypedItem) -> CliM ()
+     (ClientStore ItemUUID (AddedItem TypedItem) -> ClientStore ItemUUID (AddedItem TypedItem))
+  -> CliM ()
 modifyClientStoreAndSync func = withClientStoreAndSync (pure . func)
 
-syncAndGet :: (ClientStore ItemUUID TypedItem -> CliM a) -> CliM a
+syncAndGet :: (ClientStore ItemUUID (AddedItem TypedItem) -> CliM a) -> CliM a
 syncAndGet func = do
   before <- readClientStoreOrEmpty
   let req = makeSyncRequest before
@@ -62,5 +64,5 @@ syncAndGet func = do
           writeClientStore after
           func after
 
-syncAndReturn :: (ClientStore ItemUUID TypedItem -> a) -> CliM a
+syncAndReturn :: (ClientStore ItemUUID (AddedItem TypedItem) -> a) -> CliM a
 syncAndReturn func = syncAndGet $ pure . func

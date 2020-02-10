@@ -6,35 +6,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Protected.Item
-  ( IntrayProtectedItemAPI
-  , IntrayProtectedItemSite(..)
-  , AuthCookie(..)
-  , GetItemUUIDs
-  , GetItems
-  , GetShowItem
-  , GetIntraySize
-  , PostAddItem
-  , GetItem
-  , DeleteItem
-  , ItemType(..)
-  , TypedItem(..)
-  , textTypedItem
-  , TypedItemCase(..)
-  , typedItemCase
-  , ItemInfo(..)
-  , Added(..)
-  , Synced(..)
-  , SyncRequest(..)
-  , SyncResponse(..)
-  , PostSync
-  , HashedPassword
-  , passwordHash
-  , validatePassword
-  , ItemUUID
-  , Username
-  , parseUsername
-  , parseUsernameWithError
-  , usernameText
+  ( module Intray.API.Protected.Item
+  , module Intray.API.Protected.Item.Types
   ) where
 
 import Import
@@ -84,4 +57,4 @@ type GetItem = ProtectAPI :> "item" :> Capture "uuid" ItemUUID :> Get '[ JSON] (
 type DeleteItem = ProtectAPI :> "item" :> Capture "uuid" ItemUUID :> Delete '[ JSON] NoContent
 
 type PostSync
-   = ProtectAPI :> "sync" :> ReqBody '[ JSON] (SyncRequest ItemUUID TypedItem) :> Post '[ JSON] (SyncResponse ItemUUID TypedItem)
+   = ProtectAPI :> "sync" :> ReqBody '[ JSON] (SyncRequest ItemUUID (AddedItem TypedItem)) :> Post '[ JSON] (SyncResponse ItemUUID (AddedItem TypedItem))

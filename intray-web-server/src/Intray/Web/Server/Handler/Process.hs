@@ -35,7 +35,7 @@ getProcessR =
 makeItemInfoWidget :: ItemInfo TypedItem -> Handler Widget
 makeItemInfoWidget ItemInfo {..} = do
   token <- genToken
-  timestampWidget <- makeTimestampWidgetNow itemInfoTimestamp
+  timestampWidget <- makeTimestampWidgetNow itemInfoCreated
   pure $(widgetFile "item")
 
 newtype DoneItem =
