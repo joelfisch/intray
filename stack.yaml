@@ -13,6 +13,15 @@ extra-deps:
 - servant-auth-client-0.4.0.0@sha256:68879b7f44d87f73ef68c7bb21006167f5623c4cd6a2a3fce4d5ea3959a8c730,3426
 - servant-flatten-0.2@sha256:276896f7c5cdec5b8f8493f6205fded0cc602d050b58fdb09a6d7c85c3bb0837,1234
 
+# https://github.com/vincenthz/hs-tls/issues/421
+# see also nix/overlay.nix.
+- github: ocheron/hs-tls
+  commit: 8d2201a7e73f826633a9537b98a24096252950cc
+  subdirs:
+    - core
+    - debug
+    - session
+
 - github: NorfairKing/yesod-static-remote
   commit: 22c0a92c1d62f1b8d432003844ef0636a9131b08
 - github: NorfairKing/stripe
