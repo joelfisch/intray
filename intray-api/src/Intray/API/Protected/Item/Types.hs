@@ -24,14 +24,20 @@ import Import
 import Data.Aeson as JSON
 import qualified Data.ByteString.Base64 as Base64
 import qualified Data.ByteString.Char8 as SB8
+import Data.Function
 import qualified Data.Map as M
 import Data.Map (Map)
 import Data.Mergeless
+import qualified Data.Set as S
+import Data.Set (Set)
+import Data.Swagger
 import qualified Data.Text.Encoding as TE
 import Data.Time
 import Data.UUID.Typed
+import Lens.Micro
 
 import Servant.Docs
+import Servant.Swagger
 
 import Intray.Data
 
@@ -40,34 +46,32 @@ import Intray.API.Types ()
 data TypedItem =
   TypedItem
     { itemType :: ItemType
-    , itemData :: ByteString
+    , itemData :: Text
     }
   deriving (Show, Read, Eq, Ord, Generic)
 
 instance Validity TypedItem
 
 instance FromJSON TypedItem where
-  parseJSON =
-    withObject "TypedItem" $ \o ->
-      TypedItem <$> o .: "type" <*>
-      (do t <- o .: "data"
-          case Base64.decode $ SB8.pack t of
-            Left err -> fail $ unwords ["Failed to decode base64-encoded typed item data:", err]
-            Right r -> pure r)
+  parseJSON = withObject "TypedItem" $ \o -> TypedItem <$> o .: "type" <*> o .: "data"
 
 instance ToJSON TypedItem where
-  toJSON TypedItem {..} = object ["type" .= itemType, "data" .= SB8.unpack (Base64.encode itemData)]
+  toJSON TypedItem {..} = object ["type" .= itemType, "data" .= itemData]
 
 instance ToSample TypedItem where
   toSamples Proxy = singleSample $ TypedItem TextItem "Hello World!"
 
-textTypedItem :: Text -> TypedItem
-textTypedItem t = TypedItem {itemType = TextItem, itemData = TE.encodeUtf8 t}
+instance ToSchema ItemType
 
-typedItemCase :: TypedItem -> Either String TypedItemCase
+instance ToSchema TypedItem
+
+textTypedItem :: Text -> TypedItem
+textTypedItem t = TypedItem {itemType = TextItem, itemData = t}
+
+typedItemCase :: TypedItem -> TypedItemCase
 typedItemCase TypedItem {..} =
   case itemType of
-    TextItem -> left show $ CaseTextItem <$> TE.decodeUtf8' itemData
+    TextItem -> CaseTextItem itemData
 
 newtype TypedItemCase =
   CaseTextItem Text
@@ -89,6 +93,8 @@ instance FromJSON a => FromJSON (AddedItem a) where
   parseJSON = withObject "AddedItem" $ \o -> AddedItem <$> o .: "contents" <*> o .: "created"
 
 instance (ToSample a) => ToSample (AddedItem a)
+
+instance (ToSchema a) => ToSchema (AddedItem a)
 
 data ItemInfo a =
   ItemInfo
@@ -113,11 +119,21 @@ instance FromJSON a => FromJSON (ItemInfo a) where
 instance ToSample ClientId where
   toSamples Proxy = singleSample (ClientId 0)
 
+instance ToParamSchema ClientId
+
+instance ToSchema ClientId
+
 instance ToSample a => ToSample (ItemInfo a)
+
+instance ToSchema a => ToSchema (ItemInfo a)
 
 instance (Ord i, ToSample i, ToSample a) => ToSample (SyncRequest i a)
 
+instance (Ord i, ToJSONKey i, ToSchema i, ToSchema a) => ToSchema (SyncRequest i a)
+
 instance (Ord i, ToSample i, ToSample a) => ToSample (SyncResponse i a)
+
+instance (Ord i, ToJSONKey i, ToSchema i, ToSchema a) => ToSchema (SyncResponse i a)
 
 instance (Ord k, ToSample k, ToSample v) => ToSample (Map k v) where
   toSamples Proxy = fmapSamples M.fromList $ toSamples Proxy

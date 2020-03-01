@@ -18,6 +18,7 @@ import Import
 
 import Data.Aeson as JSON
 import Data.Set (Set)
+import Data.Swagger
 import Data.Time
 import Data.UUID.Typed
 
@@ -69,6 +70,8 @@ instance ToJSON AddAccessKey
 
 instance ToSample AddAccessKey
 
+instance ToSchema AddAccessKey
+
 data AccessKeyCreated =
   AccessKeyCreated
     { accessKeyCreatedCreatedTimestamp :: UTCTime
@@ -84,3 +87,5 @@ instance FromJSON AccessKeyCreated
 instance ToJSON AccessKeyCreated
 
 instance ToSample AccessKeyCreated
+
+instance ToSchema AccessKeyCreated

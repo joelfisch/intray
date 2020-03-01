@@ -80,6 +80,7 @@ intrayPublicServer =
     { postRegister = servePostRegister
     , postLogin = servePostLogin
     , getDocs = serveGetDocs
+    , getSwagger = serveGetSwagger
     , getPricing = serveGetPricing
     }
 

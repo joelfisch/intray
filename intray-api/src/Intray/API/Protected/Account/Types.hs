@@ -19,6 +19,7 @@ module Intray.API.Protected.Account.Types
 import Import
 
 import Data.Aeson as JSON
+import Data.Swagger
 import Data.Time
 import Data.UUID.Typed
 
@@ -63,3 +64,5 @@ instance ToJSON AccountInfo where
       ]
 
 instance ToSample AccountInfo
+
+instance ToSchema AccountInfo

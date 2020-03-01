@@ -38,6 +38,7 @@ import Data.Aeson as JSON
 import Data.Hashable
 import Data.Set (Set)
 import qualified Data.Set as S
+import Data.Swagger
 import qualified Data.Text as T
 import Data.Time
 import qualified Data.UUID as UUID
@@ -99,6 +100,10 @@ instance ToSample Text where
 instance ToSample (UUID a) where
   toSamples Proxy = singleSample (UUID $ UUID.fromWords 0 0 0 0)
 
+instance ToParamSchema (UUID a)
+
+instance ToSchema (UUID a)
+
 instance ToSample Int where
   toSamples Proxy = singleSample 42
 
@@ -124,6 +129,8 @@ instance FromJSON Registration where
 
 instance ToSample Registration
 
+instance ToSchema Registration
+
 data LoginForm =
   LoginForm
     { loginFormUsername :: Username
@@ -141,7 +148,11 @@ instance ToJSON LoginForm where
 
 instance ToSample LoginForm
 
+instance ToSchema LoginForm
+
 instance ToSample Username
+
+instance ToSchema Username
 
 instance ToSample SetCookie where
   toSamples Proxy = singleSample def
@@ -161,13 +172,20 @@ instance ToSample GetDocsResponse where
 instance ToMarkup GetDocsResponse where
   toMarkup (GetDocsResponse html) = toMarkup html
 
+instance ToSample Swagger where
+  toSamples Proxy = []
+
 instance ToSample Permission
+
+instance ToSchema Permission
 
 instance (Ord a, ToSample a) => ToSample (Set a) where
   toSamples Proxy = second S.fromList <$> toSamples Proxy
 
 instance ToSample AccessKeySecret where
   toSamples Proxy = singleSample $ unsafePerformIO generateRandomAccessKeySecret
+
+instance ToSchema AccessKeySecret
 
 data Pricing =
   Pricing

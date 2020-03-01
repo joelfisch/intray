@@ -21,6 +21,7 @@ library:
   - aeson
   - aeson-pretty
   - async
+  - base64-bytestring
   - bytestring
   - cache
   - containers
@@ -42,10 +43,13 @@ library:
   - resourcet
   - servant
   - servant-auth-server
+  - servant-auth-swagger
   - servant-docs
   - servant-server
+  - servant-swagger
   - stripe-core
   - stripe-haskell
+  - swagger2
   - text
   - time
   - typed-uuid
