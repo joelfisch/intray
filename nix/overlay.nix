@@ -142,6 +142,27 @@ with final.haskell.lib;
                       dontCheck (
                         self.callCabal2nix name ( stripeHaskellRepo + "/${name}" ) {}
                       );
+                  hsTlsRepo =
+                    final.fetchFromGitHub {
+                      owner = "ocheron";
+                      repo = "hs-tls";
+                      rev = "8d2201a7e73f826633a9537b98a24096252950cc";
+                      sha256 =
+                        "sha256:1ralh1hdqb6f135kqb6wmariv621w3q6vvdpwvyn4zrbfqjlxsx4";
+                    };
+                  hsTlsPkg =
+                    name: subdir:
+                      dontCheck (
+                        self.callCabal2nix name ( hsTlsRepo + "/${subdir}" ) {}
+                      );
+                  hsTlsPackages =
+                    {
+                      "tls" = hsTlsPkg "tls" "core";
+                      "tls-session-manager" =
+                        hsTlsPkg "tls-session-manager" "session";
+                      "tls-debug" = hsTlsPkg "tls-debug" "debug";
+                    };
+
                 in
                   {
             pretty-relative-time = self.callCabal2nix "pretty-relative-time" prettyRelativeTimeRepo {};
@@ -160,7 +181,7 @@ with final.haskell.lib;
           ] typedUuidPkg // final.lib.genAttrs [
             "mergeless"
             "genvalidity-mergeless"
-          ] mergelessPkg // final.intrayPackages
+          ] mergelessPkg // hsTlsPackages // final.intrayPackages
             );
         }
     );
