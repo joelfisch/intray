@@ -118,7 +118,7 @@ Every option can also be specified via environment variables.
 INTRAY_CONFIG_FILE:    Config file
 INTRAY_CACHE_DIR:      The cache dir
 INTRAY_DATA_DIR:       The data dir
-INTRAY_SYNC_STRATEGY:  The sync strategy
+INTRAY_SYNC_STRATEGY:  The sync strategy, 'NeverSync' or 'AlwaysSync'
 INTRAY_URL:            The sync server api url
 INTRAY_USERNAME:       The sync username
 INTRAY_PASSWORD:       The sync password
@@ -129,7 +129,7 @@ Every option can also be specified in the config file.
 ```
 cache-dir:      The cache dir
 data-dir:       The data dir
-sync:           The sync strategy
+sync:           The sync strategy, 'NeverSync' or 'AlwaysSync'
 url:            The sync server api url
 username:       The sync username
 password:       The sync password
