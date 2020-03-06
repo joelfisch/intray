@@ -24,7 +24,7 @@ getAdminR =
   withAdminCreds $ \t -> do
     AdminStats {..} <- runClientOrErr $ clientAdminGetStats t
     let ActiveUsers {..} = adminStatsActiveUsers
-    users <- fmap (sortOn accountInfoLastLogin) $ runClientOrErr $ clientAdminGetAccounts t
+    users <- runClientOrErr $ clientAdminGetAccounts t
     now <- liftIO getCurrentTime
     token <- genToken
     withNavBar $(widgetFile "admin")

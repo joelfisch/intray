@@ -22,7 +22,7 @@ import Intray.Server.Handler.Utils
 serveAdminGetAccounts :: AuthCookie -> IntrayHandler [AccountInfo]
 serveAdminGetAccounts AuthCookie {..} = do
   admins <- asks envAdmins
-  users <- runDb $ selectList [] [Asc UserId]
+  users <- runDb $ selectList [] [Asc UserId, Desc UserLastLogin]
   forM users $ \(Entity _ User {..}) -> do
     c <- runDb $ count ([IntrayItemUserId ==. userIdentifier] :: [Filter IntrayItem])
     subbed <- getAccountSubscribed userIdentifier

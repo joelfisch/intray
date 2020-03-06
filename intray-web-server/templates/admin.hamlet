@@ -21,7 +21,7 @@
   <div class="ui four big statistics">
     <div class="statistic">
       <div class="value">
-        #{activeUsersWeekly}
+        #{activeUsersDaily}
       <div class="label">
         Daily
 
@@ -49,8 +49,6 @@
     <thead>
       <tr>
         <th>
-          UUID
-        <th>
           Username
         <th>
           Created
@@ -66,10 +64,8 @@
       $forall u <- users
         <tr>
           <td>
-            <code>
-              #{uuidText $ accountInfoUUID u}
-          <td>
-            #{usernameText $ accountInfoUsername u}
+            <div data-tooltip="#{uuidText $ accountInfoUUID u}">
+              #{usernameText $ accountInfoUsername u}
           <td>
             <div data-tooltip="#{prettyTimestamp now $ accountInfoCreatedTimestamp u}">
               #{prettyTimeAuto now $ accountInfoCreatedTimestamp u}
