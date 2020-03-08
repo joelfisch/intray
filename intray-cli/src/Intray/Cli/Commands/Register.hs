@@ -21,4 +21,7 @@ register :: RegisterSettings -> CliM ()
 register RegisterSettings {..} = do
   registration <-
     Registration <$> promptUsername registerSetUsername <*> promptPassword registerSetPassword
-  void $ runSingleClientOrErr $ clientPostRegister registration
+  mRes <- runSingleClientOrErr $ clientPostRegister registration
+  case mRes of
+    Nothing -> liftIO $ die "No server configured."
+    Just NoContent -> pure ()
