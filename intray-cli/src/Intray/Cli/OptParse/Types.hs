@@ -91,7 +91,6 @@ instance FromJSON Configuration where
 data Settings =
   Settings
     { setBaseUrl :: Maybe BaseUrl
-    , setUsername :: Maybe Username
     , setCacheDir :: Path Abs Dir
     , setDataDir :: Path Abs Dir
     , setSyncStrategy :: SyncStrategy

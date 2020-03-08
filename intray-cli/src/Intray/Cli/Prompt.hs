@@ -19,12 +19,9 @@ import Intray.Cli.OptParse
 
 promptUsername :: Maybe Username -> CliM Username
 promptUsername mun =
+  liftIO $
   case mun of
-    Nothing -> do
-      msun <- asks setUsername
-      case msun of
-        Nothing -> liftIO $ promptUntil "username" parseUsername
-        Just un -> pure un
+    Nothing -> promptUntil "username" parseUsername
     Just un -> pure un
 
 promptPassword :: Maybe Text -> CliM Text

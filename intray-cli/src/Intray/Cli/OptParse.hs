@@ -63,13 +63,6 @@ combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
                  Nothing -> NeverSync
                  Just _ -> AlwaysSync) $
             flagSyncStrategy <|> envSyncStrategy <|> mc configSyncStrategy
-      setUsername <-
-        case envUsername <|> mc configUsername of
-          Nothing -> pure Nothing
-          Just us ->
-            case parseUsername (T.pack us) of
-              Nothing -> die $ "Invalid username: " <> us
-              Just un -> pure $ Just un
       pure Settings {..}
     getDispatch =
       case cmd of

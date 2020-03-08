@@ -19,7 +19,6 @@ spec = do
         let sets =
               Settings
                 { setBaseUrl = Nothing
-                , setUsername = Nothing
                 , setCacheDir = cacheDir
                 , setDataDir = dataDir
                 , setSyncStrategy = NeverSync
@@ -37,7 +36,6 @@ spec = do
         let sets =
               Settings
                 { setBaseUrl = Nothing
-                , setUsername = Nothing
                 , setCacheDir = cacheDir
                 , setDataDir = dataDir
                 , setSyncStrategy = NeverSync
@@ -53,7 +51,6 @@ spec = do
         let sets =
               Settings
                 { setBaseUrl = Nothing
-                , setUsername = Nothing
                 , setCacheDir = cacheDir
                 , setDataDir = dataDir
                 , setSyncStrategy = NeverSync
@@ -69,7 +66,6 @@ spec = do
         let sets =
               Settings
                 { setBaseUrl = Nothing
-                , setUsername = Nothing
                 , setCacheDir = cacheDir
                 , setDataDir = dataDir
                 , setSyncStrategy = NeverSync

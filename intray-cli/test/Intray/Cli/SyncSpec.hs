@@ -38,7 +38,6 @@ spec = do
               let sets =
                     Settings
                       { setBaseUrl = Just burl
-                      , setUsername = Just un
                       , setCacheDir = cacheDir
                       , setDataDir = dataDir
                       , setSyncStrategy = NeverSync
@@ -76,7 +75,6 @@ spec = do
             let sets =
                   Settings
                     { setBaseUrl = Just burl
-                    , setUsername = Just un
                     , setCacheDir = cacheDir
                     , setDataDir = dataDir
                     , setSyncStrategy = AlwaysSync
