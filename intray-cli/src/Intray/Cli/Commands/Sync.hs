@@ -12,6 +12,7 @@ import Intray.Cli.Client
 import Intray.Cli.OptParse
 import Intray.Cli.Session
 import Intray.Cli.Store
+import Intray.Cli.Sync
 
 sync :: CliM ()
 sync = do
@@ -26,7 +27,9 @@ sync = do
           Left err -> liftIO $ die $ unlines ["Sync failed:", show err]
           Right resp -> do
             liftIO $ putStr $ showMergeStats req resp
-            pure $ mergeSyncResponse before resp
+            let after = mergeSyncResponse before resp
+            anyUnsyncedWarning after
+            pure after
   writeClientStore after
 
 showMergeStats :: SyncRequest i a -> SyncResponse i a -> String

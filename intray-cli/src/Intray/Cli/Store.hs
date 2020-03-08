@@ -9,10 +9,11 @@ module Intray.Cli.Store
   , readClientStoreSize
   , writeClientStore
   , addItemToClientStore
+  , storeSize
+  , anyUnsynced
   , LastItem(..)
   , lastItemInClientStore
   , doneLastItem
-  , storeSize
   , writeLastSeen
   , readLastSeen
   , clearLastSeen
@@ -55,6 +56,9 @@ writeClientStore :: ClientStore ItemUUID (AddedItem TypedItem) -> CliM ()
 writeClientStore s = do
   checkLastSeenAfter s
   storePath >>= (`writeJSON` s)
+
+anyUnsynced :: ClientStore i a -> Bool
+anyUnsynced = not . M.null . clientStoreAdded
 
 checkLastSeenAfter :: ClientStore ItemUUID (AddedItem TypedItem) -> CliM ()
 checkLastSeenAfter s = do
