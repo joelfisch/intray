@@ -37,7 +37,15 @@ import Intray.Cli.Path
 {-# ANN module "HLint: ignore Use lambda-case" #-}
 
 readClientStore :: CliM (Maybe (ClientStore ItemUUID TypedItem))
-readClientStore = storePath >>= readJSON
+readClientStore = do
+  p <- storePath
+  readJSON p $
+    unlines
+      [ "If you see this error, it means the way serialisation of the store has changed in a backward-incompatible way."
+      , "As long as you have no unsynced items, you can just remove this file and re-sync: " <>
+        fromAbsFile p
+      , "If you do have unsynced items, you will want to make a backup of this file first."
+      ]
 
 readClientStoreOrEmpty :: CliM (ClientStore ItemUUID TypedItem)
 readClientStoreOrEmpty = fromMaybe emptyClientStore <$> readClientStore
@@ -76,7 +84,11 @@ instance ToJSON LastItem
 readLastSeen :: CliM (Maybe LastItem)
 readLastSeen = do
   p <- lastSeenItemPath
-  readJSON p
+  readJSON p $
+    unlines
+      [ "If you see this error, it means that the way serialisation of the last-seen item cache has changed in a backward-incompatible way."
+      , "You can just remove this file and everything else will work as intended: " <> fromAbsFile p
+      ]
 
 writeLastSeen :: LastItem -> CliM ()
 writeLastSeen i = do
