@@ -72,7 +72,6 @@ IntrayItem
     type ItemType
     contents ByteString
     created UTCTime
-    synced UTCTime
 
     UniqueItemIdentifier identifier
 

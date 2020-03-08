@@ -6,50 +6,10 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Intray.API.Protected
-  ( IntrayProtectedAPI
-  , IntrayProtectedSite(..)
-  , IntrayProtectedItemAPI
-  , IntrayProtectedItemSite(..)
-  , IntrayProtectedAccountAPI
-  , IntrayProtectedAccountSite(..)
-  , IntrayProtectedAccessKeyAPI
-  , IntrayProtectedAccessKeySite(..)
-  , AuthCookie(..)
-  , GetItemUUIDs
-  , GetItems
-  , GetShowItem
-  , GetIntraySize
-  , PostAddItem
-  , GetItem
-  , DeleteItem
-  , ItemType(..)
-  , TypedItem(..)
-  , textTypedItem
-  , TypedItemCase(..)
-  , typedItemCase
-  , ItemInfo(..)
-  , Added(..)
-  , Synced(..)
-  , SyncRequest(..)
-  , SyncResponse(..)
-  , PostSync
-  , AccountInfo(..)
-  , GetAccountInfo
-  , DeleteAccount
-  , AccessKeyUUID
-  , AccessKeyInfo(..)
-  , AddAccessKey(..)
-  , AccessKeyCreated(..)
-  , PostAddAccessKey
-  , GetAccessKey
-  , GetAccessKeys
-  , DeleteAccessKey
-  , ItemUUID
-  , AccountUUID
-  , Username
-  , parseUsername
-  , parseUsernameWithError
-  , usernameText
+  ( module Intray.API.Protected
+  , module Intray.API.Protected.AccessKey
+  , module Intray.API.Protected.Account
+  , module Intray.API.Protected.Item
   ) where
 
 import Import

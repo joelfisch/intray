@@ -14,6 +14,10 @@ instance GenValid TypedItem where
   genValid = genValidStructurally
   shrinkValid = shrinkValidStructurally
 
+instance GenValid a => GenValid (AddedItem a) where
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
+
 instance GenValid a => GenValid (ItemInfo a) where
-  genValid = genValidStructurally
-  shrinkValid = shrinkValidStructurally
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering

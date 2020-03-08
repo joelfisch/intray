@@ -6,8 +6,6 @@ module Intray.Cli.Commands.Sync
 
 import Import
 
-import Intray.API
-
 import Intray.Client
 
 import Intray.Cli.Client
@@ -31,7 +29,7 @@ sync = do
             pure $ mergeSyncResponse before resp
   writeClientStore after
 
-showMergeStats :: SyncRequest ItemUUID TypedItem -> SyncResponse ItemUUID TypedItem -> String
+showMergeStats :: SyncRequest i a -> SyncResponse i a -> String
 showMergeStats SyncRequest {..} SyncResponse {..} =
   unlines
     [ unwords [show $ length syncResponseServerAdded, "added   remotely"]

@@ -81,7 +81,7 @@ spec = do
                     , setDataDir = dataDir
                     , setSyncStrategy = AlwaysSync
                     }
-            let size = runReaderT (storeSize <$> readClientStoreOrEmpty) sets
+            let size = runReaderT readClientStoreSize sets
             size `shouldReturn` 0
             intray ["add", "one"]
             size `shouldReturn` 1

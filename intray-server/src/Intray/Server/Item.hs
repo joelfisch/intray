@@ -3,21 +3,20 @@
 module Intray.Server.Item
   ( makeIntrayItem
   , makeItemInfo
-  , makeSynced
+  , makeAdded
   ) where
 
 import Data.Time
 
 import Intray.API
 
-makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> UTCTime -> TypedItem -> IntrayItem
-makeIntrayItem u i at st TypedItem {..} =
+makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> TypedItem -> IntrayItem
+makeIntrayItem u i at TypedItem {..} =
   IntrayItem
     { intrayItemIdentifier = i
     , intrayItemType = itemType
     , intrayItemContents = itemData
     , intrayItemCreated = at
-    , intrayItemSynced = st
     , intrayItemUserId = u
     }
 
@@ -26,14 +25,13 @@ makeItemInfo IntrayItem {..} =
   ItemInfo
     { itemInfoIdentifier = intrayItemIdentifier
     , itemInfoContents = TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
-    , itemInfoTimestamp = intrayItemCreated
+    , itemInfoCreated = intrayItemCreated
     }
 
-makeSynced :: IntrayItem -> (ItemUUID, Synced TypedItem)
-makeSynced IntrayItem {..} =
+makeAdded :: IntrayItem -> (ItemUUID, AddedItem TypedItem)
+makeAdded IntrayItem {..} =
   ( intrayItemIdentifier
-  , Synced
-      { syncedValue = TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
-      , syncedCreated = intrayItemCreated
-      , syncedSynced = intrayItemSynced
+  , AddedItem
+      { addedItemContents = TypedItem {itemType = intrayItemType, itemData = intrayItemContents}
+      , addedItemCreated = intrayItemCreated
       })

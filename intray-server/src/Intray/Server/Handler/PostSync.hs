@@ -10,8 +10,8 @@ import Import
 import qualified Data.Map as M
 import Data.Map (Map)
 import Data.Mergeless
+import Data.Set (Set)
 import qualified Data.Set as S
-import Data.Time
 import Data.UUID.Typed
 import Database.Persist
 
@@ -23,7 +23,9 @@ import Intray.Server.Item
 import Intray.Server.Types
 
 servePostSync ::
-     AuthCookie -> SyncRequest ItemUUID TypedItem -> IntrayHandler (SyncResponse ItemUUID TypedItem)
+     AuthCookie
+  -> SyncRequest ItemUUID (AddedItem TypedItem)
+  -> IntrayHandler (SyncResponse ItemUUID (AddedItem TypedItem))
 servePostSync AuthCookie {..} sr = do
   ps <- getUserPaidStatus authCookieUserUUID
   doSync ps authCookieUserUUID sr
@@ -31,24 +33,26 @@ servePostSync AuthCookie {..} sr = do
 doSync ::
      PaidStatus
   -> AccountUUID
-  -> SyncRequest ItemUUID TypedItem
-  -> IntrayHandler (SyncResponse ItemUUID TypedItem)
+  -> SyncRequest ItemUUID (AddedItem TypedItem)
+  -> IntrayHandler (SyncResponse ItemUUID (AddedItem TypedItem))
 doSync ps userId sr = do
-  now <- liftIO getCurrentTime
   let serverSyncProcessorDeleteMany s = do
         runDb $ deleteWhere [IntrayItemUserId ==. userId, IntrayItemIdentifier <-. S.toList s]
         pure s -- Just assume that everything was deleted.
+      serverSyncProcessorQueryNoLongerSynced :: Set ItemUUID -> IntrayHandler (Set ItemUUID)
       serverSyncProcessorQueryNoLongerSynced s = do
         items <-
           runDb $ selectList [IntrayItemUserId ==. userId, IntrayItemIdentifier <-. S.toList s] []
         let inSButNotInStore =
               s `S.difference` S.fromList (map (intrayItemIdentifier . entityVal) items)
         pure inSButNotInStore
+      serverSyncProcessorQueryNewRemote ::
+           Set ItemUUID -> IntrayHandler (Map ItemUUID (AddedItem TypedItem))
       serverSyncProcessorQueryNewRemote s =
-        M.fromList . map (makeSynced . entityVal) <$>
+        M.fromList . map (makeAdded . entityVal) <$>
         runDb (selectList [IntrayItemUserId ==. userId, IntrayItemIdentifier /<-. S.toList s] [])
       serverSyncProcessorInsertMany ::
-           Map ClientId (Added TypedItem) -> IntrayHandler (Map ClientId (ClientAddition ItemUUID))
+           Map ClientId (AddedItem TypedItem) -> IntrayHandler (Map ClientId ItemUUID)
       serverSyncProcessorInsertMany m = do
         let mFunc =
               case ps of
@@ -57,11 +61,10 @@ doSync ps userId sr = do
                 NoPaymentNecessary -> id
         let m' = mFunc $ M.toList m
         fmap M.fromList $
-          forM m' $ \(cid, Added {..}) -> do
+          forM m' $ \(cid, AddedItem {..}) -> do
             uuid <- nextRandomUUID
-            let ii = makeIntrayItem userId uuid addedCreated now addedValue
+            let ii = makeIntrayItem userId uuid addedItemCreated addedItemContents
             runDb $ insert_ ii
-            let ca = ClientAddition {clientAdditionId = uuid, clientAdditionTime = now}
-            pure (cid, ca)
+            pure (cid, uuid)
       proc = ServerSyncProcessor {..}
   processServerSyncCustom proc sr

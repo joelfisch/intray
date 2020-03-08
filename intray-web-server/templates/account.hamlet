@@ -3,6 +3,15 @@
 ^{accountInfoWidget}
 
 <div .ui .segment>
+  <h3> Roadmap
+  <p>
+    You can vote on the feature roadmap:
+  <a .ui .button .primary
+    href="https://forms.gle/yWyDjRsiup6ETCn18">
+    Vote on the roadmap
+
+
+<div .ui .segment>
   <h3> Danger zone
 
   <p>

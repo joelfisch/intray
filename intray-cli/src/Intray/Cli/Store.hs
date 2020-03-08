@@ -1,10 +1,12 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Intray.Cli.Store
   ( ClientStore(..)
   , readClientStore
   , readClientStoreOrEmpty
+  , readClientStoreSize
   , writeClientStore
   , addItemToClientStore
   , LastItem(..)
@@ -32,11 +34,7 @@ import Intray.Cli.JSON
 import Intray.Cli.OptParse
 import Intray.Cli.Path
 
-{-# ANN module "HLint: ignore Use &&" #-}
-
-{-# ANN module "HLint: ignore Use lambda-case" #-}
-
-readClientStore :: CliM (Maybe (ClientStore ItemUUID TypedItem))
+readClientStore :: (Ord i, FromJSONKey i, FromJSON i, FromJSON a) => CliM (Maybe (ClientStore i a))
 readClientStore = do
   p <- storePath
   readJSON p $
@@ -47,34 +45,35 @@ readClientStore = do
       , "If you do have unsynced items, you will want to make a backup of this file first."
       ]
 
-readClientStoreOrEmpty :: CliM (ClientStore ItemUUID TypedItem)
+readClientStoreOrEmpty :: (Ord i, FromJSONKey i, FromJSON i, FromJSON a) => CliM (ClientStore i a)
 readClientStoreOrEmpty = fromMaybe emptyClientStore <$> readClientStore
 
-writeClientStore :: ClientStore ItemUUID TypedItem -> CliM ()
+readClientStoreSize :: CliM Int
+readClientStoreSize = storeSize <$> (readClientStoreOrEmpty @ItemUUID @(AddedItem TypedItem))
+
+writeClientStore :: ClientStore ItemUUID (AddedItem TypedItem) -> CliM ()
 writeClientStore s = do
   checkLastSeenAfter s
   storePath >>= (`writeJSON` s)
 
-checkLastSeenAfter :: ClientStore ItemUUID TypedItem -> CliM ()
+checkLastSeenAfter :: ClientStore ItemUUID (AddedItem TypedItem) -> CliM ()
 checkLastSeenAfter s = do
   mLs <- readLastSeen
   case mLs of
     Nothing -> pure () -- Nothing was last seen, cannot be out of date
     Just ls -> unless (lastSeenInClientStore ls s) clearLastSeen
 
-lastSeenInClientStore :: LastItem -> ClientStore ItemUUID TypedItem -> Bool
+lastSeenInClientStore :: LastItem -> ClientStore ItemUUID (AddedItem TypedItem) -> Bool
 lastSeenInClientStore li ClientStore {..} =
   case li of
-    LastItemUnsynced ci Added {..} ->
+    LastItemUnsynced ci a1 ->
       M.member ci clientStoreAdded ||
-      any -- An unsynced item could have gotten synced.
-        (\Synced {..} -> and [syncedCreated == addedCreated, syncedValue == addedValue])
-        clientStoreSynced
+      elem a1 clientStoreSynced -- An unsynced item could have gotten synced.
     LastItemSynced uuid _ -> M.member uuid clientStoreSynced
 
 data LastItem
-  = LastItemSynced ItemUUID (Synced TypedItem)
-  | LastItemUnsynced ClientId (Added TypedItem)
+  = LastItemSynced ItemUUID (AddedItem TypedItem)
+  | LastItemUnsynced ClientId (AddedItem TypedItem)
   deriving (Show, Eq, Ord, Generic)
 
 instance FromJSON LastItem
@@ -100,7 +99,7 @@ clearLastSeen = do
   p <- lastSeenItemPath
   liftIO $ ignoringAbsence $ removeFile p
 
-lastItemInClientStore :: ClientStore ItemUUID TypedItem -> Maybe LastItem
+lastItemInClientStore :: ClientStore ItemUUID (AddedItem TypedItem) -> Maybe LastItem
 lastItemInClientStore ClientStore {..} =
   let lasts =
         concat
@@ -111,7 +110,10 @@ lastItemInClientStore ClientStore {..} =
         [] -> Nothing
         (li:_) -> Just li
 
-doneLastItem :: LastItem -> ClientStore ItemUUID TypedItem -> ClientStore ItemUUID TypedItem
+doneLastItem ::
+     LastItem
+  -> ClientStore ItemUUID (AddedItem TypedItem)
+  -> ClientStore ItemUUID (AddedItem TypedItem)
 doneLastItem li cs =
   case li of
     LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs
@@ -121,12 +123,12 @@ prettyItem :: UTCTime -> LastItem -> String
 prettyItem now li =
   let lastItemTimestamp =
         case li of
-          LastItemUnsynced _ a -> addedCreated a
-          LastItemSynced _ s -> syncedCreated s
+          LastItemUnsynced _ a -> addedItemCreated a
+          LastItemSynced _ s -> addedItemCreated s
       lastItemData =
         case li of
-          LastItemUnsynced _ a -> addedValue a
-          LastItemSynced _ s -> syncedValue s
+          LastItemUnsynced _ a -> addedItemContents a
+          LastItemSynced _ a -> addedItemContents a
       timeStr = prettyTimestamp now lastItemTimestamp
       timeAgoString = prettyTimeAuto now lastItemTimestamp
    in case typedItemCase lastItemData of

@@ -91,22 +91,6 @@ with final.haskell.lib;
                       sha256 =
                         "sha256:185ki38vyvq5889vqdsw53dcdwssdyl4rzvxfhh6kbby17x2f835";
                     };
-                  mergelessRepo =
-                    final.fetchFromGitHub {
-                      owner = "NorfairKing";
-                      repo = "mergeless";
-                      rev = "d88f685da44caa67ca0b4f72b7b0446a5e20bacd";
-                      sha256 =
-                        "sha256:09lrclkc4m0zhvfm352ml70bvd4xbjahfdjq97slk4jgz6m78mgx";
-                    };
-                  prettyRelativeTimeRepo =
-                    final.fetchFromGitHub {
-                      owner = "NorfairKing";
-                      repo = "pretty-relative-time";
-                      rev = "2abdb2ba83ad47b8369e2ef618c7c21b82d80b23";
-                      sha256 =
-                        "sha256:13csx5p0y7wsf8w1vzi3h3bnm4s5976rw9r9glhi55xdwq9s65q7";
-                    };
                   stripeHaskellRepo =
                     final.fetchFromGitHub {
                       owner = "NorfairKing";
@@ -134,9 +118,6 @@ with final.haskell.lib;
                   typedUuidPkg =
                     name:
                       self.callCabal2nix name ( typedUuidRepo + "/${name}" ) {};
-                  mergelessPkg =
-                    name:
-                      self.callCabal2nix name ( mergelessRepo + "/${name}" ) {};
                   stripeHaskellPkg =
                     name:
                       dontCheck (
@@ -165,7 +146,6 @@ with final.haskell.lib;
 
                 in
                   {
-            pretty-relative-time = self.callCabal2nix "pretty-relative-time" prettyRelativeTimeRepo {};
             yesod-static-remote = dontCheck (self.callCabal2nix "yesod-static-remote" yesodStaticRemoteRepo {});
             servant-auth-server = doJailbreak (super.servant-auth-server);
             looper = self.callCabal2nix "looper" looperRepo {};
@@ -178,10 +158,7 @@ with final.haskell.lib;
           ] stripeHaskellPkg // final.lib.genAttrs [
             "typed-uuid"
             "genvalidity-typed-uuid"
-          ] typedUuidPkg // final.lib.genAttrs [
-            "mergeless"
-            "genvalidity-mergeless"
-          ] mergelessPkg // hsTlsPackages // final.intrayPackages
+          ] typedUuidPkg // hsTlsPackages // final.intrayPackages
             );
         }
     );

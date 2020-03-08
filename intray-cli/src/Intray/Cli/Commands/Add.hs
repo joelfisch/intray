@@ -20,4 +20,4 @@ addItem :: Text -> CliM ()
 addItem t = do
   now <- liftIO getCurrentTime
   modifyClientStoreAndSync $
-    addItemToClientStore Added {addedValue = textTypedItem t, addedCreated = now}
+    addItemToClientStore AddedItem {addedItemContents = textTypedItem t, addedItemCreated = now}
