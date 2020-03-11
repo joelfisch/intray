@@ -63,7 +63,6 @@ accountInfoSegment (Just ai@AccountInfo {..}) mp = do
       , case accountInfoSubscribed of
           Nothing -> maybe mempty (pricingStripeForm ai) mp
           Just _ -> mempty -- Already subscribed
-          -- TODO a nice indication?
       ]
 
 pricingStripeForm :: AccountInfo -> Pricing -> Widget
