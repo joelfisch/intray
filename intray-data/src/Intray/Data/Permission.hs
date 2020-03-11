@@ -79,3 +79,6 @@ adminPermissions :: Set Permission
 adminPermissions =
   S.union userPermissions $
   S.fromList [PermitAdminDeleteAccount, PermitAdminGetAccounts, PermitAdminGetStats]
+
+allPermissions :: Set Permission
+allPermissions = S.fromList [minBound .. maxBound]

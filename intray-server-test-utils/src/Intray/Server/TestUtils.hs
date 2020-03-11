@@ -226,7 +226,6 @@ login cenv un pw = do
     UndecodableHeader _ -> failure "Login should return a decodable session header"
     Header session -> pure $ Token $ setCookieValue session
 
--- TODO FIXME only user permissions are tried
 failsWithOutPermissions :: ClientEnv -> Set Permission -> (Token -> ClientM a) -> Property
 failsWithOutPermissions cenv ps func =
   forAll (genValid `suchThat` (\ps' -> null (ps' `S.intersection` ps))) $ \perms ->
