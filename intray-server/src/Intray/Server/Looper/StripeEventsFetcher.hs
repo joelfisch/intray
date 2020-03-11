@@ -13,26 +13,44 @@ import qualified Web.Stripe.Customer as Stripe
 import qualified Web.Stripe.Event as Stripe
 import qualified Web.Stripe.Session as Stripe
 
+import Conduit
+import Web.Stripe.Conduit
+
 import Database.Persist
 
 import Intray.Data
 import Intray.Server.Looper.DB
 import Intray.Server.Looper.Import
 import Intray.Server.Looper.Stripe
+import Intray.Server.OptParse.Types
 
 stripeEventsFetcherLooper :: Looper ()
 stripeEventsFetcherLooper = do
-  errOrEvents <- runStripeLooper (Stripe.getEvents -&- Stripe.CheckoutSessionCompletedEvent) -- TODO this will not work if there are many events
-  case errOrEvents of
-    Left err -> logErr $ T.pack $ unlines ["Stripe responded with an error: ", ppShow err]
-    Right eventsList ->
-      forM_ (Stripe.list eventsList) $ \e -> do
-        mse <- looperDB $ getBy $ UniqueStripeEvent $ Stripe.eventId e
-        case mse of
-          Just _ -> pure () -- No need to re-do this
-          Nothing -> do
-            se <- handleEvent e
-            looperDB $ insert_ se
+  stripeConfig <- asks (stripeSetStripeConfig . looperEnvStripeSettings)
+  let fetchConduit =
+        stripeConduit
+          stripeConfig
+          (Stripe.getEvents -&- Stripe.CheckoutSessionCompletedEvent)
+          Stripe.eventId
+  runConduit $ fetchConduit .| dealWithEventC
+
+dealWithEventC :: ConduitT Stripe.Event Void Looper ()
+dealWithEventC = do
+  me <- await
+  case me of
+    Nothing -> pure ()
+    Just e -> do
+      lift $ dealWithEvent e
+      dealWithEventC
+
+dealWithEvent :: Stripe.Event -> Looper ()
+dealWithEvent e = do
+  mse <- looperDB $ getBy $ UniqueStripeEvent $ Stripe.eventId e
+  case mse of
+    Just _ -> pure () -- No need to re-do this
+    Nothing -> do
+      se <- handleEvent e
+      looperDB $ insert_ se
 
 handleEvent :: Stripe.Event -> Looper StripeEvent
 handleEvent Stripe.Event {..} =

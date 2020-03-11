@@ -23,7 +23,9 @@ library:
   - async
   - bytestring
   - cache
+  - conduit
   - containers
+  - exceptions
   - file-embed
   - intray-api
   - intray-data
@@ -40,6 +42,7 @@ library:
   - persistent-sqlite
   - pretty-show
   - resourcet
+  - safe
   - servant
   - servant-auth-server
   - servant-docs
