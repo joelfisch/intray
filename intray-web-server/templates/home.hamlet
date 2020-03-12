@@ -266,7 +266,6 @@ $maybe p <- mPricing
           <p>
             All data submitted via Intray is secured while it is being submitted and while it is being stored.
             Users will never be tracked and their data will never be exposed to third parties.
-            Administrators cannot see intray items via the web interface.
 
     <div .item>
       <i .question .icon>
