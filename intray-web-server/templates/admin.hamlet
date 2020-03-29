@@ -100,7 +100,11 @@
             #{accountInfoCount u}
           $maybe _ <- mPricing
             <td>
-              #{maybe "No" (prettyTimeAuto now) $ accountInfoSubscribed u}
+              $maybe end <- accountInfoSubscribed u
+                <div data-tooltip="#{prettyTimestamp now end}">
+                  #{prettyTimeAuto now end}
+              $nothing
+                No
           <td>
             #{accountInfoAdmin u}
           <td>
