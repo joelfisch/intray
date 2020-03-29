@@ -100,7 +100,7 @@
             #{accountInfoCount u}
           $maybe _ <- mPricing
             <td>
-              #{maybe "No" show $ accountInfoSubscribed u}
+              #{maybe "No" (prettyTimeAuto now) $ accountInfoSubscribed u}
           <td>
             #{accountInfoAdmin u}
           <td>
