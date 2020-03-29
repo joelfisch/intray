@@ -19,6 +19,7 @@ import Intray.API.Types ()
 data AdminStats =
   AdminStats
     { adminStatsNbAccounts :: !Word
+    , adminStatsSubscribedUsers :: !Word
     , adminStatsNbItems :: !Word
     , adminStatsActiveUsers :: !ActiveUsers
     }
@@ -29,7 +30,8 @@ instance Validity AdminStats
 instance FromJSON AdminStats where
   parseJSON =
     withObject "AdminStats" $ \o ->
-      AdminStats <$> o .: "accounts" <*> o .: "items" <*> o .: "active-users"
+      AdminStats <$> o .: "accounts" <*> o .: "subscribed-users" <*> o .: "items" <*>
+      o .: "active-users"
 
 instance ToJSON AdminStats where
   toJSON AdminStats {..} =
@@ -37,6 +39,7 @@ instance ToJSON AdminStats where
       [ "accounts" .= adminStatsNbAccounts
       , "items" .= adminStatsNbItems
       , "active-users" .= adminStatsActiveUsers
+      , "subscribed-users" .= adminStatsSubscribedUsers
       ]
 
 instance ToSample AdminStats

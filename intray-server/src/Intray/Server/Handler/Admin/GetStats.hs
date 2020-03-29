@@ -18,6 +18,7 @@ import Intray.API
 
 import Intray.Server.Types
 
+import Intray.Server.Handler.GetAccountInfo
 import Intray.Server.Handler.Utils
 
 serveAdminGetStats :: AuthCookie -> IntrayHandler AdminStats
@@ -34,4 +35,8 @@ serveAdminGetStats AuthCookie {..} = do
   activeUsersMonthly <- activeUsers $ 30 * day
   activeUsersYearly <- activeUsers $ 365 * day
   let adminStatsActiveUsers = ActiveUsers {..}
+  adminStatsSubscribedUsers <-
+    do us <- runDb $ selectList [] []
+       fmap (fromIntegral . length . catMaybes) $
+         forM us $ \(Entity _ u) -> getAccountSubscribed (userIdentifier u)
   pure AdminStats {..}

@@ -1,18 +1,38 @@
 <div .ui .segment>
   <h3>
     Main stats:
-  <div class="ui two huge statistics">
-    <div class="statistic">
-      <div class="value">
-        #{adminStatsNbAccounts}
-      <div class="label">
-        Accounts
+  $maybe _ <- mPricing
+    <div class="ui three huge statistics">
+      <div class="statistic">
+        <div class="value">
+          #{adminStatsSubscribedUsers}
+        <div class="label">
+          Subscribed Accounts
 
-    <div class="statistic">
-      <div class="value">
-        #{adminStatsNbItems}
-      <div class="label">
-        Items
+      <div class="statistic">
+        <div class="value">
+          #{adminStatsNbAccounts}
+        <div class="label">
+          Accounts
+
+      <div class="statistic">
+        <div class="value">
+          #{adminStatsNbItems}
+        <div class="label">
+          Items
+  $nothing
+    <div class="ui two huge statistics">
+      <div class="statistic">
+        <div class="value">
+          #{adminStatsNbAccounts}
+        <div class="label">
+          Accounts
+
+      <div class="statistic">
+        <div class="value">
+          #{adminStatsNbItems}
+        <div class="label">
+          Items
 
 
 <div .ui .segment>
@@ -56,6 +76,9 @@
           Last Login
         <th>
           Count
+        $maybe _ <- mPricing
+          <th>
+            Subscribed
         <th>
           Admin
         <th>
@@ -75,6 +98,9 @@
                 #{prettyTimeAuto now ll}
           <td>
             #{accountInfoCount u}
+          $maybe _ <- mPricing
+            <td>
+              #{maybe "No" show $ accountInfoSubscribed u}
           <td>
             #{accountInfoAdmin u}
           <td>

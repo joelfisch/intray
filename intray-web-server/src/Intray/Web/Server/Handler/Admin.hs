@@ -23,6 +23,7 @@ getAdminR :: Handler Html
 getAdminR =
   withAdminCreds $ \t -> do
     AdminStats {..} <- runClientOrErr $ clientAdminGetStats t
+    mPricing <- runClientOrErr clientGetPricing
     let ActiveUsers {..} = adminStatsActiveUsers
     users <- runClientOrErr $ clientAdminGetAccounts t
     now <- liftIO getCurrentTime
