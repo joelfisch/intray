@@ -342,4 +342,4 @@ addNegativeMessage :: Html -> Handler ()
 addNegativeMessage = addMessage "negative"
 
 addPositiveMessage :: Html -> Handler ()
-addPositiveMessage = addMessage "negative"
+addPositiveMessage = addMessage "positive"
