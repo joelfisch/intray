@@ -81,7 +81,7 @@ tests:
     - intray-cli
     - intray-client
     - intray-data
-    - intray-server-test-utils
+    - intray-server-gen
     - mtl
     - path
     - path-io

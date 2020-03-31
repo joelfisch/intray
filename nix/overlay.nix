@@ -23,7 +23,7 @@ with final.haskell.lib;
         "intray-data"
         "intray-data-gen"
         "intray-server"
-        "intray-server-test-utils"
+        "intray-server-gen"
       ] intrayPkg // {
         "intray-web-server" =
         let semantic-js = builtins.fetchurl {

@@ -1,4 +1,4 @@
-name: intray-server-test-utils
+name: intray-server-gen
 version: '0.0.0.0'
 synopsis: Test utils for intray-server
 description: Please see README.md
@@ -81,7 +81,7 @@ tests:
     - intray-client
     - intray-data
     - intray-data-gen
-    - intray-server-test-utils
+    - intray-server-gen
     - mergeless
     - path
     - path-io
@@ -111,4 +111,4 @@ benchmarks:
     - servant
     - servant-auth-client
     - servant-client
-    - intray-server-test-utils
+    - intray-server-gen

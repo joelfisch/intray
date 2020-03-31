@@ -83,7 +83,7 @@ tests:
     - intray-data
     - intray-data-gen
     - intray-server
-    - intray-server-test-utils
+    - intray-server-gen
     - intray-web-server
     - monad-logger
     - mtl
