@@ -16,6 +16,11 @@
 
   <p>
     <a .ui .button
+      href=@{AuthR changePasswordTargetR}>
+      Change password
+
+  <p>
+    <a .ui .button
       href=@{AccessKeysR}>
       Manage Access Keys
 

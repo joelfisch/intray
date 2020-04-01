@@ -114,6 +114,8 @@ intrayAuthPlugin = AuthPlugin intrayAuthPluginName dispatch loginWidget
     dispatch "POST" ["login"] = postLoginR >>= sendResponse
     dispatch "GET" ["register"] = getNewAccountR >>= sendResponse
     dispatch "POST" ["register"] = postNewAccountR >>= sendResponse
+    dispatch "GET" ["change-password"] = getChangePasswordR >>= sendResponse
+    dispatch "POST" ["change-password"] = postChangePasswordR >>= sendResponse
     dispatch _ _ = notFound
     loginWidget :: (Route Auth -> Route App) -> IntrayWidget
     loginWidget _ = do
@@ -221,6 +223,33 @@ postNewAccountR = do
                 }
             setCredsRedirect $
               Creds intrayAuthPluginName (usernameText $ registrationUsername reg) []
+
+changePasswordTargetR :: AuthRoute
+changePasswordTargetR = PluginR intrayAuthPluginName ["change-password"]
+
+data ChangePassword =
+  ChangePassword
+    { changePasswordOldPassword :: Text
+    , changePasswordNewPassword1 :: Text
+    , changePasswordNewPassword2 :: Text
+    }
+  deriving (Show)
+
+getChangePasswordR :: IntrayAuthHandler Html
+getChangePasswordR = do
+  token <- genToken
+  msgs <- getMessages
+  liftHandler $ defaultLayout $(widgetFile "auth/change-password")
+
+postChangePasswordR :: IntrayAuthHandler Html
+postChangePasswordR = do
+  ChangePassword {..} <-
+    liftHandler $
+    runInputPost $
+    ChangePassword <$> ireq passwordField "old" <*> ireq passwordField "new1" <*>
+    ireq passwordField "new2"
+  -- TODO do the call to change a password
+  redirect AccountR
 
 instance RenderMessage App FormMessage where
   renderMessage _ _ = defaultFormMessage
