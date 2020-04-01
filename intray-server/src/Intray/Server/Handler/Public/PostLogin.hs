@@ -11,7 +11,6 @@ module Intray.Server.Handler.Public.PostLogin
 import Import
 
 import Control.Monad.Except
-import qualified Data.Text.Encoding as TE
 import Data.Time
 import Database.Persist
 
@@ -32,7 +31,7 @@ servePostLogin LoginForm {..} = do
   case me of
     Nothing -> throwError err401
     Just (Entity uid user) ->
-      if validatePassword (userHashedPassword user) (TE.encodeUtf8 loginFormPassword)
+      if validatePassword (userHashedPassword user) loginFormPassword
         then do
           admins <- asks envAdmins
           let perms =
@@ -45,9 +44,7 @@ servePostLogin LoginForm {..} = do
           let mli =
                 flip map aks $ \(Entity _ AccessKey {..}) -> do
                   submittedKey <- parseAccessKeySecretText loginFormPassword
-                  if validatePassword
-                       accessKeyHashedKey
-                       (TE.encodeUtf8 $ accessKeySecretText submittedKey)
+                  if validatePassword accessKeyHashedKey (accessKeySecretText submittedKey)
                     then Just accessKeyPermissions
                     else Nothing
           case msum mli of

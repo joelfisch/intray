@@ -53,6 +53,8 @@ intrayProtectedAccountServer :: IntrayProtectedAccountSite (AsServerT IntrayHand
 intrayProtectedAccountServer =
   IntrayProtectedAccountSite
     { getAccountInfo = withAuthResultAndPermission PermitGetAccountInfo serveGetAccountInfo
+    , postChangePassphrase =
+        withAuthResultAndPermission PermitPostChangePassphrase servePostChangePassphrase
     , deleteAccount = withAuthResultAndPermission PermitDeleteAccount serveDeleteAccount
     }
 

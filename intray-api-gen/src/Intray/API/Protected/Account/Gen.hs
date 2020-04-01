@@ -14,3 +14,7 @@ import Intray.API.Admin.Gen ()
 instance GenValid AccountInfo where
   genValid = genValidStructurally
   shrinkValid = shrinkValidStructurally
+
+instance GenValid ChangePassphrase where
+  genValid = genValidStructurally
+  shrinkValid = shrinkValidStructurally

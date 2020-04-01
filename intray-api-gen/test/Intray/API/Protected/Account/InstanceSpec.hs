@@ -13,7 +13,7 @@ import Intray.API.Protected.Account.Types
 
 spec :: Spec
 spec = do
-  eqSpecOnValid @AccountInfo
-  ordSpecOnValid @AccountInfo
   genValidSpec @AccountInfo
   jsonSpecOnValid @AccountInfo
+  genValidSpec @ChangePassphrase
+  jsonSpecOnValid @ChangePassphrase

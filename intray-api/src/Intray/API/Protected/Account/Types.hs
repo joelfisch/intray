@@ -8,6 +8,7 @@
 
 module Intray.API.Protected.Account.Types
   ( AccountInfo(..)
+  , ChangePassphrase(..)
   , AccountUUID
   , Username
   , parseUsername
@@ -63,3 +64,23 @@ instance ToJSON AccountInfo where
       ]
 
 instance ToSample AccountInfo
+
+data ChangePassphrase =
+  ChangePassphrase
+    { changePassphraseOld :: Text
+    , changePassphraseNew :: Text
+    }
+  deriving (Show, Eq, Generic)
+
+instance Validity ChangePassphrase
+
+instance FromJSON ChangePassphrase where
+  parseJSON =
+    withObject "ChangePassphrase" $ \o ->
+      ChangePassphrase <$> o .: "old-passphrase" <*> o .: "new-passphrase"
+
+instance ToJSON ChangePassphrase where
+  toJSON ChangePassphrase {..} =
+    object ["old-passphrase" .= changePassphraseOld, "new-passphrase" .= changePassphraseNew]
+
+instance ToSample ChangePassphrase

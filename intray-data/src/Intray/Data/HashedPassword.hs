@@ -31,5 +31,5 @@ passwordHash :: Text -> IO (Maybe HashedPassword)
 passwordHash =
   fmap (fmap HashedPassword) . BCrypt.hashPasswordUsingPolicy hashingpolicy . TE.encodeUtf8
 
-validatePassword :: HashedPassword -> ByteString -> Bool
-validatePassword (HashedPassword hp) = BCrypt.validatePassword hp
+validatePassword :: HashedPassword -> Text -> Bool
+validatePassword (HashedPassword hp) = BCrypt.validatePassword hp . TE.encodeUtf8

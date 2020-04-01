@@ -28,6 +28,7 @@ data Permission
   | PermitSync
   | PermitDeleteAccount
   | PermitGetAccountInfo
+  | PermitPostChangePassphrase
   | PermitPostAddAccessKey
   | PermitGetAccessKey
   | PermitGetAccessKeys
@@ -68,6 +69,7 @@ userPermissions =
     , PermitSync
     , PermitDeleteAccount
     , PermitGetAccountInfo
+    , PermitPostChangePassphrase
     , PermitPostAddAccessKey
     , PermitGetAccessKey
     , PermitGetAccessKeys
@@ -75,10 +77,12 @@ userPermissions =
     , PermitGetPermissions
     ]
 
-adminPermissions :: Set Permission
-adminPermissions =
-  S.union userPermissions $
+adminOnlyPermissions :: Set Permission
+adminOnlyPermissions =
   S.fromList [PermitAdminDeleteAccount, PermitAdminGetAccounts, PermitAdminGetStats]
+
+adminPermissions :: Set Permission
+adminPermissions = S.union userPermissions adminOnlyPermissions
 
 allPermissions :: Set Permission
 allPermissions = S.fromList [minBound .. maxBound]
