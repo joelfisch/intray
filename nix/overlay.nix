@@ -12,13 +12,28 @@ with final.haskell.lib;
               disableLibraryProfiling ( final.haskellPackages.callCabal2nix name ( pathFor name ) {} )
             )
           ) ( final.haskellPackages.autoexporter );
+      intray-cli =
+        (intrayPkg "intray-cli").overrideAttrs (
+          old:
+            {
+              postInstall =
+                ''
+          ${old.postInstall or ""}
+          
+          exe=$out/bin/intray
+          mkdir -p $out/share/bash-completion/completions
+          mkdir -p $out/share/zsh-completion/completions
+          $exe --bash-completion-script $exe >$out/share/bash-completion/completions/intray
+        '';
+            }
+        );
     in
+      { inherit intray-cli; } //
       final.lib.genAttrs [
         "intray-data"
         "intray-data-gen"
         "intray-api"
         "intray-api-gen"
-        "intray-cli"
         "intray-client"
         "intray-data"
         "intray-data-gen"
