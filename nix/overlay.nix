@@ -11,35 +11,21 @@ with final.haskell.lib;
             failOnAllWarnings (
               disableLibraryProfiling ( final.haskellPackages.callCabal2nix name ( pathFor name ) {} )
             )
-          ) ( final.haskellPackages.autoexporter );
-      intray-cli =
-        (intrayPkg "intray-cli").overrideAttrs (
-          old:
-            {
-              postInstall =
-                ''
-          ${old.postInstall or ""}
-          
-          exe=$out/bin/intray
-          mkdir -p $out/share/bash-completion/completions
-          mkdir -p $out/share/zsh-completion/completions
-          $exe --bash-completion-script $exe >$out/share/bash-completion/completions/intray
-        '';
-            }
-        );
-    in
-      { inherit intray-cli; } //
-      final.lib.genAttrs [
-        "intray-data"
-        "intray-data-gen"
-        "intray-api"
-        "intray-api-gen"
-        "intray-client"
-        "intray-data"
-        "intray-data-gen"
-        "intray-server"
-        "intray-server-gen"
-      ] intrayPkg // {
+            ) ( final.haskellPackages.autoexporter );
+      intrayPkgWithComp =
+        exeName: name:
+          generateOptparseApplicativeCompletion exeName ( intrayPkg name );
+      intrayPkgWithOwnComp = name: intrayPkgWithComp name name;
+    in {
+
+        "intray-api" = intrayPkg "intray-api";
+        "intray-api-gen" = intrayPkg "intray-api-gen";
+        "intray-cli" = intrayPkgWithComp "intray" "intray-cli";
+        "intray-client" = intrayPkg "intray-client";
+        "intray-data" = intrayPkg "intray-data";
+        "intray-data-gen" = intrayPkg "intray-data-gen";
+        "intray-server" = intrayPkgWithOwnComp "intray-server";
+        "intray-server-gen" = intrayPkg "intray-server-gen";
         "intray-web-server" =
         let semantic-js = builtins.fetchurl {
               url = https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js;
@@ -73,7 +59,7 @@ with final.haskell.lib;
                   sha256 = "sha256:18jxp39ln1jcd00myg928j3m1qr71ls5r3ch1fa4jp72waik4khl";
                 };
               in repo + "/app-release.apk";
-        in overrideCabal (intrayPkg "intray-web-server") (old: {
+        in overrideCabal (intrayPkgWithOwnComp "intray-web-server") (old: {
           preConfigure = ''
             ${old.preConfigure or ""}
 
