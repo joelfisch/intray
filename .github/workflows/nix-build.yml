@@ -16,6 +16,9 @@ jobs:
       with:
         name: mergeless
         skipNixBuild: true
+    - name: free disk space
+      run: |
+        sudo rm -rf /opt
     - uses: cachix/cachix-action@releases/v3
       with:
         name: intray
