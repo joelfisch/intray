@@ -75,9 +75,9 @@ with final.haskell.lib;
                 final.fetchgit {
                   url =
                     "https://gitlab.com/Norfair/intray-android-release.git";
-                  rev = "68bb95a3cdb3721e41b4820cff92da9e863dd8a7";
+                  rev = "1df1b0d332f1f1326b4b29bc467c6f7671783b13";
                   sha256 =
-                    "sha256:18jxp39ln1jcd00myg928j3m1qr71ls5r3ch1fa4jp72waik4khl";
+                    "sha256:0jwf87w8j65vj1v0jxbn5mpa8pj3drwk31w1xy5fdbf9ddq10bgf";
                 };
             in
               repo + "/app-release.apk";

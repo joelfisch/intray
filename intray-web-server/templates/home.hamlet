@@ -153,7 +153,10 @@
 
   <h2 .ui .header> Mobile-Third
   <p>
-    There is an Intray Android application available at
+    There is an
+    <a href=https://gitlab.com/Norfair/intray-android>
+      open source Intray Android application
+    available at
     <a href=@{StaticR static_intray_apk}>
       Intray Android Apk
     .
