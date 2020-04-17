@@ -8,7 +8,7 @@ let
 in {
   options.services.intray."${envname}" =
     {
-      enable = mkEnableOption "Intray Services";
+      enable = mkEnableOption "Intray Service";
       envname =
         mkOption {
           type = types.string;
@@ -98,7 +98,8 @@ in {
       intray-service =
         let
           workingDir = "/www/intray/${envname}/data/";
-          intray-pkgs = (import ../nix/pkgs.nix).intrayPackages;
+          intray-pkgs =
+            (import ./pkgs.nix).intrayPackages;
         in {
           description = "Intray ${envname} Service";
           wantedBy = [ "multi-user.target" ];
@@ -156,7 +157,10 @@ in {
         };
     in
       mkIf cfg.enable {
-        systemd.services = { "intray-${envname}" = intray-service; };
+        systemd.services =
+          {
+            "intray-${envname}" = intray-service;
+          };
         networking.firewall.allowedTCPPorts = [ cfg.web-port cfg.api-port ];
         services.nginx.virtualHosts =
           {
