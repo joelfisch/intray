@@ -9,12 +9,6 @@ in {
   options.services.intray."${envname}" =
     {
       enable = mkEnableOption "Intray Service";
-      envname =
-        mkOption {
-          type = types.string;
-          example = "production";
-          description = "The name of the environment";
-        };
       web-hosts =
         mkOption {
           type = types.listOf ( types.string );
