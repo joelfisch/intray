@@ -35,6 +35,7 @@ import Data.Cache as Cache
 import qualified Data.Set as S
 import Data.Set (Set)
 import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8)
 import Data.Time
 import Data.UUID.Typed
 import Lens.Micro
@@ -219,12 +220,11 @@ withNewUser'sAccessKey cenv ps func =
 login :: ClientEnv -> Username -> Text -> IO Token
 login cenv un pw = do
   let lf = LoginForm {loginFormUsername = un, loginFormPassword = pw}
-  Headers NoContent (HCons _ (HCons sessionHeader HNil)) <-
-    runClientOrError cenv $ clientPostLogin lf
+  Headers NoContent (HCons sessionHeader HNil) <- runClientOrError cenv $ clientPostLogin lf
   case sessionHeader of
     MissingHeader -> failure "Login should return a session header"
     UndecodableHeader _ -> failure "Login should return a decodable session header"
-    Header session -> pure $ Token $ setCookieValue session
+    Header session -> pure $ Token $ setCookieValue $ parseSetCookie $ encodeUtf8 session
 
 failsWithOutPermissions :: ClientEnv -> Set Permission -> (Token -> ClientM a) -> Property
 failsWithOutPermissions cenv ps func =

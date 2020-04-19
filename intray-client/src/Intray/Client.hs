@@ -19,7 +19,6 @@ import qualified Data.UUID.Typed
 import Servant.API
 import Servant.API.Flatten
 import Servant.Auth.Client
-import Servant.Auth.Server
 import Servant.Client
 
 import Intray.API
@@ -44,9 +43,7 @@ clientGetAccessKeys :: Token -> ClientM [AccessKeyInfo]
 clientDeleteAccessKey :: Token -> AccessKeyUUID -> ClientM NoContent
 clientGetPermissions :: Token -> ClientM (Set Permission)
 clientPostRegister :: Registration -> ClientM NoContent
-clientPostLogin ::
-     LoginForm
-  -> ClientM (Headers '[ Header "Set-Cookie" SetCookie, Header "Set-Cookie" SetCookie] NoContent)
+clientPostLogin :: LoginForm -> ClientM (Headers '[ Header "Set-Cookie" Text] NoContent)
 clientGetDocs :: ClientM GetDocsResponse
 clientGetPricing :: ClientM (Maybe Pricing)
 clientAdminGetStats :: Token -> ClientM AdminStats

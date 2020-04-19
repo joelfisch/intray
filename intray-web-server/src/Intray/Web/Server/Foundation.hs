@@ -21,6 +21,7 @@ import Import
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8)
 
 import Control.Concurrent
 
@@ -318,7 +319,7 @@ login form = do
             addMessage "error" "Unable to login"
             redirect $ AuthR LoginR
           else sendResponseStatus Http.status500 $ show resp
-    Right (Headers NoContent (HCons _ (HCons sessionHeader HNil))) ->
+    Right (Headers NoContent (HCons sessionHeader HNil)) ->
       case sessionHeader of
         Header session -> recordLoginToken (loginFormUsername form) session
         _ ->
@@ -340,9 +341,9 @@ lookupToginToken un = do
   tokenMap <- liftIO $ readMVar tokenMapVar
   pure $ HM.lookup un tokenMap
 
-recordLoginToken :: Username -> SetCookie -> Handler ()
+recordLoginToken :: Username -> Text -> Handler ()
 recordLoginToken un session = do
-  let token = Token $ setCookieValue session
+  let token = Token $ setCookieValue $ parseSetCookie $ encodeUtf8 session
   tokenMapVar <- getsYesod appLoginTokens
   liftIO $ modifyMVar_ tokenMapVar $ pure . HM.insert un token
   whenPersistLogins storeLogins

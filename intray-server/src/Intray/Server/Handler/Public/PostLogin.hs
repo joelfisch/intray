@@ -11,6 +11,7 @@ module Intray.Server.Handler.Public.PostLogin
 import Import
 
 import Control.Monad.Except
+import Data.Text.Encoding (decodeUtf8)
 import Data.Time
 import Database.Persist
 
@@ -23,9 +24,7 @@ import Intray.Server.Types
 
 import Intray.Server.Handler.Utils
 
-servePostLogin ::
-     LoginForm
-  -> IntrayHandler (Headers '[ Header "Set-Cookie" SetCookie, Header "Set-Cookie" SetCookie] NoContent)
+servePostLogin :: LoginForm -> IntrayHandler (Headers '[ Header "Set-Cookie" Text] NoContent)
 servePostLogin LoginForm {..} = do
   me <- runDb $ getBy $ UniqueUsername loginFormUsername
   case me of
@@ -55,10 +54,10 @@ servePostLogin LoginForm {..} = do
       let cookie =
             AuthCookie {authCookieUserUUID = userIdentifier user, authCookiePermissions = perms}
       IntrayServerEnv {..} <- ask
-      mApplyCookies <- liftIO $ acceptLogin envCookieSettings envJWTSettings cookie
-      case mApplyCookies of
+      mCookie <- liftIO $ makeSessionCookieBS envCookieSettings envJWTSettings cookie
+      case mCookie of
         Nothing -> throwError err401
-        Just applyCookies -> do
+        Just setCookie -> do
           now <- liftIO getCurrentTime
           runDb $ update uid [UserLastLogin =. Just now]
-          return $ applyCookies NoContent
+          return $ addHeader (decodeUtf8 setCookie) NoContent
