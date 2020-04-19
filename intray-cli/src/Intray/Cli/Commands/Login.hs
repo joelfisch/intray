@@ -10,7 +10,10 @@ module Intray.Cli.Commands.Login
 
 import Import
 
+import qualified Data.Text as T
+import Data.Text.Encoding (encodeUtf8)
 import Servant
+import Web.Cookie (parseSetCookie, setCookieName)
 
 import Intray.API
 
@@ -34,10 +37,15 @@ login LoginSettings {..} = do
       clientPostLogin loginForm
   case mRes of
     Nothing -> liftIO $ die "No server configured."
-    Just (Headers NoContent (HCons _ (HCons sessionHeader HNil))) ->
+    Just (Headers NoContent (HCons sessionHeader HNil)) ->
       case sessionHeader of
         MissingHeader ->
           liftIO $ die "The server responded but the response was missing the right session header."
         UndecodableHeader _ ->
           liftIO $ die "The server responded but the response had an undecodable session header."
-        Header setCookie -> saveSession setCookie
+        Header setCookieText -> do
+          let cookies = parseSetCookie . encodeUtf8 <$> T.lines setCookieText
+              jwtCookie = find ((== "JWT-Cookie") . setCookieName) cookies
+          case jwtCookie of
+            Nothing -> liftIO $ die "No JWT-Cookie was found in the Set-Cookie session header."
+            Just setCookie -> saveSession setCookie
