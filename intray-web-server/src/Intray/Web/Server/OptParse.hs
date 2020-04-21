@@ -1,5 +1,6 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Intray.Web.Server.OptParse
   ( getInstructions
@@ -9,17 +10,15 @@ module Intray.Web.Server.OptParse
   , ServeSettings(..)
   ) where
 
-import Import
-
+import qualified Data.ByteString as SB
 import qualified Data.Text as T
+import qualified Data.Yaml as Yaml
+import Import
+import qualified Intray.Server.OptParse as API
+import Intray.Web.Server.OptParse.Types
+import Options.Applicative
 import qualified System.Environment as System
 import Text.Read
-
-import Options.Applicative
-
-import qualified Intray.Server.OptParse as API
-
-import Intray.Web.Server.OptParse.Types
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -28,15 +27,17 @@ getInstructions = do
   config <- getConfiguration cmd flags
   combineToInstructions cmd flags env config
 
-combineToInstructions :: Command -> Flags -> Environment -> Configuration -> IO Instructions
-combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Configuration = do
+combineToInstructions :: Command -> Flags -> Environment -> Maybe Configuration -> IO Instructions
+combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mConf = do
+  let mc :: (Configuration -> Maybe a) -> Maybe a
+      mc func = mConf >>= func
   (API.DispatchServe apiSets, API.Settings) <-
     API.combineToInstructions
       (API.CommandServe serveFlagAPIFlags)
       API.Flags
       envAPIEnvironment
-      API.Configuration
-  let port = fromMaybe 8000 $ serveFlagPort <|> envPort
+      (confAPIConfiguration <$> mConf)
+  let port = fromMaybe 8000 $ serveFlagPort <|> envPort <|> mc confPort
   when (API.serveSetPort apiSets == port) $
     die $
     unlines ["Web server port and API port must not be the same.", "They are both: " ++ show port]
@@ -44,16 +45,33 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
     ( DispatchServe
         ServeSettings
           { serveSetAPISettings = apiSets
-          , serveSetHost = serveFlagHost <|> envHost
+          , serveSetHost = serveFlagHost <|> envHost <|> mc confHost
           , serveSetPort = port
-          , serveSetPersistLogins = fromMaybe False serveFlagPersistLogins
-          , serveSetTracking = serveFlagTracking <|> envTracking
-          , serveSetVerification = serveFlagVerification <|> envVerification
+          , serveSetPersistLogins =
+              fromMaybe False (serveFlagPersistLogins <|> envPersistLogins <|> mc confPersistLogins)
+          , serveSetTracking = serveFlagTracking <|> envTracking <|> mc confTracking
+          , serveSetVerification = serveFlagVerification <|> envVerification <|> mc confVerification
           }
     , Settings)
 
-getConfiguration :: Command -> Flags -> IO Configuration
-getConfiguration _ _ = pure Configuration
+getConfiguration :: Command -> Flags -> IO (Maybe Configuration)
+getConfiguration _ _ = do
+  configFile <- getDefaultConfigFile
+  mContents <- forgivingAbsence $ SB.readFile (fromAbsFile configFile)
+  forM mContents $ \contents ->
+    case Yaml.decodeEither' contents of
+      Left err ->
+        die $
+        unlines
+          [ unwords ["Failed to read config file:", fromAbsFile configFile]
+          , Yaml.prettyPrintParseException err
+          ]
+      Right res -> pure res
+
+getDefaultConfigFile :: IO (Path Abs File)
+getDefaultConfigFile = do
+  configDir <- getXdgDir XdgConfig (Just [reldir|intray|])
+  resolveFile configDir "config.yaml"
 
 getEnvironment :: IO Environment
 getEnvironment = do
@@ -68,6 +86,7 @@ getEnvironment = do
       { envAPIEnvironment = apiEnv
       , envHost = mt "HOST"
       , envPort = mr "PORT"
+      , envPersistLogins = mr "PERSIST_LOGINS"
       , envTracking = mt "ANALYTICS_TRACKING_ID"
       , envVerification = mt "SEARCH_CONSOLE_VERIFICATION"
       }

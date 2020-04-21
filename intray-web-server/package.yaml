@@ -45,6 +45,7 @@ library:
   - typed-uuid
   - unordered-containers
   - wai
+  - yaml
   - yesod
   - yesod-auth
   - yesod-core

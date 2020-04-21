@@ -1,16 +1,15 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Intray.Server.OptParse.Types where
 
-import Import
-
 import Control.Monad.Logger
+import Data.Aeson
 import Database.Persist.Sqlite
-
+import Import
+import Intray.API
 import Looper
-
 import Web.Stripe.Client as Stripe
 import Web.Stripe.Types as Stripe
-
-import Intray.API
 
 type Arguments = (Command, Flags)
 
@@ -42,12 +41,52 @@ data Flags =
 
 data Configuration =
   Configuration
+    { confHost :: !(Maybe String)
+    , confPort :: !(Maybe Int)
+    , confDb :: !(Maybe Text)
+    , confAdmins :: !(Maybe [String])
+    , confLogLevel :: !(Maybe LogLevel)
+    , confMonetisationConfig :: !(Maybe MonetisationConfiguration)
+    }
   deriving (Show, Eq)
+
+instance FromJSON Configuration where
+  parseJSON =
+    withObject "Configuration" $ \o ->
+      Configuration <$> o .:? "api-host" <*> o .:? "api-port" <*> o .:? "database" <*>
+      o .:? "admins" <*>
+      (do ms <- o .:? "log-level"
+          forM ms $ \s ->
+            case readMaybe s of
+              Nothing -> Import.fail $ "Unknown log level: " <> s
+              Just ll -> pure ll) <*>
+      o .:? "monetisation"
+
+data MonetisationConfiguration =
+  MonetisationConfiguration
+    { monetisationConfStripePlan :: !(Maybe String)
+    , monetisationConfStripeSecretKey :: !(Maybe String)
+    , monetisationConfStripePublishableKey :: !(Maybe String)
+    , monetisationConfStripeEventsFetcher :: !(Maybe LooperConfiguration)
+    , monetisationConfStripeEventsRetrier :: !(Maybe LooperConfiguration)
+    , monetisationConfMaxItemsFree :: !(Maybe Int)
+    }
+  deriving (Show, Eq)
+
+instance FromJSON MonetisationConfiguration where
+  parseJSON =
+    withObject "MonetisationConfiguration" $ \o ->
+      MonetisationConfiguration <$> o .:? "stripe-plan" <*> o .:? "stripe-secret-key" <*>
+      o .:? "stripe-publishable-key" <*>
+      o .:? "events-fetcher" <*>
+      o .:? "events-retrier" <*>
+      o .:? "max-items-free"
 
 data Environment =
   Environment
     { envHost :: !(Maybe String)
     , envPort :: !(Maybe Int)
+    , envDb :: !(Maybe Text)
     , envLogLevel :: !(Maybe LogLevel)
     , envStripePlan :: !(Maybe String)
     , envStripeSecretKey :: !(Maybe String)

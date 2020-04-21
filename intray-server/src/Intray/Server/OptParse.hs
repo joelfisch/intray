@@ -1,28 +1,26 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Intray.Server.OptParse
   ( module Intray.Server.OptParse
   , module Intray.Server.OptParse.Types
   ) where
 
-import Import
-
 import Control.Monad.Logger
+import qualified Data.ByteString as SB
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
+import qualified Data.Yaml as Yaml
 import Database.Persist.Sqlite
-import Looper
-
-import qualified System.Environment as System
-
-import Options.Applicative
-
-import Web.Stripe.Client as Stripe
-import Web.Stripe.Types as Stripe
-
+import Import
 import Intray.API
 import Intray.Server.OptParse.Types
+import Looper
+import Options.Applicative
+import qualified System.Environment as System
+import Web.Stripe.Client as Stripe
+import Web.Stripe.Types as Stripe
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -31,42 +29,56 @@ getInstructions = do
   config <- getConfiguration cmd flags
   combineToInstructions cmd flags env config
 
-combineToInstructions :: Command -> Flags -> Environment -> Configuration -> IO Instructions
-combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Configuration = do
-  let port = fromMaybe 8001 $ serveFlagPort <|> envPort
-  let host = T.pack $ fromMaybe ("localhost:" <> show port) $ serveFlagHost <|> envHost
-  let logLevel = fromMaybe LevelInfo $ serveFlagLogLevel <|> envLogLevel
-  let connInfo = mkSqliteConnectionInfo $ fromMaybe "intray.db" serveFlagDb
+combineToInstructions :: Command -> Flags -> Environment -> Maybe Configuration -> IO Instructions
+combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mConf = do
+  let mc :: (Configuration -> Maybe a) -> Maybe a
+      mc func = mConf >>= func
+  let port = fromMaybe 8001 $ serveFlagPort <|> envPort <|> mc confPort
+  let host =
+        T.pack $ fromMaybe ("localhost:" <> show port) $ serveFlagHost <|> envHost <|> mc confHost
+  let logLevel = fromMaybe LevelInfo $ serveFlagLogLevel <|> envLogLevel <|> mc confLogLevel
+  let connInfo =
+        mkSqliteConnectionInfo $ fromMaybe "intray.db" (serveFlagDb <|> envDb <|> mc confDb)
   admins <-
-    forM serveFlagAdmins $ \s ->
+    forM (serveFlagAdmins ++ fromMaybe [] (mc confAdmins)) $ \s ->
       case parseUsername $ T.pack s of
         Nothing -> die $ unwords ["Invalid admin username:", s]
         Just u -> pure u
   mmSets <-
-    do let plan = Stripe.PlanId . T.pack <$> (serveFlagStripePlan <|> envStripePlan)
+    do let mmc :: (MonetisationConfiguration -> Maybe a) -> Maybe a
+           mmc func = mc confMonetisationConfig >>= func
+       let plan =
+             Stripe.PlanId . T.pack <$>
+             (serveFlagStripePlan <|> envStripePlan <|> mmc monetisationConfStripePlan)
        let config =
              (\sk ->
                 StripeConfig
                   { Stripe.secretKey = StripeKey $ TE.encodeUtf8 $ T.pack sk
                   , stripeEndpoint = Nothing
                   }) <$>
-             (serveFlagStripeSecretKey <|> envStripeSecretKey)
-       let publicKey = T.pack <$> (serveFlagStripePublishableKey <|> envStripePublishableKey)
+             (serveFlagStripeSecretKey <|> envStripeSecretKey <|>
+              mmc monetisationConfStripeSecretKey)
+       let publicKey =
+             T.pack <$>
+             (serveFlagStripePublishableKey <|> envStripePublishableKey <|>
+              mmc monetisationConfStripePublishableKey)
        let fetcherSets =
              deriveLooperSettings
                (seconds 0)
                (minutes 1)
                serveFlagLooperStripeEventsFetcher
-               envLooperStripeEventsRetrier
-               Nothing
+               envLooperStripeEventsFetcher
+               (mmc monetisationConfStripeEventsFetcher)
        let retrierSets =
              deriveLooperSettings
                (seconds 30)
                (hours 24)
                serveFlagLooperStripeEventsRetrier
-               envLooperStripeEventsFetcher
-               Nothing
-       let maxItemsFree = fromMaybe 5 $ serveFlagMaxItemsFree <|> envMaxItemsFree
+               envLooperStripeEventsRetrier
+               (mmc monetisationConfStripeEventsRetrier)
+       let maxItemsFree =
+             fromMaybe 5 $
+             serveFlagMaxItemsFree <|> envMaxItemsFree <|> mmc monetisationConfMaxItemsFree
        pure $
          MonetisationSettings <$> (StripeSettings <$> plan <*> config <*> publicKey) <*>
          pure fetcherSets <*>
@@ -84,8 +96,24 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} Conf
           }
     , Settings)
 
-getConfiguration :: Command -> Flags -> IO Configuration
-getConfiguration _ _ = pure Configuration
+getConfiguration :: Command -> Flags -> IO (Maybe Configuration)
+getConfiguration _ _ = do
+  configFile <- getDefaultConfigFile
+  mContents <- forgivingAbsence $ SB.readFile (fromAbsFile configFile)
+  forM mContents $ \contents ->
+    case Yaml.decodeEither' contents of
+      Left err ->
+        die $
+        unlines
+          [ unwords ["Failed to read config file:", fromAbsFile configFile]
+          , Yaml.prettyPrintParseException err
+          ]
+      Right res -> pure res
+
+getDefaultConfigFile :: IO (Path Abs File)
+getDefaultConfigFile = do
+  configDir <- getXdgDir XdgConfig (Just [reldir|intray|])
+  resolveFile configDir "config.yaml"
 
 getEnvironment :: IO Environment
 getEnvironment = do
@@ -100,6 +128,7 @@ getEnvironment = do
       le n = readLooperEnvironment "INTRAY_SERVER_LOOPER_" n env
   envPort <- mr "PORT"
   let envHost = mv "HOST"
+  let envDb = T.pack <$> mv "DATABASE"
   envLogLevel <- mr "LOG_LEVEL"
   let envStripePlan = mv "STRIPE_PLAN"
   let envStripeSecretKey = mv "STRIPE_SECRET_KEY"

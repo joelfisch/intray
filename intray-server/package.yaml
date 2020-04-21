@@ -55,6 +55,7 @@ library:
   - wai
   - wai-cors
   - warp >=3.2
+  - yaml
 
 executables:
   intray-server:
