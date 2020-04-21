@@ -1,23 +1,19 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Intray.Server.Handler.Admin.GetAccounts
   ( serveAdminGetAccounts
   ) where
 
-import Import
-
 import Database.Persist
-
+import Import
 import Intray.API
-
-import Intray.Server.Types
-
-import Intray.Server.Handler.GetAccountInfo
+import Intray.Server.Handler.Stripe
 import Intray.Server.Handler.Utils
+import Intray.Server.Types
 
 serveAdminGetAccounts :: AuthCookie -> IntrayHandler [AccountInfo]
 serveAdminGetAccounts AuthCookie {..} = do
@@ -25,7 +21,7 @@ serveAdminGetAccounts AuthCookie {..} = do
   users <- runDb $ selectList [] [Desc UserLastLogin]
   forM users $ \(Entity _ User {..}) -> do
     c <- runDb $ count ([IntrayItemUserId ==. userIdentifier] :: [Filter IntrayItem])
-    subbed <- getAccountSubscribed userIdentifier
+    ups <- getUserPaidStatus userIdentifier
     pure
       AccountInfo
         { accountInfoUUID = userIdentifier
@@ -34,5 +30,5 @@ serveAdminGetAccounts AuthCookie {..} = do
         , accountInfoLastLogin = userLastLogin
         , accountInfoAdmin = userUsername `elem` admins
         , accountInfoCount = c
-        , accountInfoSubscribed = subbed
+        , accountInfoStatus = ups
         }

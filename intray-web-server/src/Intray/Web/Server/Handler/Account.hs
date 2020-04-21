@@ -1,29 +1,22 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Web.Server.Handler.Account
   ( getAccountR
   , postAccountDeleteR
   ) where
 
-import Import
-
 import Data.Time
-
+import Import
+import Intray.Client
+import Intray.Web.Server.Foundation
+import Intray.Web.Server.Handler.Pricing
+import Intray.Web.Server.Time
+import Text.Julius
+import Web.Stripe.Plan as Stripe
 import Yesod
 import Yesod.Auth
-
-import Text.Julius
-
-import Web.Stripe.Plan as Stripe
-
-import Intray.Client
-
-import Intray.Web.Server.Foundation
-import Intray.Web.Server.Time
-
-import Intray.Web.Server.Handler.Pricing
 
 getAccountR :: Handler Html
 getAccountR =
@@ -44,9 +37,10 @@ accountInfoSegment Nothing _ =
 accountInfoSegment (Just ai@AccountInfo {..}) mp = do
   now <- liftIO getCurrentTime
   let subbedWidget =
-        case accountInfoSubscribed of
-          Nothing -> [whamlet|Not subscribed|]
-          Just subbed -> [whamlet|Subscribed until ^{makeTimestampWidget now subbed}|]
+        case accountInfoStatus of
+          HasNotPaid _ -> [whamlet|Not subscribed|]
+          HasPaid subbed -> [whamlet|Subscribed until ^{makeTimestampWidget now subbed}|]
+          NoPaymentNecessary -> [whamlet|No payment necessary|]
       createdWidget = makeTimestampWidget now accountInfoCreatedTimestamp
   pure $
     mconcat
@@ -60,9 +54,9 @@ accountInfoSegment (Just ai@AccountInfo {..}) mp = do
             <p>
               Status: ^{subbedWidget}
         |]
-      , case accountInfoSubscribed of
-          Nothing -> maybe mempty (pricingStripeForm ai) mp
-          Just _ -> mempty -- Already subscribed
+      , case accountInfoStatus of
+          HasNotPaid _ -> maybe mempty (pricingStripeForm ai) mp
+          _ -> mempty -- Already subscribed or no payment necessary
       ]
 
 pricingStripeForm :: AccountInfo -> Pricing -> Widget

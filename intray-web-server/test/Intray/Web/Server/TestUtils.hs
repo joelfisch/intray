@@ -44,6 +44,7 @@ intrayTestServeSettings = do
             , API.serveSetLogLevel = LevelError
             , API.serveSetConnectionInfo = connInfo
             , API.serveSetAdmins = [fromJust $ parseUsername "admin"]
+            , API.serveSetFreeloaders = []
             , API.serveSetMonetisationSettings = Nothing
             }
       , serveSetPort = 8000

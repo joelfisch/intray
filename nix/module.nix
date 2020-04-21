@@ -64,6 +64,14 @@ in {
           description =
             "A list of the usernames that will have admin privileges";
         };
+      freeloaders =
+        mkOption {
+          type = types.nullOr ( types.listOf types.string );
+          default = null;
+          example = [ "syd" ];
+          description =
+            "A list of the usernames that will will be able to use the service for free";
+        };
       monetisation =
         mkOption {
           default = null;
@@ -109,6 +117,7 @@ in {
                   api-host = head cfg.api-hosts;
                   api-port = cfg.api-port;
                   admins = cfg.admins;
+                  freeloaders = cfg.freeloaders;
                   log-level = cfg.log-level;
                   monetisation =
                     optionalAttrs ( !builtins.isNull cfg.monetisation ) {

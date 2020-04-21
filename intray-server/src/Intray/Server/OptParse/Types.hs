@@ -25,6 +25,7 @@ data ServeFlags =
     , serveFlagPort :: !(Maybe Int)
     , serveFlagDb :: !(Maybe Text)
     , serveFlagAdmins :: ![String]
+    , serveFlagFreeloaders :: ![String]
     , serveFlagLogLevel :: Maybe LogLevel
     , serveFlagStripePlan :: !(Maybe String)
     , serveFlagStripeSecretKey :: !(Maybe String)
@@ -47,6 +48,7 @@ data Configuration =
     , confPort :: !(Maybe Int)
     , confDb :: !(Maybe Text)
     , confAdmins :: !(Maybe [String])
+    , confFreeloaders :: !(Maybe [String])
     , confLogLevel :: !(Maybe LogLevel)
     , confMonetisationConfig :: !(Maybe MonetisationConfiguration)
     }
@@ -57,6 +59,7 @@ instance FromJSON Configuration where
     withObject "Configuration" $ \o ->
       Configuration <$> o .:? "api-host" <*> o .:? "api-port" <*> o .:? "database" <*>
       o .:? "admins" <*>
+      o .:? "freeloaders" <*>
       (do ms <- o .:? "log-level"
           forM ms $ \s ->
             case readMaybe s of
@@ -115,6 +118,7 @@ data ServeSettings =
     , serveSetLogLevel :: !LogLevel
     , serveSetConnectionInfo :: !SqliteConnectionInfo
     , serveSetAdmins :: ![Username]
+    , serveSetFreeloaders :: ![Username]
     , serveSetMonetisationSettings :: !(Maybe MonetisationSettings)
     }
   deriving (Show)

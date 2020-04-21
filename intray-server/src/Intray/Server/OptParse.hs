@@ -44,6 +44,11 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..}
       case parseUsername $ T.pack s of
         Nothing -> die $ unwords ["Invalid admin username:", s]
         Just u -> pure u
+  freeloaders <-
+    forM (serveFlagFreeloaders ++ fromMaybe [] (mc confFreeloaders)) $ \s ->
+      case parseUsername $ T.pack s of
+        Nothing -> die $ unwords ["Invalid freeloader username:", s]
+        Just u -> pure u
   mmSets <-
     do let mmc :: (MonetisationConfiguration -> Maybe a) -> Maybe a
            mmc func = mc confMonetisationConfig >>= func
@@ -92,6 +97,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..}
           , serveSetLogLevel = logLevel
           , serveSetConnectionInfo = connInfo
           , serveSetAdmins = admins
+          , serveSetFreeloaders = freeloaders
           , serveSetMonetisationSettings = mmSets
           }
     , Settings)
@@ -196,7 +202,8 @@ parseServeFlags =
        , metavar "DATABASE_CONNECTION_STRING"
        , help "The sqlite connection string"
        ]) <*>
-  many (strOption (mconcat [long "admin", metavar "USERNAME", help "An admin to use"])) <*>
+  many (strOption (mconcat [long "admin", metavar "USERNAME", help "An admin"])) <*>
+  many (strOption (mconcat [long "freeloader", metavar "USERNAME", help "A freeloader"])) <*>
   option
     (Just <$> auto)
     (mconcat

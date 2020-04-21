@@ -141,6 +141,7 @@ setupIntrayTestApp menv = do
           , envCookieSettings = cookieCfg
           , envJWTSettings = jwtCfg
           , envAdmins = [fromJust $ parseUsername "admin"]
+          , envFreeloaders = []
           , envMonetisation = menv
           }
   pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))

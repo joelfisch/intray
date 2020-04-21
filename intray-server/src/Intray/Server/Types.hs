@@ -3,20 +3,14 @@ module Intray.Server.Types
   , MonetisationSettings(..)
   ) where
 
-import Import
-
-import Database.Persist.Sqlite
-
 import Data.Cache
-
+import Database.Persist.Sqlite
+import Import
+import Intray.API
+import Intray.Server.OptParse.Types
 import Servant
 import Servant.Auth.Server
-
 import Web.Stripe.Plan as Stripe
-
-import Intray.API
-
-import Intray.Server.OptParse.Types
 
 data IntrayServerEnv =
   IntrayServerEnv
@@ -25,6 +19,7 @@ data IntrayServerEnv =
     , envCookieSettings :: !CookieSettings
     , envJWTSettings :: !JWTSettings
     , envAdmins :: ![Username]
+    , envFreeloaders :: ![Username]
     , envMonetisation :: !(Maybe MonetisationEnv)
     }
 

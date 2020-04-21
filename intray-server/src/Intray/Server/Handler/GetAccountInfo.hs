@@ -1,31 +1,25 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Intray.Server.Handler.GetAccountInfo
   ( serveGetAccountInfo
   , getAccountSubscribed
   ) where
 
-import Import
-
 import Data.Ord
 import Data.Time
-
 import Database.Persist
-import Web.Stripe.Subscription as Stripe
-
-import Servant
-
+import Import
 import Intray.API
-
-import Intray.Server.Types
-
 import Intray.Server.Handler.Stripe
 import Intray.Server.Handler.Utils
+import Intray.Server.Types
+import Servant
+import Web.Stripe.Subscription as Stripe
 
 serveGetAccountInfo :: AuthCookie -> IntrayHandler AccountInfo
 serveGetAccountInfo AuthCookie {..} = do
@@ -36,11 +30,6 @@ serveGetAccountInfo AuthCookie {..} = do
     Just (Entity _ User {..}) -> do
       c <- runDb $ count ([IntrayItemUserId ==. authCookieUserUUID] :: [Filter IntrayItem])
       ups <- getUserPaidStatus authCookieUserUUID
-      let subbed =
-            case ups of
-              HasNotPaid _ -> Nothing
-              HasPaid u -> Just u
-              NoPaymentNecessary -> Nothing
       pure
         AccountInfo
           { accountInfoUUID = authCookieUserUUID
@@ -49,7 +38,7 @@ serveGetAccountInfo AuthCookie {..} = do
           , accountInfoLastLogin = userLastLogin
           , accountInfoAdmin = userUsername `elem` admins
           , accountInfoCount = c
-          , accountInfoSubscribed = subbed
+          , accountInfoStatus = ups
           }
 
 getAccountSubscribed :: AccountUUID -> IntrayHandler (Maybe UTCTime)
