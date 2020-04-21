@@ -18,7 +18,6 @@ newtype Command =
 data ServeFlags =
   ServeFlags
     { serveFlagAPIFlags :: !API.ServeFlags
-    , serveFlagHost :: !(Maybe Text)
     , serveFlagPort :: !(Maybe Int)
     , serveFlagPersistLogins :: !(Maybe Bool)
     , serveFlagTracking :: !(Maybe Text)
@@ -28,12 +27,13 @@ data ServeFlags =
 
 data Flags =
   Flags
+    { flagAPIFlags :: !API.Flags
+    }
   deriving (Show, Eq)
 
 data Configuration =
   Configuration
     { confAPIConfiguration :: !API.Configuration
-    , confHost :: !(Maybe Text)
     , confPort :: !(Maybe Int)
     , confPersistLogins :: !(Maybe Bool)
     , confTracking :: !(Maybe Text)
@@ -45,7 +45,6 @@ instance FromJSON Configuration where
   parseJSON v =
     flip (withObject "Configuration") v $ \o -> do
       confAPIConfiguration <- parseJSON v
-      confHost <- o .:? "web-host"
       confPort <- o .:? "web-port"
       confPersistLogins <- o .:? "persist-logins"
       confTracking <- o .:? "tracking"
@@ -55,7 +54,6 @@ instance FromJSON Configuration where
 data Environment =
   Environment
     { envAPIEnvironment :: !API.Environment
-    , envHost :: !(Maybe Text)
     , envPort :: !(Maybe Int)
     , envPersistLogins :: !(Maybe Bool)
     , envTracking :: !(Maybe Text)
@@ -70,7 +68,6 @@ newtype Dispatch =
 data ServeSettings =
   ServeSettings
     { serveSetAPISettings :: !API.ServeSettings
-    , serveSetHost :: !(Maybe Text)
     , serveSetPort :: !Int
     , serveSetPersistLogins :: !Bool
     , serveSetTracking :: !(Maybe Text)

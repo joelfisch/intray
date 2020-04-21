@@ -5,22 +5,18 @@ module Intray.Web.Server
   , makeIntrayApp
   ) where
 
-import Import
-
 import Control.Concurrent
 import Control.Concurrent.Async (concurrently_)
 import qualified Data.HashMap.Strict as HM
-import qualified Network.HTTP.Client as Http
-import Yesod
-
-import Servant.Client (parseBaseUrl)
-
+import Import
 import qualified Intray.Server as API
 import qualified Intray.Server.OptParse as API
-
 import Intray.Web.Server.Application ()
 import Intray.Web.Server.Foundation
 import Intray.Web.Server.OptParse
+import qualified Network.HTTP.Client as Http
+import Servant.Client (parseBaseUrl)
+import Yesod
 
 intrayWebServer :: IO ()
 intrayWebServer = do
@@ -41,7 +37,6 @@ makeIntrayApp ServeSettings {..} = do
   pure
     App
       { appHttpManager = man
-      , appRoot = serveSetHost
       , appStatic = myStatic
       , appTracking = serveSetTracking
       , appVerification = serveSetVerification

@@ -26,11 +26,11 @@ getInstructions :: IO Instructions
 getInstructions = do
   (cmd, flags) <- getArguments
   env <- getEnvironment
-  config <- getConfiguration cmd flags
+  config <- getConfiguration flags env
   combineToInstructions cmd flags env config
 
 combineToInstructions :: Command -> Flags -> Environment -> Maybe Configuration -> IO Instructions
-combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mConf = do
+combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..} mConf = do
   let mc :: (Configuration -> Maybe a) -> Maybe a
       mc func = mConf >>= func
   let port = fromMaybe 8001 $ serveFlagPort <|> envPort <|> mc confPort
@@ -96,9 +96,12 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mCon
           }
     , Settings)
 
-getConfiguration :: Command -> Flags -> IO (Maybe Configuration)
-getConfiguration _ _ = do
-  configFile <- getDefaultConfigFile
+getConfiguration :: Flags -> Environment -> IO (Maybe Configuration)
+getConfiguration Flags {..} Environment {..} = do
+  configFile <-
+    case flagConfigFile <|> envConfigFile of
+      Nothing -> getDefaultConfigFile
+      Just cf -> resolveFile' cf
   mContents <- forgivingAbsence $ SB.readFile (fromAbsFile configFile)
   forM mContents $ \contents ->
     case Yaml.decodeEither' contents of
@@ -126,6 +129,7 @@ getEnvironment = do
             Nothing -> die $ "Un-Read-able value: " <> s
             Just val -> pure val
       le n = readLooperEnvironment "INTRAY_SERVER_LOOPER_" n env
+  let envConfigFile = mv "CONFIG_FILE"
   envPort <- mr "PORT"
   let envHost = mv "HOST"
   let envDb = T.pack <$> mv "DATABASE"
@@ -238,4 +242,8 @@ parseServeFlags =
        ])
 
 parseFlags :: Parser Flags
-parseFlags = pure Flags
+parseFlags =
+  Flags <$>
+  option
+    (Just <$> str)
+    (mconcat [long "config-file", value Nothing, metavar "FILEPATH", help "The config file"])

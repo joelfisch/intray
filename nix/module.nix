@@ -56,6 +56,14 @@ in {
           example = "ADkAx2F-JQO9KJBBdLfAGuJ_OMqPOsX5MdGDsfd0Ggw";
           description = "The verification tag for google search console";
         };
+      admins =
+        mkOption {
+          type = types.nullOr ( types.listOf types.string );
+          default = null;
+          example = [ "syd" ];
+          description =
+            "A list of the usernames that will have admin privileges";
+        };
       monetisation =
         mkOption {
           default = null;
@@ -94,53 +102,35 @@ in {
           workingDir = "/www/intray/${envname}/data/";
           intray-pkgs =
             (import ./pkgs.nix).intrayPackages;
+          configFile =
+            let
+              config =
+                {
+                  api-host = head cfg.api-hosts;
+                  api-port = cfg.api-port;
+                  admins = cfg.admins;
+                  log-level = cfg.log-level;
+                  monetisation =
+                    optionalAttrs ( !builtins.isNull cfg.monetisation ) {
+                      stripe-plan = cfg.monetisation.stripe-plan;
+                      stripe-secret-key = cfg.monetisation.stripe-secret-key;
+                      stripe-publishable-key =
+                        cfg.monetisation.stripe-publishable-key;
+                    };
+                  web-port = cfg.web-port;
+                  tracking = cfg.tracking-id;
+                  verification = cfg.verification-tag;
+                };
+            in
+              pkgs.writeText "intray-config" ( builtins.toJSON config );
         in {
           description = "Intray ${envname} Service";
           wantedBy = [ "multi-user.target" ];
-          environment =
-            concatAttrs [
-              {
-                "INTRAY_WEB_SERVER_PORT" =
-                  "${builtins.toString (cfg.web-port)}";
-                "INTRAY_SERVER_HOST" =
-                  "${builtins.toString (head cfg.api-hosts)}";
-                "INTRAY_SERVER_PORT" = "${builtins.toString (cfg.api-port)}";
-                "INTRAY_SERVER_LOG_LEVEL" = "${cfg.log-level}";
-              }
-              (
-                optionalAttrs ( cfg.tracking-id != null ) {
-                  "INTRAY_WEB_SERVER_ANALYTICS_TRACKING_ID" =
-                    "${cfg.tracking-id}";
-                }
-
-              )
-              (
-                optionalAttrs ( cfg.verification-tag != null ) {
-                  "INTRAY_WEB_SERVER_SEARCH_CONSOLE_VERIFICATION" =
-                    "${cfg.verification-tag}";
-                }
-              )
-              (
-                optionalAttrs ( cfg.monetisation != null ) (
-                  with cfg.monetisation;
-
-                  {
-                    "INTRAY_SERVER_STRIPE_PLAN" = "${stripe-plan}";
-                    "INTRAY_SERVER_STRIPE_SECRET_KEY" =
-                      "${stripe-secret-key}";
-                    "INTRAY_SERVER_STRIPE_PUBLISHABLE_KEY" =
-                      "${stripe-publishable-key}";
-                  }
-                )
-              )
-            ];
           script =
             ''
               mkdir -p "${workingDir}"
               cd "${workingDir}"
-              ${intray-pkgs.intray-web-server}/bin/intray-web-server \
-                serve \
-                --admin syd
+              ${intray-pkgs.intray-web-server}/bin/intray-web-server serve  --config-file ${configFile}
             '';
           serviceConfig =
             {
@@ -148,6 +138,12 @@ in {
               RestartSec = 1;
               Nice = 15;
             };
+          unitConfig =
+            {
+              StartLimitIntervalSec = 0;
+              # ensure Restart=always is always honoured
+            };
+
         };
     in
       mkIf cfg.enable {

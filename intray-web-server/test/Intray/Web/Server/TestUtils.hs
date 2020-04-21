@@ -14,31 +14,21 @@ module Intray.Web.Server.TestUtils
   , withAdminAccountAndLogin_
   ) where
 
-import TestImport
-
-import Yesod.Auth
-import Yesod.Test
-
-import Data.Text (Text)
-
-import Network.HTTP.Types
-
-import Database.Persist.Sqlite (mkSqliteConnectionInfo)
-
 import Control.Monad.Logger
-
-import Servant.Client (BaseUrl(..), ClientEnv(..))
-
+import Data.Text (Text)
+import Database.Persist.Sqlite (mkSqliteConnectionInfo)
 import Intray.Data
-
+import Intray.Data.Gen ()
 import qualified Intray.Server.OptParse.Types as API
 import qualified Intray.Server.TestUtils as API
-
 import Intray.Web.Server
 import Intray.Web.Server.Foundation
 import Intray.Web.Server.OptParse.Types
-
-import Intray.Data.Gen ()
+import Network.HTTP.Types
+import Servant.Client (BaseUrl(..), ClientEnv(..))
+import TestImport
+import Yesod.Auth
+import Yesod.Test
 
 {-# ANN module ("HLint: ignore Reduce duplication" :: String) #-}
 
@@ -56,7 +46,6 @@ intrayTestServeSettings = do
             , API.serveSetAdmins = [fromJust $ parseUsername "admin"]
             , API.serveSetMonetisationSettings = Nothing
             }
-      , serveSetHost = Nothing
       , serveSetPort = 8000
       , serveSetPersistLogins = False
       , serveSetTracking = Nothing

@@ -37,6 +37,8 @@ data ServeFlags =
 
 data Flags =
   Flags
+    { flagConfigFile :: !(Maybe FilePath)
+    }
   deriving (Show, Eq)
 
 data Configuration =
@@ -84,7 +86,8 @@ instance FromJSON MonetisationConfiguration where
 
 data Environment =
   Environment
-    { envHost :: !(Maybe String)
+    { envConfigFile :: !(Maybe FilePath)
+    , envHost :: !(Maybe String)
     , envPort :: !(Maybe Int)
     , envDb :: !(Maybe Text)
     , envLogLevel :: !(Maybe LogLevel)

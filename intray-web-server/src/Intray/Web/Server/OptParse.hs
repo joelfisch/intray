@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Intray.Web.Server.OptParse
@@ -24,17 +23,17 @@ getInstructions :: IO Instructions
 getInstructions = do
   (cmd, flags) <- getArguments
   env <- getEnvironment
-  config <- getConfiguration cmd flags
+  config <- getConfiguration flags env
   combineToInstructions cmd flags env config
 
 combineToInstructions :: Command -> Flags -> Environment -> Maybe Configuration -> IO Instructions
-combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mConf = do
+combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..} mConf = do
   let mc :: (Configuration -> Maybe a) -> Maybe a
       mc func = mConf >>= func
   (API.DispatchServe apiSets, API.Settings) <-
     API.combineToInstructions
       (API.CommandServe serveFlagAPIFlags)
-      API.Flags
+      flagAPIFlags
       envAPIEnvironment
       (confAPIConfiguration <$> mConf)
   let port = fromMaybe 8000 $ serveFlagPort <|> envPort <|> mc confPort
@@ -45,7 +44,6 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mCon
     ( DispatchServe
         ServeSettings
           { serveSetAPISettings = apiSets
-          , serveSetHost = serveFlagHost <|> envHost <|> mc confHost
           , serveSetPort = port
           , serveSetPersistLogins =
               fromMaybe False (serveFlagPersistLogins <|> envPersistLogins <|> mc confPersistLogins)
@@ -54,9 +52,12 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags Environment {..} mCon
           }
     , Settings)
 
-getConfiguration :: Command -> Flags -> IO (Maybe Configuration)
-getConfiguration _ _ = do
-  configFile <- getDefaultConfigFile
+getConfiguration :: Flags -> Environment -> IO (Maybe Configuration)
+getConfiguration Flags {..} Environment {..} = do
+  configFile <-
+    case API.flagConfigFile flagAPIFlags <|> API.envConfigFile envAPIEnvironment of
+      Nothing -> API.getDefaultConfigFile
+      Just cf -> resolveFile' cf
   mContents <- forgivingAbsence $ SB.readFile (fromAbsFile configFile)
   forM mContents $ \contents ->
     case Yaml.decodeEither' contents of
@@ -67,11 +68,6 @@ getConfiguration _ _ = do
           , Yaml.prettyPrintParseException err
           ]
       Right res -> pure res
-
-getDefaultConfigFile :: IO (Path Abs File)
-getDefaultConfigFile = do
-  configDir <- getXdgDir XdgConfig (Just [reldir|intray|])
-  resolveFile configDir "config.yaml"
 
 getEnvironment :: IO Environment
 getEnvironment = do
@@ -84,7 +80,6 @@ getEnvironment = do
   pure
     Environment
       { envAPIEnvironment = apiEnv
-      , envHost = mt "HOST"
       , envPort = mr "PORT"
       , envPersistLogins = mr "PERSIST_LOGINS"
       , envTracking = mt "ANALYTICS_TRACKING_ID"
@@ -130,9 +125,6 @@ parseCommandServe = info parser modifier
       (ServeFlags <$> API.parseServeFlags <*>
        option
          (Just <$> auto)
-         (mconcat [long "web-host", metavar "HOST", value Nothing, help "the host to serve on"]) <*>
-       option
-         (Just <$> auto)
          (mconcat [long "web-port", metavar "PORT", value Nothing, help "the port to serve on"]) <*>
        flag
          Nothing
@@ -161,4 +153,4 @@ parseCommandServe = info parser modifier
     modifier = fullDesc <> progDesc "Serve."
 
 parseFlags :: Parser Flags
-parseFlags = pure Flags
+parseFlags = Flags <$> API.parseFlags

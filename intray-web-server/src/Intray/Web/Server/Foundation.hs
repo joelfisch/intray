@@ -59,8 +59,7 @@ type IntrayAuthHandler a = AuthHandler App a
 
 data App =
   App
-    { appRoot :: Maybe Text
-    , appHttpManager :: Http.Manager
+    { appHttpManager :: Http.Manager
     , appStatic :: EmbeddedStatic
     , appTracking :: Maybe Text
     , appVerification :: Maybe Text
@@ -72,11 +71,6 @@ data App =
 mkYesodData "App" $(parseRoutesFile "routes")
 
 instance Yesod App where
-  approot =
-    ApprootRequest $ \app req ->
-      case appRoot app of
-        Nothing -> getApprootText guessApproot app req
-        Just root -> root
   defaultLayout widget = do
     pc <- widgetToPageContent $(widgetFile "default-body")
     app <- getYesod
