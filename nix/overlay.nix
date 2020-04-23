@@ -115,9 +115,9 @@ with final.haskell.lib;
                     final.fetchFromGitHub {
                       owner = "NorfairKing";
                       repo = "typed-uuid";
-                      rev = "4c5739c5e231b1cee6bd568ec55734116691ac8f";
+                      rev = "dbc8fd4b56b78b1f9cf00bc2890d43dc19b97c5c";
                       sha256 =
-                        "sha256:185ki38vyvq5889vqdsw53dcdwssdyl4rzvxfhh6kbby17x2f835";
+                        "sha256:12b8na513xq5smlgwvqaqpplj8blfl452vdq0j2kv40qaw6y9qp7";
                     };
                   stripeHaskellRepo =
                     final.fetchFromGitHub {

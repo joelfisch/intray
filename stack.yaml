@@ -71,7 +71,7 @@ extra-deps:
   - validity-uuid
   - validity-vector
 - github: NorfairKing/typed-uuid
-  commit: 4c5739c5e231b1cee6bd568ec55734116691ac8f
+  commit: dbc8fd4b56b78b1f9cf00bc2890d43dc19b97c5c
   subdirs:
     - typed-uuid
     - genvalidity-typed-uuid
