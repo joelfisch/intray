@@ -16,38 +16,28 @@ module Intray.Web.Server.Foundation
   , module Intray.Web.Server.Constants
   ) where
 
-import Import
-
+import Control.Concurrent
+import Control.Monad.Except
+import Control.Monad.Trans.Maybe
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
-
-import Control.Concurrent
-
-import Control.Monad.Except
-import Control.Monad.Trans.Maybe
-
-import qualified Network.HTTP.Client as Http
-import qualified Network.HTTP.Types as Http
-import Web.Cookie
-
-import Text.Hamlet
-import Yesod hiding (Header)
-import Yesod.Auth
-import qualified Yesod.Auth.Message as Msg
-import Yesod.EmbeddedStatic
-
-import Servant.API
-import Servant.Auth.Client (Token(..))
-import Servant.Client
-
+import Import
 import Intray.Client
-
 import Intray.Web.Server.Constants
 import Intray.Web.Server.Persistence
 import Intray.Web.Server.Static
 import Intray.Web.Server.Widget
+import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Types as Http
+import Servant.Auth.Client (Token(..))
+import Text.Hamlet
+import Web.Cookie
+import Yesod hiding (Header)
+import Yesod.Auth
+import qualified Yesod.Auth.Message as Msg
+import Yesod.EmbeddedStatic
 
 type IntrayWidget = IntrayWidget' ()
 
@@ -243,8 +233,17 @@ postChangePasswordR = do
     runInputPost $
     ChangePassword <$> ireq passwordField "old" <*> ireq passwordField "new1" <*>
     ireq passwordField "new2"
-  -- TODO do the call to change a password
-  redirect AccountR
+  unless (changePasswordNewPassword1 == changePasswordNewPassword2) $
+    invalidArgs ["Passwords do not match."]
+  liftHandler $
+    withLogin $ \t -> do
+      let cpp =
+            ChangePassphrase
+              { changePassphraseOld = changePasswordOldPassword
+              , changePassphraseNew = changePasswordNewPassword1
+              }
+      NoContent <- runClientOrErr $ clientPostChangePassphrase t cpp
+      redirect AccountR
 
 instance RenderMessage App FormMessage where
   renderMessage _ _ = defaultFormMessage
