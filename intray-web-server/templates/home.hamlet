@@ -366,8 +366,16 @@ $maybe p <- mPricing
 
 
 <div .ui .huge .padded .segment>
-  <h2 .ui .header>
-    Contact
+  <p>
+    Intray is a
+    <a href="https://cs-syd.eu">
+      CS SYD
+    Product.
+  <p>
+    Self-management training which includes Intray is available
+    <a href="https://cs-syd.eu/self-management">
+      via CS SYD
+    .
   <p>
     For questions and feedback, feel free to
     <a href="mailto:intray@cs-syd.eu">
