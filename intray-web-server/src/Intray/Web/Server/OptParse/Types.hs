@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Intray.Web.Server.OptParse.Types where
 
 import Data.Aeson
 import Import
 import qualified Intray.Server.OptParse.Types as API
+import YamlParse.Applicative
 
 type Arguments = (Command, Flags)
 
@@ -42,14 +42,19 @@ data Configuration =
   deriving (Show, Eq)
 
 instance FromJSON Configuration where
-  parseJSON v =
-    flip (withObject "Configuration") v $ \o -> do
-      confAPIConfiguration <- parseJSON v
-      confPort <- o .:? "web-port"
-      confPersistLogins <- o .:? "persist-logins"
-      confTracking <- o .:? "tracking"
-      confVerification <- o .:? "verification"
-      pure Configuration {..}
+  parseJSON = viaYamlSchema
+
+instance YamlSchema Configuration where
+  yamlSchema =
+    (\apiConf (a, b, c, d) -> Configuration apiConf a b c d) <$> yamlSchema <*>
+    objectParser
+      "Configuration"
+      ((,,,) <$> optionalField "web-port" "The port to serve web requests on" <*>
+       optionalField
+         "persist-logins"
+         "Whether to persist logins accross server restarts. Don't use this in production." <*>
+       optionalField "tracking" "The google analytics tracking code" <*>
+       optionalField "verification" "The google search console verification code")
 
 data Environment =
   Environment

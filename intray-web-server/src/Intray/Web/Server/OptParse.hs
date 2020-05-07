@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Intray.Web.Server.OptParse
   ( getInstructions
@@ -9,15 +10,14 @@ module Intray.Web.Server.OptParse
   , ServeSettings(..)
   ) where
 
-import qualified Data.ByteString as SB
 import qualified Data.Text as T
-import qualified Data.Yaml as Yaml
 import Import
 import qualified Intray.Server.OptParse as API
 import Intray.Web.Server.OptParse.Types
 import Options.Applicative
 import qualified System.Environment as System
 import Text.Read
+import YamlParse.Applicative as YamlParse (confDesc, readConfigFile)
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -58,16 +58,7 @@ getConfiguration Flags {..} Environment {..} = do
     case API.flagConfigFile flagAPIFlags <|> API.envConfigFile envAPIEnvironment of
       Nothing -> API.getDefaultConfigFile
       Just cf -> resolveFile' cf
-  mContents <- forgivingAbsence $ SB.readFile (fromAbsFile configFile)
-  forM mContents $ \contents ->
-    case Yaml.decodeEither' contents of
-      Left err ->
-        die $
-        unlines
-          [ unwords ["Failed to read config file:", fromAbsFile configFile]
-          , Yaml.prettyPrintParseException err
-          ]
-      Right res -> pure res
+  YamlParse.readConfigFile configFile
 
 getEnvironment :: IO Environment
 getEnvironment = do
@@ -108,7 +99,7 @@ runArgumentsParser = execParserPure prefs_ argParser
 argParser :: ParserInfo Arguments
 argParser = info (helper <*> parseArgs) help_
   where
-    help_ = fullDesc <> progDesc description
+    help_ = fullDesc <> progDesc description <> YamlParse.confDesc @Configuration
     description = "Intray web server"
 
 parseArgs :: Parser Arguments
@@ -150,7 +141,7 @@ parseCommandServe = info parser modifier
             , metavar "VERIFICATION_TAG"
             , help "The contents of the google search console verification tag"
             ]))
-    modifier = fullDesc <> progDesc "Serve."
+    modifier = fullDesc <> progDesc "Serve requests" <> YamlParse.confDesc @Configuration
 
 parseFlags :: Parser Flags
 parseFlags = Flags <$> API.parseFlags

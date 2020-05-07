@@ -3,13 +3,14 @@
 module Intray.Server.OptParse.Types where
 
 import Control.Monad.Logger
-import Data.Aeson
+import Data.Aeson hiding (object)
 import Database.Persist.Sqlite
 import Import
 import Intray.API
 import Looper
 import Web.Stripe.Client as Stripe
 import Web.Stripe.Types as Stripe
+import YamlParse.Applicative
 
 type Arguments = (Command, Flags)
 
@@ -55,17 +56,20 @@ data Configuration =
   deriving (Show, Eq)
 
 instance FromJSON Configuration where
-  parseJSON =
-    withObject "Configuration" $ \o ->
-      Configuration <$> o .:? "api-host" <*> o .:? "api-port" <*> o .:? "database" <*>
-      o .:? "admins" <*>
-      o .:? "freeloaders" <*>
-      (do ms <- o .:? "log-level"
-          forM ms $ \s ->
-            case readMaybe s of
-              Nothing -> Import.fail $ "Unknown log level: " <> s
-              Just ll -> pure ll) <*>
-      o .:? "monetisation"
+  parseJSON = viaYamlSchema
+
+instance YamlSchema Configuration where
+  yamlSchema =
+    objectParser "Configuration" $
+    Configuration <$> optionalField "api-host" "The host to serve the api-server on" <*>
+    optionalField "api-port" "The port to serve the api-server on" <*>
+    optionalField "database" "The database file" <*>
+    optionalField "admins" "The list of usernames that will be considered administrators" <*>
+    optionalField "freeloaders" "The list of usernames that won't have to pay" <*>
+    optionalFieldWith "log-level" "The minimal log level for log messages" viaRead <*>
+    optionalField
+      "monetisation"
+      "Monetisation configuration. If this is not configured then the server is run for free."
 
 data MonetisationConfiguration =
   MonetisationConfiguration
@@ -79,13 +83,20 @@ data MonetisationConfiguration =
   deriving (Show, Eq)
 
 instance FromJSON MonetisationConfiguration where
-  parseJSON =
-    withObject "MonetisationConfiguration" $ \o ->
-      MonetisationConfiguration <$> o .:? "stripe-plan" <*> o .:? "stripe-secret-key" <*>
-      o .:? "stripe-publishable-key" <*>
-      o .:? "events-fetcher" <*>
-      o .:? "events-retrier" <*>
-      o .:? "max-items-free"
+  parseJSON = viaYamlSchema
+
+instance YamlSchema MonetisationConfiguration where
+  yamlSchema =
+    objectParser "MonetisationConfiguration" $
+    MonetisationConfiguration <$>
+    optionalField
+      "stripe-plan"
+      "The stripe identifier of the stripe plan used to checkout a subscription" <*>
+    optionalField "stripe-secret-key" "The secret key for calling the stripe api" <*>
+    optionalField "stripe-publishable-key" "The publishable key for calling the stripe api" <*>
+    optionalField "events-fetcher" "The configuration for the stripe events fetcher" <*>
+    optionalField "events-retrier" "The configuration for the stripe events fetcher" <*>
+    optionalField "max-items-free" "The number of items a free user can have on the server"
 
 data Environment =
   Environment

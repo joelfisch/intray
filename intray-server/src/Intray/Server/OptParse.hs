@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Intray.Server.OptParse
   ( module Intray.Server.OptParse
@@ -8,10 +9,8 @@ module Intray.Server.OptParse
   ) where
 
 import Control.Monad.Logger
-import qualified Data.ByteString as SB
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import qualified Data.Yaml as Yaml
 import Database.Persist.Sqlite
 import Import
 import Intray.API
@@ -21,6 +20,7 @@ import Options.Applicative
 import qualified System.Environment as System
 import Web.Stripe.Client as Stripe
 import Web.Stripe.Types as Stripe
+import YamlParse.Applicative as YamlParse (confDesc, readConfigFile)
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -104,20 +104,11 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..}
 
 getConfiguration :: Flags -> Environment -> IO (Maybe Configuration)
 getConfiguration Flags {..} Environment {..} = do
-  configFile <-
+  cp <-
     case flagConfigFile <|> envConfigFile of
       Nothing -> getDefaultConfigFile
       Just cf -> resolveFile' cf
-  mContents <- forgivingAbsence $ SB.readFile (fromAbsFile configFile)
-  forM mContents $ \contents ->
-    case Yaml.decodeEither' contents of
-      Left err ->
-        die $
-        unlines
-          [ unwords ["Failed to read config file:", fromAbsFile configFile]
-          , Yaml.prettyPrintParseException err
-          ]
-      Right res -> pure res
+  readConfigFile cp
 
 getDefaultConfigFile :: IO (Path Abs File)
 getDefaultConfigFile = do
@@ -170,7 +161,7 @@ runArgumentsParser = execParserPure prefs_ argParser
 argParser :: ParserInfo Arguments
 argParser = info (helper <*> parseArgs) help_
   where
-    help_ = fullDesc <> progDesc description
+    help_ = fullDesc <> progDesc description <> confDesc @Configuration
     description = "Intray server"
 
 parseArgs :: Parser Arguments
@@ -183,7 +174,7 @@ parseCommandServe :: ParserInfo Command
 parseCommandServe = info parser modifier
   where
     parser = CommandServe <$> parseServeFlags
-    modifier = fullDesc <> progDesc "Command example."
+    modifier = fullDesc <> progDesc "Serve requests" <> confDesc @Configuration
 
 parseServeFlags :: Parser ServeFlags
 parseServeFlags =

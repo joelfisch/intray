@@ -46,6 +46,7 @@ library:
   - unordered-containers
   - wai
   - yaml
+  - yamlparse-applicative
   - yesod
   - yesod-auth
   - yesod-core

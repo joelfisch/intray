@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Intray.Cli.OptParse
   ( Instructions(..)
@@ -16,20 +17,15 @@ module Intray.Cli.OptParse
   , CliM
   ) where
 
-import Import
-
-import qualified Data.ByteString as SB
 import qualified Data.Text as T
-import qualified Data.Yaml as Yaml
-import Text.Read (readMaybe)
-
-import Options.Applicative
-import qualified System.Environment as System
-
-import Servant.Client
-
+import Import
 import Intray.Cli.OptParse.Types
 import Intray.Data
+import Options.Applicative
+import Servant.Client
+import qualified System.Environment as System
+import Text.Read (readMaybe)
+import qualified YamlParse.Applicative as YamlParse
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -96,43 +92,10 @@ combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
 getConfiguration :: Flags -> Environment -> IO (Maybe Configuration)
 getConfiguration Flags {..} Environment {..} =
   case flagConfigFile <|> envConfigFile of
-    Nothing -> defaultConfigFiles >>= getFirstConfigFile
+    Nothing -> defaultConfigFiles >>= YamlParse.readFirstConfigFile
     Just cf -> do
-      p <- resolveFile' cf
-      mc <- forgivingAbsence $ SB.readFile $ fromAbsFile p
-      case mc of
-        Nothing -> die $ "Config file not found: " <> fromAbsFile p
-        Just contents ->
-          case Yaml.decodeEither' contents of
-            Left err ->
-              die $
-              unlines
-                [ "Failed to parse given config file"
-                , fromAbsFile p
-                , "with error:"
-                , Yaml.prettyPrintParseException err
-                ]
-            Right conf -> pure $ Just conf
-
-getFirstConfigFile :: [Path Abs File] -> IO (Maybe Configuration)
-getFirstConfigFile =
-  \case
-    [] -> pure Nothing
-    (p:ps) -> do
-      mc <- forgivingAbsence $ SB.readFile $ fromAbsFile p
-      case mc of
-        Nothing -> getFirstConfigFile ps
-        Just contents ->
-          case Yaml.decodeEither' contents of
-            Left err ->
-              die $
-              unlines
-                [ "Failed to parse default config file"
-                , fromAbsFile p
-                , "with error:"
-                , Yaml.prettyPrintParseException err
-                ]
-            Right conf -> pure $ Just conf
+      afp <- resolveFile' cf
+      YamlParse.readConfigFile afp
 
 defaultConfigFiles :: IO [Path Abs File]
 defaultConfigFiles =
@@ -187,8 +150,7 @@ prefs_ =
 argParser :: ParserInfo Arguments
 argParser = info (helper <*> parseArgs) help_
   where
-    help_ = fullDesc <> progDesc description
-    description = "intray"
+    help_ = fullDesc <> YamlParse.confDesc @Configuration
 
 parseArgs :: Parser Arguments
 parseArgs = Arguments <$> parseCommand <*> parseFlags
