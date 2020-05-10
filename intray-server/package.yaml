@@ -25,6 +25,7 @@ library:
   - cache
   - conduit
   - containers
+  - envparse
   - exceptions
   - file-embed
   - intray-api

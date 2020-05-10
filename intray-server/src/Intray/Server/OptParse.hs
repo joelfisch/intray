@@ -12,15 +12,17 @@ import Control.Monad.Logger
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Database.Persist.Sqlite
+import qualified Env
 import Import
 import Intray.API
 import Intray.Server.OptParse.Types
 import Looper
 import Options.Applicative
+import qualified Options.Applicative.Help as OptParse
 import qualified System.Environment as System
 import Web.Stripe.Client as Stripe
 import Web.Stripe.Types as Stripe
-import YamlParse.Applicative as YamlParse (confDesc, readConfigFile)
+import YamlParse.Applicative as YamlParse (confDesc, prettySchemaDoc, readConfigFile)
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -116,28 +118,44 @@ getDefaultConfigFile = do
   resolveFile configDir "config.yaml"
 
 getEnvironment :: IO Environment
-getEnvironment = do
-  env <- System.getEnvironment
-  let mv k = lookup ("INTRAY_SERVER_" <> k) env
-      mr :: Read a => String -> IO (Maybe a)
-      mr k =
-        forM (mv k) $ \s ->
-          case readMaybe s of
-            Nothing -> die $ "Un-Read-able value: " <> s
-            Just val -> pure val
-      le n = readLooperEnvironment "INTRAY_SERVER_LOOPER_" n env
-  let envConfigFile = mv "CONFIG_FILE"
-  envPort <- mr "PORT"
-  let envHost = mv "HOST"
-  let envDb = T.pack <$> mv "DATABASE"
-  envLogLevel <- mr "LOG_LEVEL"
-  let envStripePlan = mv "STRIPE_PLAN"
-  let envStripeSecretKey = mv "STRIPE_SECRET_KEY"
-  let envStripePublishableKey = mv "STRIPE_PUBLISHABLE_KEY"
-  let envLooperStripeEventsFetcher = le "STRIPE_EVENTS_FETCHER"
-  let envLooperStripeEventsRetrier = le "STRIPE_EVENTS_RETRIER"
-  envMaxItemsFree <- mr "MAX_ITEMS_FREE"
-  pure Environment {..}
+getEnvironment = Env.parse id environmentParser
+
+environmentParser :: Env.Parser Env.Error Environment
+environmentParser =
+  Env.prefixed "INTRAY_SERVER_" $
+  Environment <$>
+  Env.var (fmap Just . Env.str) "CONFIG_FILE" (Env.def Nothing <> Env.help "Config file") <*>
+  Env.var (fmap Just . Env.str) "HOST" (Env.def Nothing <> Env.help "host to run the api server on") <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "PORT"
+    (Env.def Nothing <> Env.help "port to run the api server on") <*>
+  Env.var (fmap Just . Env.str) "DATABASE" (Env.def Nothing <> Env.help "database file") <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "LOG_LEVEL"
+    (Env.def Nothing <> Env.help "minimal severity of log messages") <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "STRIPE_PLAN"
+    (Env.def Nothing <> Env.help "stripe plan id for subscriptions") <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "STRIPE_SECRET_KEY"
+    (Env.def Nothing <> Env.help "stripe secret key") <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "STRIPE_PUBLISHABLE_KEY"
+    (Env.def Nothing <> Env.help "stripe publishable key") <*>
+  looperVarEnv "STRIPE_EVENTS_FETCHER" <*>
+  looperVarEnv "STRIPE_EVENTS_RETRIER" <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "MAX_ITEMS_FREE"
+    (Env.def Nothing <> Env.help "maximum items that a free user can have")
+
+looperVarEnv :: String -> Env.Parser Env.Error LooperEnvironment
+looperVarEnv n = Env.prefixed "LOOPER_" $ looperEnvironmentParser n
 
 getArguments :: IO Arguments
 getArguments = do
@@ -159,10 +177,15 @@ runArgumentsParser = execParserPure prefs_ argParser
         }
 
 argParser :: ParserInfo Arguments
-argParser = info (helper <*> parseArgs) help_
+argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.string footerStr))
   where
-    help_ = fullDesc <> progDesc description <> confDesc @Configuration
-    description = "Intray server"
+    footerStr =
+      unlines
+        [ Env.helpDoc environmentParser
+        , ""
+        , "Configuration file format:"
+        , T.unpack (YamlParse.prettySchemaDoc @Configuration)
+        ]
 
 parseArgs :: Parser Arguments
 parseArgs = (,) <$> parseCommand <*> parseFlags

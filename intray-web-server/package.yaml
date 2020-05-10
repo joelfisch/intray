@@ -18,6 +18,7 @@ library:
   - containers
   - cookie
   - data-default
+  - envparse
   - http-client
   - http-media
   - http-types

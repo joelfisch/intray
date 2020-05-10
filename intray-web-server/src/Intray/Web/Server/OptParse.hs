@@ -11,13 +11,14 @@ module Intray.Web.Server.OptParse
   ) where
 
 import qualified Data.Text as T
+import qualified Env
 import Import
 import qualified Intray.Server.OptParse as API
 import Intray.Web.Server.OptParse.Types
 import Options.Applicative
+import qualified Options.Applicative.Help as OptParse
 import qualified System.Environment as System
-import Text.Read
-import YamlParse.Applicative as YamlParse (confDesc, readConfigFile)
+import YamlParse.Applicative as YamlParse (confDesc, prettySchemaDoc, readConfigFile)
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -61,21 +62,30 @@ getConfiguration Flags {..} Environment {..} = do
   YamlParse.readConfigFile configFile
 
 getEnvironment :: IO Environment
-getEnvironment = do
-  env <- System.getEnvironment
-  apiEnv <- API.getEnvironment
-  let mv k = lookup ("INTRAY_WEB_SERVER_" <> k) env
-      mr :: Read a => String -> Maybe a
-      mr k = mv k >>= readMaybe
-      mt = fmap T.pack . mv
-  pure
-    Environment
-      { envAPIEnvironment = apiEnv
-      , envPort = mr "PORT"
-      , envPersistLogins = mr "PERSIST_LOGINS"
-      , envTracking = mt "ANALYTICS_TRACKING_ID"
-      , envVerification = mt "SEARCH_CONSOLE_VERIFICATION"
-      }
+getEnvironment = Env.parse id environmentParser
+
+environmentParser :: Env.Parser Env.Error Environment
+environmentParser =
+  (\apiEnv (a, b, c, d) -> Environment apiEnv a b c d) <$> API.environmentParser <*>
+  Env.prefixed
+    "INTRAY_WEB_SERVER_"
+    ((,,,) <$>
+     Env.var
+       (fmap Just . Env.auto)
+       "PORT"
+       (Env.def Nothing <> Env.help "port to run the web server on") <*>
+     Env.var
+       (fmap Just . Env.auto)
+       "PERSIST_LOGINS"
+       (Env.def Nothing <> Env.help "persist logins between restarts") <*>
+     Env.var
+       (fmap Just . Env.auto)
+       "ANALYTICS_TRACKING_ID"
+       (Env.def Nothing <> Env.help "google analytics tracking id") <*>
+     Env.var
+       (fmap Just . Env.auto)
+       "SEARCH_CONSOLE_VERIFICATION"
+       (Env.def Nothing <> Env.help "google search console verification id"))
 
 getArguments :: IO Arguments
 getArguments = do
@@ -97,10 +107,15 @@ runArgumentsParser = execParserPure prefs_ argParser
         }
 
 argParser :: ParserInfo Arguments
-argParser = info (helper <*> parseArgs) help_
+argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.string footerStr))
   where
-    help_ = fullDesc <> progDesc description <> YamlParse.confDesc @Configuration
-    description = "Intray web server"
+    footerStr =
+      unlines
+        [ Env.helpDoc environmentParser
+        , ""
+        , "Configuration file format:"
+        , T.unpack (YamlParse.prettySchemaDoc @Configuration)
+        ]
 
 parseArgs :: Parser Arguments
 parseArgs = (,) <$> parseCommand <*> parseFlags

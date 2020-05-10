@@ -18,13 +18,14 @@ module Intray.Cli.OptParse
   ) where
 
 import qualified Data.Text as T
+import qualified Env
 import Import
 import Intray.Cli.OptParse.Types
 import Intray.Data
 import Options.Applicative
+import qualified Options.Applicative.Help as OptParse
 import Servant.Client
 import qualified System.Environment as System
-import Text.Read (readMaybe)
 import qualified YamlParse.Applicative as YamlParse
 
 getInstructions :: IO Instructions
@@ -108,24 +109,20 @@ defaultConfigFiles =
     ]
 
 getEnvironment :: IO Environment
-getEnvironment = do
-  env <- System.getEnvironment
-  let ms key = lookup ("INTRAY_" <> key) env
-      mr key =
-        case ms key of
-          Nothing -> pure Nothing
-          Just s ->
-            case readMaybe s of
-              Nothing -> die $ "Un-read-able value: " <> s
-              Just r -> pure $ Just r
-  let envConfigFile = ms "CONFIG_FILE"
-      envUrl = ms "URL"
-      envCacheDir = ms "CACHE_DIR"
-      envDataDir = ms "DATA_DIR"
-  envSyncStrategy <- mr "SYNC_STRATEGY"
-  let envUsername = ms "USERNAME"
-  let envPassword = ms "PASSWORD"
-  pure Environment {..}
+getEnvironment = Env.parse (Env.header "Environment") environmentParser
+
+environmentParser :: Env.Parser Env.Error Environment
+environmentParser =
+  Env.prefixed "INTRAY_" $
+  Environment <$> Env.var (fmap Just . Env.str) "CONFIG_FILE" (mE <> Env.help "Config file") <*>
+  Env.var (fmap Just . Env.str) "URL" (mE <> Env.help "sync server url") <*>
+  Env.var (fmap Just . Env.str) "USERNAME" (mE <> Env.help "Sync username") <*>
+  Env.var (fmap Just . Env.str) "PASSWORD" (mE <> Env.help "Sync username") <*>
+  Env.var (fmap Just . Env.str) "CACHE_DIR" (mE <> Env.help "cache directory") <*>
+  Env.var (fmap Just . Env.str) "DATA_DIR" (mE <> Env.help "data directory") <*>
+  Env.var (fmap Just . Env.auto) "SYNC_STRATEGY" (mE <> Env.help "Sync strategy")
+  where
+    mE = Env.def Nothing <> Env.keep
 
 getArguments :: IO Arguments
 getArguments = do
@@ -148,9 +145,15 @@ prefs_ =
     }
 
 argParser :: ParserInfo Arguments
-argParser = info (helper <*> parseArgs) help_
+argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.string footerStr))
   where
-    help_ = fullDesc <> YamlParse.confDesc @Configuration
+    footerStr =
+      unlines
+        [ Env.helpDoc environmentParser
+        , ""
+        , "Configuration file format:"
+        , T.unpack (YamlParse.prettySchemaDoc @Configuration)
+        ]
 
 parseArgs :: Parser Arguments
 parseArgs = Arguments <$> parseCommand <*> parseFlags

@@ -139,9 +139,9 @@ with final.haskell.lib;
                     final.fetchFromGitHub {
                       owner = "NorfairKing";
                       repo = "looper";
-                      rev = "675ef7ef0b47b7021ea1bde1644e953a75d2c373";
+                      rev = "464f47c757b956019d5723590a09f85662513b24";
                       sha256 =
-                        "sha256:1rw0mifk5hwdrwd8van6rbxj8sgq2zsnhynlbxxxfj6759v65p1n";
+                        "sha256:1lfg5lgw0xqyxbi4425fjp4j4vafyh8pnqp4jxwcvqpygszx8rw6";
                     };
                   typedUuidPkg =
                     name:
