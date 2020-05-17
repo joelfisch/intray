@@ -10,18 +10,15 @@ module Intray.Client
   , module Data.UUID.Typed
   ) where
 
-import Import
-
 import Data.Mergeless
 import Data.Set (Set)
 import qualified Data.UUID.Typed
-
+import Import
+import Intray.API
 import Servant.API
 import Servant.API.Flatten
 import Servant.Auth.Client
 import Servant.Client
-
-import Intray.API
 
 clientGetShowItem :: Token -> ClientM (Maybe (ItemInfo TypedItem))
 clientGetSize :: Token -> ClientM Int
@@ -32,8 +29,8 @@ clientGetItem :: Token -> ItemUUID -> ClientM (ItemInfo TypedItem)
 clientDeleteItem :: Token -> ItemUUID -> ClientM NoContent
 clientPostSync ::
      Token
-  -> SyncRequest ItemUUID (AddedItem TypedItem)
-  -> ClientM (SyncResponse ItemUUID (AddedItem TypedItem))
+  -> SyncRequest ClientId ItemUUID (AddedItem TypedItem)
+  -> ClientM (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
 clientGetAccountInfo :: Token -> ClientM AccountInfo
 clientPostChangePassphrase :: Token -> ChangePassphrase -> ClientM NoContent
 clientDeleteAccount :: Token -> ClientM NoContent

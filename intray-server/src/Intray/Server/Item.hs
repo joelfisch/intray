@@ -2,12 +2,12 @@
 
 module Intray.Server.Item
   ( makeIntrayItem
+  , makeAddedIntrayItem
   , makeItemInfo
   , makeAdded
   ) where
 
 import Data.Time
-
 import Intray.API
 
 makeIntrayItem :: AccountUUID -> ItemUUID -> UTCTime -> TypedItem -> IntrayItem
@@ -19,6 +19,9 @@ makeIntrayItem u i at TypedItem {..} =
     , intrayItemCreated = at
     , intrayItemUserId = u
     }
+
+makeAddedIntrayItem :: AccountUUID -> ItemUUID -> AddedItem TypedItem -> IntrayItem
+makeAddedIntrayItem u i AddedItem {..} = makeIntrayItem u i addedItemCreated addedItemContents
 
 makeItemInfo :: IntrayItem -> ItemInfo TypedItem
 makeItemInfo IntrayItem {..} =

@@ -83,11 +83,7 @@ data Configuration =
 instance FromJSON Configuration
   --   parseJSON = viaYamlSchema
                                  where
-  parseJSON =
-    withObject "Configuration" $ \o ->
-      Configuration <$> o .:? "url" <*> o .:? "username" <*> o .:? "password" <*> o .:? "cache-dir" <*>
-      o .:? "data-dir" <*>
-      o .:? "sync"
+  parseJSON = viaYamlSchema
 
 instance YamlSchema Configuration where
   yamlSchema =

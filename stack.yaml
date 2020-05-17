@@ -33,12 +33,13 @@ extra-deps:
     - stripe-http-client
     - stripe-http-streams
 - github: NorfairKing/mergeless
-  commit: 32fb75445723213ed78f678c20a2271a48e5dd41
+  commit: 079c9ba60aa87d0a1f2eb344c9fba94c97050e61
   subdirs:
     - mergeless
     - genvalidity-mergeless
+    - mergeless-persistent
 - github: NorfairKing/validity
-  commit: be40c0a0b0bf6a1d58f4a6a5c6770c4a544c4450
+  commit: 95ec39a2535b9c83b1163015fd2ca28317debf42
   subdirs:
   - genvalidity
   - genvalidity-aeson
@@ -51,7 +52,9 @@ extra-deps:
   - genvalidity-hspec-cereal
   - genvalidity-hspec-hashable
   - genvalidity-hspec-optics
+  - genvalidity-hspec-persistent
   - genvalidity-path
+  - genvalidity-persistent
   - genvalidity-property
   - genvalidity-scientific
   - genvalidity-text
@@ -64,6 +67,7 @@ extra-deps:
   - validity-bytestring
   - validity-containers
   - validity-path
+  - validity-persistent
   - validity-primitive
   - validity-scientific
   - validity-text

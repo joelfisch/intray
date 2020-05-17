@@ -20,22 +20,21 @@ module Intray.Cli.Store
   , prettyItem
   ) where
 
-import Import
-
 import Data.Aeson
 import qualified Data.Map as M
 import Data.Mergeless
 import qualified Data.Text as T
 import Data.Time
-import Text.Time.Pretty
-
+import Import
 import Intray.API
-
 import Intray.Cli.JSON
 import Intray.Cli.OptParse
 import Intray.Cli.Path
+import Text.Time.Pretty
 
-readClientStore :: (Ord i, FromJSONKey i, FromJSON i, FromJSON a) => CliM (Maybe (ClientStore i a))
+readClientStore ::
+     (Ord ci, FromJSONKey ci, FromJSON ci, Ord si, FromJSONKey si, FromJSON si, FromJSON a)
+  => CliM (Maybe (ClientStore ci si a))
 readClientStore = do
   p <- storePath
   readJSON p $
@@ -46,28 +45,31 @@ readClientStore = do
       , "If you do have unsynced items, you will want to make a backup of this file first."
       ]
 
-readClientStoreOrEmpty :: (Ord i, FromJSONKey i, FromJSON i, FromJSON a) => CliM (ClientStore i a)
+readClientStoreOrEmpty ::
+     (Ord ci, FromJSONKey ci, FromJSON ci, Ord si, FromJSONKey si, FromJSON si, FromJSON a)
+  => CliM (ClientStore ci si a)
 readClientStoreOrEmpty = fromMaybe emptyClientStore <$> readClientStore
 
 readClientStoreSize :: CliM Int
-readClientStoreSize = storeSize <$> (readClientStoreOrEmpty @ItemUUID @(AddedItem TypedItem))
+readClientStoreSize =
+  storeSize <$> (readClientStoreOrEmpty @ClientId @ItemUUID @(AddedItem TypedItem))
 
-writeClientStore :: ClientStore ItemUUID (AddedItem TypedItem) -> CliM ()
+writeClientStore :: ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM ()
 writeClientStore s = do
   checkLastSeenAfter s
   storePath >>= (`writeJSON` s)
 
-anyUnsynced :: ClientStore i a -> Bool
+anyUnsynced :: ClientStore ci si a -> Bool
 anyUnsynced = not . M.null . clientStoreAdded
 
-checkLastSeenAfter :: ClientStore ItemUUID (AddedItem TypedItem) -> CliM ()
+checkLastSeenAfter :: ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM ()
 checkLastSeenAfter s = do
   mLs <- readLastSeen
   case mLs of
     Nothing -> pure () -- Nothing was last seen, cannot be out of date
     Just ls -> unless (lastSeenInClientStore ls s) clearLastSeen
 
-lastSeenInClientStore :: LastItem -> ClientStore ItemUUID (AddedItem TypedItem) -> Bool
+lastSeenInClientStore :: LastItem -> ClientStore ClientId ItemUUID (AddedItem TypedItem) -> Bool
 lastSeenInClientStore li ClientStore {..} =
   case li of
     LastItemUnsynced ci a1 ->
@@ -103,7 +105,7 @@ clearLastSeen = do
   p <- lastSeenItemPath
   liftIO $ ignoringAbsence $ removeFile p
 
-lastItemInClientStore :: ClientStore ItemUUID (AddedItem TypedItem) -> Maybe LastItem
+lastItemInClientStore :: ClientStore ClientId ItemUUID (AddedItem TypedItem) -> Maybe LastItem
 lastItemInClientStore ClientStore {..} =
   let lasts =
         concat
@@ -116,8 +118,8 @@ lastItemInClientStore ClientStore {..} =
 
 doneLastItem ::
      LastItem
-  -> ClientStore ItemUUID (AddedItem TypedItem)
-  -> ClientStore ItemUUID (AddedItem TypedItem)
+  -> ClientStore ClientId ItemUUID (AddedItem TypedItem)
+  -> ClientStore ClientId ItemUUID (AddedItem TypedItem)
 doneLastItem li cs =
   case li of
     LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs

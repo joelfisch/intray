@@ -5,14 +5,12 @@ module Intray.Cli.Commands.Sync
   ) where
 
 import Import
-
-import Intray.Client
-
 import Intray.Cli.Client
 import Intray.Cli.OptParse
 import Intray.Cli.Session
 import Intray.Cli.Store
 import Intray.Cli.Sync
+import Intray.Client
 
 sync :: CliM ()
 sync = do
@@ -32,7 +30,7 @@ sync = do
             pure after
   writeClientStore after
 
-showMergeStats :: SyncRequest i a -> SyncResponse i a -> String
+showMergeStats :: SyncRequest ci si a -> SyncResponse ci si a -> String
 showMergeStats SyncRequest {..} SyncResponse {..} =
   unlines
     [ unwords [show $ length syncResponseServerAdded, "added   remotely"]

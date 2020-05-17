@@ -19,8 +19,6 @@ module Intray.API.Protected.Item.Types
   , module Data.UUID.Typed
   ) where
 
-import Import
-
 import Data.Aeson as JSON
 import qualified Data.ByteString.Base64 as Base64
 import qualified Data.ByteString.Char8 as SB8
@@ -30,12 +28,10 @@ import Data.Mergeless
 import qualified Data.Text.Encoding as TE
 import Data.Time
 import Data.UUID.Typed
-
-import Servant.Docs
-
-import Intray.Data
-
+import Import
 import Intray.API.Types ()
+import Intray.Data
+import Servant.Docs
 
 data TypedItem =
   TypedItem
@@ -115,9 +111,11 @@ instance ToSample ClientId where
 
 instance ToSample a => ToSample (ItemInfo a)
 
-instance (Ord i, ToSample i, ToSample a) => ToSample (SyncRequest i a)
+instance (Ord ci, ToSample ci, Ord si, ToSample si, ToSample a) =>
+         ToSample (SyncRequest ci si a)
 
-instance (Ord i, ToSample i, ToSample a) => ToSample (SyncResponse i a)
+instance (Ord ci, ToSample ci, Ord si, ToSample si, ToSample a) =>
+         ToSample (SyncResponse ci si a)
 
 instance (Ord k, ToSample k, ToSample v) => ToSample (Map k v) where
   toSamples Proxy = fmapSamples M.fromList $ toSamples Proxy

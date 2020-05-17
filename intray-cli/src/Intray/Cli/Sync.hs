@@ -7,16 +7,14 @@ module Intray.Cli.Sync
   ) where
 
 import Import
-
-import Intray.Client
-
 import Intray.Cli.Client
 import Intray.Cli.OptParse
 import Intray.Cli.Session
 import Intray.Cli.Store
+import Intray.Client
 
 withClientStoreAndSync ::
-     (ClientStore ItemUUID (AddedItem TypedItem) -> CliM (ClientStore ItemUUID (AddedItem TypedItem)))
+     (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM (ClientStore ClientId ItemUUID (AddedItem TypedItem)))
   -> CliM ()
 withClientStoreAndSync func = do
   before <- readClientStoreOrEmpty
@@ -43,11 +41,11 @@ withClientStoreAndSync func = do
   writeClientStore after
 
 modifyClientStoreAndSync ::
-     (ClientStore ItemUUID (AddedItem TypedItem) -> ClientStore ItemUUID (AddedItem TypedItem))
+     (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> ClientStore ClientId ItemUUID (AddedItem TypedItem))
   -> CliM ()
 modifyClientStoreAndSync func = withClientStoreAndSync (pure . func)
 
-syncAndGet :: (ClientStore ItemUUID (AddedItem TypedItem) -> CliM a) -> CliM a
+syncAndGet :: (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM a) -> CliM a
 syncAndGet func = do
   before <- readClientStoreOrEmpty
   let req = makeSyncRequest before
@@ -69,7 +67,7 @@ syncAndGet func = do
           writeClientStore after
           func after
 
-anyUnsyncedWarning :: ClientStore i a -> CliM ()
+anyUnsyncedWarning :: ClientStore ci si a -> CliM ()
 anyUnsyncedWarning after =
   when (anyUnsynced after) $
   liftIO $
@@ -80,5 +78,5 @@ anyUnsyncedWarning after =
     , "If that is the case, please navigate to your sync server's web interface to subscribe."
     ]
 
-syncAndReturn :: (ClientStore ItemUUID (AddedItem TypedItem) -> a) -> CliM a
+syncAndReturn :: (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> a) -> CliM a
 syncAndReturn func = syncAndGet $ pure . func

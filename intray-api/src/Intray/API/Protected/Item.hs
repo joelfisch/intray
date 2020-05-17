@@ -10,18 +10,13 @@ module Intray.API.Protected.Item
   , module Intray.API.Protected.Item.Types
   ) where
 
-import Import
-
 import Data.Mergeless
-
+import Import
+import Intray.API.Protected.Item.Types
+import Intray.API.Types
 import Servant.API
 import Servant.API.Generic
 import Servant.Auth.Docs ()
-
-import Intray.Data
-
-import Intray.API.Protected.Item.Types
-import Intray.API.Types
 
 type IntrayProtectedItemAPI = ToServantApi IntrayProtectedItemSite
 
@@ -57,4 +52,4 @@ type GetItem = ProtectAPI :> "item" :> Capture "uuid" ItemUUID :> Get '[ JSON] (
 type DeleteItem = ProtectAPI :> "item" :> Capture "uuid" ItemUUID :> Delete '[ JSON] NoContent
 
 type PostSync
-   = ProtectAPI :> "sync" :> ReqBody '[ JSON] (SyncRequest ItemUUID (AddedItem TypedItem)) :> Post '[ JSON] (SyncResponse ItemUUID (AddedItem TypedItem))
+   = ProtectAPI :> "sync" :> ReqBody '[ JSON] (SyncRequest ClientId ItemUUID (AddedItem TypedItem)) :> Post '[ JSON] (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
