@@ -4,6 +4,7 @@
   <form
     .ui .form
     method=post
+    enctype=multipart/form-data
     action=@{AddR}>
     <div .field>
       <textarea 

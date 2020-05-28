@@ -12,7 +12,6 @@ import Import
 import Intray.Client
 import Intray.Web.Server.Foundation
 import qualified Network.HTTP.Types as Http
-import Servant.Client
 import Yesod
 
 getAddR :: Handler Html
@@ -21,22 +20,34 @@ getAddR =
     token <- genToken
     withNavBar $(widgetFile "add")
 
-data NewItem
-  = NewItemText Textarea
-  | NewItemImage FileInfo
+newItemTextForm :: FormInput Handler Textarea
+newItemTextForm = ireq textareaField "contents"
 
-data TypeSwitch
-  = TypeSwitchText
-  | TypeSwitchImage
-
-newItemForm :: FormInput Handler NewItem
-newItemForm = ireq "type" NewItemText <$> iopt textareaField "contents" <*> iopt fileField "image"
+newItemImageForm :: FormInput Handler FileInfo
+newItemImageForm = ireq fileField "image"
 
 postAddR :: Handler Html
 postAddR =
   withLogin $ \t -> do
-    NewItem {..} <- runInputPost newItemForm
-    errOrRes <- runClient $ clientPostAddItem t $ textTypedItem $ unTextarea newItemText
+    tfr <- runInputPostResult newItemTextForm
+    let goOn errs = do
+          ifr <- runInputPostResult newItemImageForm
+          case ifr of
+            FormFailure ts -> invalidArgs $ ts ++ errs
+            FormMissing -> invalidArgs $ [] ++ errs
+            FormSuccess fi -> do
+              itemData <- fileSourceByteString fi
+              itemType <-
+                case parseImageType (fileContentType fi) of
+                  Nothing -> invalidArgs ["Unsupported image type."]
+                  Just typ -> pure $ ImageItem typ
+              pure TypedItem {..}
+    ti <-
+      case tfr of
+        FormSuccess ta -> pure $ textTypedItem $ unTextarea ta
+        FormFailure ts -> goOn ts
+        FormMissing -> goOn []
+    errOrRes <- runClient $ clientPostAddItem t ti
     case errOrRes of
       Left err ->
         handleStandardServantErrs err $ \resp ->

@@ -24,12 +24,17 @@ instance Validity ItemType
 
 instance PersistField ItemType where
   toPersistValue = toPersistValue . renderItemType
-  fromPersistValue (PersistByteString bs) = do
-    t <- left (T.pack . show) $ TE.decodeUtf8' bs
-    case parseItemType t of
-      Nothing -> Left $ "Unknown item type: " <> t
-      Just it -> pure it
-  fromPersistValue _ = Left "Not a valid ItemType"
+  fromPersistValue =
+    let goFromT t =
+          case parseItemType t of
+            Nothing -> Left $ "Unknown item type: " <> t
+            Just it -> pure it
+     in \case
+          PersistByteString bs -> do
+            t <- left (T.pack . show) $ TE.decodeUtf8' bs
+            goFromT t
+          PersistText t -> goFromT t
+          _ -> Left "Not a valid ItemType"
 
 instance PersistFieldSql ItemType where
   sqlType Proxy = SqlString
