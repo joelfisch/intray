@@ -126,7 +126,7 @@ doneLastItem li cs =
     LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs
     LastItemSynced u _ -> deleteSyncedFromClientStore u cs
 
-prettyReadyItem :: UTCTime -> LastItem -> IO String
+prettyReadyItem :: UTCTime -> LastItem -> CliM String
 prettyReadyItem now li =
   let idString =
         case li of
@@ -153,9 +153,11 @@ prettyReadyItem now li =
                       case it of
                         JpgImage -> ".jpg"
                         PngImage -> ".png"
-                let file = idString ++ ext
-                SB.writeFile file bs
-                pure $ "Image: " <> file
+                cacheDir <- asks setCacheDir
+                let fileName = idString ++ ext
+                file <- resolveFile cacheDir fileName
+                liftIO $ SB.writeFile (fromAbsFile file) bs
+                pure $ "Image: " <> fromAbsFile file
           pure $ unlines [concat [timeStr, " (", timeAgoString, ")"], contents]
 
 prettyTimestamp :: UTCTime -> UTCTime -> String

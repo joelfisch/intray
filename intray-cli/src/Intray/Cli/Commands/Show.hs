@@ -25,4 +25,4 @@ showItem = do
     Just li -> do
       writeLastSeen li
       now <- liftIO getCurrentTime
-      liftIO $ prettyReadyItem now li >>= putStrLn
+      prettyReadyItem now li >>= (liftIO . putStrLn)
