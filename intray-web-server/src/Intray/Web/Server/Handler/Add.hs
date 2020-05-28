@@ -8,7 +8,9 @@ module Intray.Web.Server.Handler.Add
   , postAddR
   ) where
 
+import qualified Data.Text as T
 import Import
+import Intray.API.Image
 import Intray.Client
 import Intray.Web.Server.Foundation
 import qualified Network.HTTP.Types as Http
@@ -36,7 +38,11 @@ postAddR =
             FormFailure ts -> invalidArgs $ ts ++ errs
             FormMissing -> invalidArgs $ [] ++ errs
             FormSuccess fi -> do
-              itemData <- fileSourceByteString fi
+              rawImageData <- fileSourceByteString fi
+              itemData <-
+                case downsizeImage rawImageData of
+                  Left err -> invalidArgs ["Failed to resize the image: ", T.pack err]
+                  Right bs -> pure bs
               itemType <-
                 case parseImageType (fileContentType fi) of
                   Nothing -> invalidArgs ["Unsupported image type."]
