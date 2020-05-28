@@ -1,5 +1,4 @@
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Intray.Web.Server.Handler.ImageItem
   ( getImageItemR

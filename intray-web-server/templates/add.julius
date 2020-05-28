@@ -1,0 +1,23 @@
+var selected = "text";
+document.querySelectorAll('.type').forEach(function (element) {
+    element.addEventListener("click", function (thing) {
+        selected = thing.target.id;
+        updateDisplay();
+        });
+    });
+
+function updateDisplay () {
+  document.querySelectorAll('.changable').forEach(function (e) {
+      e.setAttribute("style", "display: none;");
+      e.childNodes.forEach(function (c) {
+        c.required = false;
+      });
+    });
+  document.querySelectorAll('.'+selected+'-input').forEach(function (e) {
+      e.removeAttribute("style");
+      e.childNodes.forEach(function (c) {
+        c.required = true;
+      });
+    });
+};
+updateDisplay();

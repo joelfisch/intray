@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
@@ -67,6 +68,10 @@ instance Yesod App where
     withUrlRenderer $(hamletFile "templates/default-page.hamlet")
   yesodMiddleware = defaultCsrfMiddleware . defaultYesodMiddleware
   authRoute _ = Just $ AuthR LoginR
+  maximumContentLengthIO s =
+    \case
+      Just AddR -> pure Nothing
+      r -> pure $ maximumContentLength s r
 
 instance PathPiece Username where
   fromPathPiece = parseUsername

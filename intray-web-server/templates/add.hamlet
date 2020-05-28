@@ -6,13 +6,28 @@
     method=post
     enctype=multipart/form-data
     action=@{AddR}>
-    <div .field>
+
+
+    <div .text-input .field .changable>
       <textarea 
         name="contents" 
         autofocus>
 
-    <input type="file" name="image">
+    <div .image-input .field .changable style="display: none;">
+      <input type="file" name="image" accept="image/*" capture="environment">
     
+    <div .ui .inline .fields>
+      <div .ui .field>
+        <input id="text" .type .ui .radio .checkbox type="radio" name="type" value="text" checked>
+        <label>
+          Text
+
+      <div .ui .field>
+        <input id="image" .type .ui .slider .checkbox type="radio" name="type" value="image">
+        <label>
+          Image
+
+
 
     ^{token}
     <button .ui .primary .button type="submit">
