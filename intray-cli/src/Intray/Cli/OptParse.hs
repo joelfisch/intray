@@ -152,7 +152,7 @@ argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.
         [ Env.helpDoc environmentParser
         , ""
         , "Configuration file format:"
-        , T.unpack (YamlParse.prettySchemaDoc @Configuration)
+        , T.unpack (YamlParse.prettyColourisedSchemaDoc @Configuration)
         ]
 
 parseArgs :: Parser Arguments

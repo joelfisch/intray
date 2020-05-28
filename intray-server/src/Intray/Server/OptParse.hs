@@ -22,7 +22,7 @@ import qualified Options.Applicative.Help as OptParse
 import qualified System.Environment as System
 import Web.Stripe.Client as Stripe
 import Web.Stripe.Types as Stripe
-import YamlParse.Applicative as YamlParse (confDesc, prettySchemaDoc, readConfigFile)
+import qualified YamlParse.Applicative as YamlParse
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -110,7 +110,7 @@ getConfiguration Flags {..} Environment {..} = do
     case flagConfigFile <|> envConfigFile of
       Nothing -> getDefaultConfigFile
       Just cf -> resolveFile' cf
-  readConfigFile cp
+  YamlParse.readConfigFile cp
 
 getDefaultConfigFile :: IO (Path Abs File)
 getDefaultConfigFile = do
@@ -184,7 +184,7 @@ argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.
         [ Env.helpDoc environmentParser
         , ""
         , "Configuration file format:"
-        , T.unpack (YamlParse.prettySchemaDoc @Configuration)
+        , T.unpack (YamlParse.prettyColourisedSchemaDoc @Configuration)
         ]
 
 parseArgs :: Parser Arguments
@@ -197,7 +197,7 @@ parseCommandServe :: ParserInfo Command
 parseCommandServe = info parser modifier
   where
     parser = CommandServe <$> parseServeFlags
-    modifier = fullDesc <> progDesc "Serve requests" <> confDesc @Configuration
+    modifier = fullDesc <> progDesc "Serve requests" <> YamlParse.confDesc @Configuration
 
 parseServeFlags :: Parser ServeFlags
 parseServeFlags =

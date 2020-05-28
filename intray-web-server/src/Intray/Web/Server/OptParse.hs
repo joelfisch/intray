@@ -18,7 +18,7 @@ import Intray.Web.Server.OptParse.Types
 import Options.Applicative
 import qualified Options.Applicative.Help as OptParse
 import qualified System.Environment as System
-import YamlParse.Applicative as YamlParse (confDesc, prettySchemaDoc, readConfigFile)
+import qualified YamlParse.Applicative as YamlParse
 
 getInstructions :: IO Instructions
 getInstructions = do
@@ -114,7 +114,7 @@ argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.
         [ Env.helpDoc environmentParser
         , ""
         , "Configuration file format:"
-        , T.unpack (YamlParse.prettySchemaDoc @Configuration)
+        , T.unpack (YamlParse.prettyColourisedSchemaDoc @Configuration)
         ]
 
 parseArgs :: Parser Arguments
