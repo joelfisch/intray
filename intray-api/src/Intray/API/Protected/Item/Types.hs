@@ -64,9 +64,11 @@ typedItemCase :: TypedItem -> Either String TypedItemCase
 typedItemCase TypedItem {..} =
   case itemType of
     TextItem -> left show $ CaseTextItem <$> TE.decodeUtf8' itemData
+    ImageItem it -> pure $ CaseImageItem it itemData
 
-newtype TypedItemCase =
-  CaseTextItem Text
+data TypedItemCase
+  = CaseTextItem Text
+  | CaseImageItem ImageType ByteString
   deriving (Show, Read, Eq, Ord, Generic)
 
 data AddedItem a =

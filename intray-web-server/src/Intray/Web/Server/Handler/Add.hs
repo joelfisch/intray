@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE QuasiQuotes #-}
 
 module Intray.Web.Server.Handler.Add
   ( getAddR
@@ -9,15 +9,11 @@ module Intray.Web.Server.Handler.Add
   ) where
 
 import Import
-
-import Yesod
-
+import Intray.Client
+import Intray.Web.Server.Foundation
 import qualified Network.HTTP.Types as Http
 import Servant.Client
-
-import Intray.Client
-
-import Intray.Web.Server.Foundation
+import Yesod
 
 getAddR :: Handler Html
 getAddR =
@@ -25,13 +21,16 @@ getAddR =
     token <- genToken
     withNavBar $(widgetFile "add")
 
-newtype NewItem =
-  NewItem
-    { newItemText :: Textarea
-    }
+data NewItem
+  = NewItemText Textarea
+  | NewItemImage FileInfo
+
+data TypeSwitch
+  = TypeSwitchText
+  | TypeSwitchImage
 
 newItemForm :: FormInput Handler NewItem
-newItemForm = NewItem <$> ireq textareaField "contents"
+newItemForm = ireq "type" NewItemText <$> iopt textareaField "contents" <*> iopt fileField "image"
 
 postAddR :: Handler Html
 postAddR =

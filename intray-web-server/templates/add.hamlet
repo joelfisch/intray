@@ -9,6 +9,10 @@
       <textarea 
         name="contents" 
         autofocus>
+
+    <input type="file" name="image">
+    
+
     ^{token}
     <button .ui .primary .button type="submit">
       Submit

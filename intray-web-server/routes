@@ -4,6 +4,8 @@
 /add                               AddR                 GET POST 
 /done                              DoneR                POST
 
+/image-item/#ItemUUID              ImageItemR           GET
+
 /account                           AccountR             GET
 /account/delete                    AccountDeleteR       POST
 

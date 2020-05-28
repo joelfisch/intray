@@ -3,15 +3,16 @@
 
 module Intray.Data.Gen where
 
+import qualified Data.Text as T
+import Intray.Data
 import Intray.Data.Gen.Import
-
 import System.IO.Unsafe
 
-import qualified Data.Text as T
-
-import Intray.Data
-
 instance GenValid ItemType where
+  genValid = genValidStructurallyWithoutExtraChecking
+  shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
+
+instance GenValid ImageType where
   genValid = genValidStructurallyWithoutExtraChecking
   shrinkValid = shrinkValidStructurallyWithoutExtraFiltering
 

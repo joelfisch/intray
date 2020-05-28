@@ -8,6 +8,9 @@
       $case i 
         $of CaseTextItem t
           #{t}
+        $of CaseImageItem _ _ 
+          <img src=@{ImageItemR itemInfoIdentifier}>
+      
 <form
   method="post"
   action=@{DoneR}>
