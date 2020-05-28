@@ -9,7 +9,7 @@
         $of CaseTextItem t
           #{t}
         $of CaseImageItem _ _ 
-          <img src=@{ImageItemR itemInfoIdentifier}>
+          <img .ui .centered .rounded .fluid .bordered .image src=@{ImageItemR itemInfoIdentifier}>
       
 <form
   method="post"
