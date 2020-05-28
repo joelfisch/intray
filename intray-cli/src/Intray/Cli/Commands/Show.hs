@@ -7,10 +7,8 @@ module Intray.Cli.Commands.Show
   ( showItem
   ) where
 
-import Import
-
 import Data.Time
-
+import Import
 import Intray.Cli.OptParse
 import Intray.Cli.Store
 import Intray.Cli.Sync
@@ -27,4 +25,4 @@ showItem = do
     Just li -> do
       writeLastSeen li
       now <- liftIO getCurrentTime
-      liftIO $ putStrLn $ prettyItem now li
+      liftIO $ prettyReadyItem now li >>= putStrLn

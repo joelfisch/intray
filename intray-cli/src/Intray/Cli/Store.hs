@@ -17,10 +17,11 @@ module Intray.Cli.Store
   , writeLastSeen
   , readLastSeen
   , clearLastSeen
-  , prettyItem
+  , prettyReadyItem
   ) where
 
 import Data.Aeson
+import qualified Data.ByteString as SB
 import qualified Data.Map as M
 import Data.Mergeless
 import qualified Data.Text as T
@@ -125,9 +126,13 @@ doneLastItem li cs =
     LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs
     LastItemSynced u _ -> deleteSyncedFromClientStore u cs
 
-prettyItem :: UTCTime -> LastItem -> String
-prettyItem now li =
-  let lastItemTimestamp =
+prettyReadyItem :: UTCTime -> LastItem -> IO String
+prettyReadyItem now li =
+  let idString =
+        case li of
+          LastItemUnsynced ci _ -> show (unClientId ci)
+          LastItemSynced i _ -> uuidString i
+      lastItemTimestamp =
         case li of
           LastItemUnsynced _ a -> addedItemCreated a
           LastItemSynced _ s -> addedItemCreated s
@@ -138,10 +143,20 @@ prettyItem now li =
       timeStr = prettyTimestamp now lastItemTimestamp
       timeAgoString = prettyTimeAuto now lastItemTimestamp
    in case typedItemCase lastItemData of
-        Left err -> unlines ["Invalid item:", err]
-        Right i ->
-          case i of
-            CaseTextItem t -> unlines [concat [timeStr, " (", timeAgoString, ")"], T.unpack t]
+        Left err -> pure $ unlines ["Invalid item:", err]
+        Right i -> do
+          contents <-
+            case i of
+              CaseTextItem t -> pure $ T.unpack t
+              CaseImageItem it bs -> do
+                let ext =
+                      case it of
+                        JpgImage -> ".jpg"
+                        PngImage -> ".png"
+                let file = idString ++ ext
+                SB.writeFile file bs
+                pure $ "Image: " <> file
+          pure $ unlines [concat [timeStr, " (", timeAgoString, ")"], contents]
 
 prettyTimestamp :: UTCTime -> UTCTime -> String
 prettyTimestamp now d =

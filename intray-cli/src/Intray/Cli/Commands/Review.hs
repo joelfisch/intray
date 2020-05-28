@@ -4,10 +4,8 @@ module Intray.Cli.Commands.Review
   ( review
   ) where
 
-import Import
-
 import Data.Time
-
+import Import
 import Intray.Cli.Commands.Done
 import Intray.Cli.OptParse
 import Intray.Cli.Prompt
@@ -30,7 +28,7 @@ review = do
             s <- syncAndReturn storeSize
             liftIO $ putStrLn $ unwords [show s, "items remaining"]
       showSize
-      liftIO $ putStrLn $ prettyItem now li
+      liftIO $ prettyReadyItem now li >>= putStrLn
       res <- liftIO $ prompt "done [y/N]"
       let cont = do
             doneItem
