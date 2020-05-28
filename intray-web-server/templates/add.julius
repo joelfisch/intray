@@ -13,7 +13,7 @@ function updateDisplay () {
         c.required = false;
       });
     });
-  document.querySelectorAll('.'+selected+'-input').forEach(function (e) {
+  document.querySelectorAll('.' + selected + '-input').forEach(function (e) {
       e.removeAttribute("style");
       e.childNodes.forEach(function (c) {
         c.required = true;
@@ -21,3 +21,128 @@ function updateDisplay () {
     });
 };
 updateDisplay();
+
+
+function dataURItoBlob(dataURI) {
+  // convert base64 to raw binary data held in a string
+  // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+  var byteString = atob(dataURI.split(',')[1]);
+
+  // separate out the mime component
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+  // write the bytes of the string to an ArrayBuffer
+  var ab = new ArrayBuffer(byteString.length);
+
+  // create a view into the buffer
+  var ia = new Uint8Array(ab);
+
+  // set the bytes of the buffer to the correct values
+  for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+  }
+
+  // write the ArrayBuffer to a blob, and you're done
+  var blob = new Blob([ab], {type: mimeString});
+  return blob;
+}
+
+
+function handleFile()
+{
+    document.getElementById('uploading').removeAttribute("style");
+
+    imageInput = document.getElementById('imageInput');
+    imageInput.setAttribute("style", "display: none;");
+
+
+    var filesToUpload = imageInput.files;
+    var file = filesToUpload[0];
+
+    // Create an image
+    var img = document.createElement("img");
+    // Create a file reader
+    var reader = new FileReader();
+    // Set the image once loaded into file reader
+    reader.onload = function(e)
+    {
+        img.src = e.target.result;
+        img.addEventListener('load', function () {
+          console.log(img.src);
+
+          var canvas = document.createElement("canvas");
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          var MAX_WIDTH = 200;
+          var MAX_HEIGHT = 200;
+
+          var width = img.width;
+          var height = img.height;
+
+          console.log(width);
+          console.log(height);
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          console.log(width);
+          console.log(height);
+
+          canvas.width = width;
+          canvas.height = height;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          dataurl = canvas.toDataURL("image/png");
+          blob = dataURItoBlob(dataurl);
+
+           // Post the data
+           var fd = new FormData(document.forms[0]);
+           fd.append("image", blob);
+           fd.append(#{tokenKey}, #{fromMaybe "" $ reqToken req});
+           $.ajax({
+               url: '@{AddR}',
+               data: fd,
+               cache: false,
+               contentType: false,
+               processData: false,
+               type: 'POST',
+               success: function(data){
+                   location.reload();
+               }
+           });
+
+//           canvas.toBlob(function (blob) {
+//             // Post the data
+//             var fd = new FormData(document.forms[0]);
+//             fd.append("image", blob);
+//             fd.append(#{tokenKey}, #{fromMaybe "" $ reqToken req});
+//             $.ajax({
+//                 url: '@{AddR}',
+//                 data: fd,
+//                 cache: false,
+//                 contentType: false,
+//                 processData: false,
+//                 type: 'POST',
+//                 success: function(data){
+//                     location.reload();
+//                 }
+//             });
+//           });
+        });
+    }
+    // Load files into file reader
+    reader.readAsDataURL(file);
+}
+
+
+

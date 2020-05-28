@@ -8,13 +8,16 @@
     action=@{AddR}>
 
 
-    <div .text-input .field .changable>
+    <div .field .text-input .changable>
       <textarea 
         name="contents" 
         autofocus>
 
-    <div .image-input .field .changable style="display: none;">
-      <input type="file" name="image" accept="image/*" capture="environment">
+    <div .field .image-input .changable style="display: none;">
+      <img src="" id="image">
+      <input type="file" id="imageInput" name="image" accept="image/*" capture="environment" onChange="handleFile()">
+      <label id="uploading" style="display: none;">
+        Uploading...
     
     <div .ui .inline .fields>
       <div .ui .field>
@@ -30,5 +33,5 @@
 
 
     ^{token}
-    <button .ui .primary .button type="submit">
+    <button .text-input .changable .ui .primary .button type="submit">
       Submit

@@ -19,7 +19,13 @@ import Yesod
 getAddR :: Handler Html
 getAddR =
   withLogin $ \_ -> do
-    token <- genToken
+    alreadyExpired
+    req <- getRequest
+    let tokenKey = defaultCsrfParamName
+    let token =
+          case reqToken req of
+            Nothing -> mempty
+            Just n -> [shamlet|<input type=hidden name=#{tokenKey} value=#{n}>|]
     withNavBar $(widgetFile "add")
 
 newItemTextForm :: FormInput Handler Textarea
@@ -31,6 +37,7 @@ newItemImageForm = ireq fileField "image"
 postAddR :: Handler Html
 postAddR =
   withLogin $ \t -> do
+    getPostParams >>= (liftIO . print)
     tfr <- runInputPostResult newItemTextForm
     let goOn errs = do
           ifr <- runInputPostResult newItemImageForm
