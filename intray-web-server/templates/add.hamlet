@@ -15,7 +15,9 @@
 
     <div .field .image-input .changable style="display: none;">
       <img src="" id="image">
-      <input type="file" id="imageInput" name="image" accept="image/*" capture="environment" onChange="handleFile()">
+      <button .ui .primary .button type="button" id="imageButton" onclick="document.getElementById('imageInput').click();">
+        Upload Picture
+      <input type="file" id="imageInput" name="image" accept="image/*" capture="environment" onChange="handleFile()" style="display: none;">
       <label id="uploading" style="display: none;">
         Uploading...
     

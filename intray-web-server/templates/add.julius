@@ -24,6 +24,12 @@ updateDisplay();
 
 function handleFile()
 {
+    imageButton = document.getElementById('imageButton');
+    imageButton.setAttribute("style", "display: none;");
+    uploadingLabel = document.getElementById('uploading');
+    uploadingLabel.removeAttribute("style");
+
+
     imageInput = document.getElementById('imageInput');
     var filesToUpload = imageInput.files;
     var file = filesToUpload[0];
@@ -37,20 +43,15 @@ function handleFile()
     {
         img.src = e.target.result;
         img.addEventListener('load', function () {
-          console.log(img.src);
-
           var canvas = document.createElement("canvas");
           var ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0);
 
-          var MAX_WIDTH = 200;
-          var MAX_HEIGHT = 200;
+          var MAX_WIDTH = 512;
+          var MAX_HEIGHT = 512;
 
           var width = img.width;
           var height = img.height;
-
-          console.log(width);
-          console.log(height);
 
           if (width > height) {
             if (width > MAX_WIDTH) {
@@ -63,8 +64,6 @@ function handleFile()
               height = MAX_HEIGHT;
             }
           }
-          console.log(width);
-          console.log(height);
 
           canvas.width = width;
           canvas.height = height;
