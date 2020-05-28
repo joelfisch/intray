@@ -2,6 +2,9 @@ name: "Nix Build"
 on:
   pull_request:
   push:
+    branches:
+      - development
+      - master
 jobs:
   tests:
     runs-on: ubuntu-latest
