@@ -97,44 +97,6 @@ You will only need to do this once.
 
 ## Configuration
 
-### Options
-
-Every configuration option can be specified using command-line flags as well.
-See `intray --help` or `intray <command> --help` for more information about the options for each command.
-
-```
---cache-dir:      The cache dir
---data-dir:       The data dir
---sync:           Definitely sync every time it's appropriate
---no-sync:        Never try to sync automatically
---url:            The sync server api url
---username:       The sync username
---password:       The sync password
-```
-
-Every option can also be specified via environment variables.
-
-```
-INTRAY_CONFIG_FILE:    Config file
-INTRAY_CACHE_DIR:      The cache dir
-INTRAY_DATA_DIR:       The data dir
-INTRAY_SYNC_STRATEGY:  The sync strategy, 'NeverSync' or 'AlwaysSync'
-INTRAY_URL:            The sync server api url
-INTRAY_USERNAME:       The sync username
-INTRAY_PASSWORD:       The sync password
-```
-
-Every option can also be specified in the config file.
-
-```
-cache-dir:      The cache dir
-data-dir:       The data dir
-sync:           The sync strategy, 'NeverSync' or 'AlwaysSync'
-url:            The sync server api url
-username:       The sync username
-password:       The sync password
-```
-
 ### Config file location
 
 The `intray` cli application looks for config files in these locations by default, in order:
@@ -144,6 +106,8 @@ The `intray` cli application looks for config files in these locations by defaul
 - $HOME/.config/intray/config.yaml
 - $HOME/.intray/config.yaml
 ```
+
+Run `intray --help` to see how intray can be configured.
 
 ## Setting up synchronisation with `intray.eu`
 
