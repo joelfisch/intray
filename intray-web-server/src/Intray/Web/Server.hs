@@ -2,12 +2,12 @@
 
 module Intray.Web.Server
   ( intrayWebServer
-  , makeIntrayApp
   ) where
 
-import Control.Concurrent
 import Control.Concurrent.Async (concurrently_)
-import qualified Data.HashMap.Strict as HM
+import Control.Monad.Logger
+import qualified Data.Text as T
+import Database.Persist.Sqlite
 import Import
 import qualified Intray.Server as API
 import qualified Intray.Server.OptParse as API
@@ -25,25 +25,24 @@ intrayWebServer = do
   concurrently_ (runIntrayWebServer ss) (runIntrayAPIServer ss)
 
 runIntrayWebServer :: ServeSettings -> IO ()
-runIntrayWebServer ss@ServeSettings {..} = do
-  app <- makeIntrayApp ss
-  warp serveSetPort app
-
-makeIntrayApp :: ServeSettings -> IO App
-makeIntrayApp ServeSettings {..} = do
-  man <- Http.newManager Http.defaultManagerSettings
-  tokens <- newMVar HM.empty
-  burl <- parseBaseUrl $ "http://127.0.0.1:" ++ show (API.serveSetPort serveSetAPISettings)
-  pure
-    App
-      { appHttpManager = man
-      , appStatic = myStatic
-      , appTracking = serveSetTracking
-      , appVerification = serveSetVerification
-      , appPersistLogins = serveSetPersistLogins
-      , appLoginTokens = tokens
-      , appAPIBaseUrl = burl
-      }
+runIntrayWebServer ServeSettings {..} =
+  runStderrLoggingT $
+  filterLogger (\_ ll -> ll >= API.serveSetLogLevel serveSetAPISettings) $
+  withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack serveSetLoginCacheFile) 1 $ \pool -> do
+    man <- liftIO $ Http.newManager Http.defaultManagerSettings
+    burl <- parseBaseUrl $ "http://127.0.0.1:" ++ show (API.serveSetPort serveSetAPISettings)
+    let app =
+          App
+            { appHttpManager = man
+            , appStatic = myStatic
+            , appTracking = serveSetTracking
+            , appVerification = serveSetVerification
+            , appAPIBaseUrl = burl
+            , appConnectionPool = pool
+            }
+    liftIO $ do
+      runSqlPool (runMigration migrateLoginCache) pool
+      warp serveSetPort app
 
 runIntrayAPIServer :: ServeSettings -> IO ()
 runIntrayAPIServer ss = do

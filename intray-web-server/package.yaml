@@ -26,11 +26,14 @@ library:
   - intray-client
   - intray-data
   - intray-server
+  - monad-logger
   - mtl
   - optparse-applicative >=0.13 && <0.15
   - path
   - path-io
+  - persistent
   - persistent-sqlite
+  - persistent-template
   - pretty-relative-time
   - pretty-show
   - servant
@@ -82,6 +85,7 @@ tests:
     - genvalidity-hspec
     - hspec
     - hspec-core
+    - http-client
     - http-types
     - intray-data
     - intray-data-gen
@@ -92,6 +96,7 @@ tests:
     - mtl
     - path
     - path-io
+    - persistent
     - persistent-sqlite
     - servant-client
     - text

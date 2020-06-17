@@ -15,19 +15,18 @@ module Intray.Web.Server.Foundation
   , module Intray.Web.Server.Widget
   , module Intray.Web.Server.Static
   , module Intray.Web.Server.Constants
+  , module Intray.Web.Server.DB
   ) where
 
-import Control.Concurrent
 import Control.Monad.Except
 import Control.Monad.Trans.Maybe
-import Data.HashMap.Strict (HashMap)
-import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
-import Data.Text.Encoding (encodeUtf8)
+import qualified Data.Text.Encoding as TE
+import Database.Persist.Sql
 import Import
 import Intray.Client
 import Intray.Web.Server.Constants
-import Intray.Web.Server.Persistence
+import Intray.Web.Server.DB
 import Intray.Web.Server.Static
 import Intray.Web.Server.Widget
 import qualified Network.HTTP.Client as Http
@@ -55,8 +54,7 @@ data App =
     , appTracking :: Maybe Text
     , appVerification :: Maybe Text
     , appAPIBaseUrl :: BaseUrl
-    , appPersistLogins :: Bool
-    , appLoginTokens :: MVar (HashMap Username Token)
+    , appConnectionPool :: ConnectionPool
     }
 
 mkYesodData "App" $(parseRoutesFile "routes")
@@ -333,35 +331,18 @@ withLogin func = do
     Just token -> func token
 
 lookupToginToken :: Username -> Handler (Maybe Token)
-lookupToginToken un = do
-  whenPersistLogins loadLogins
-  tokenMapVar <- getsYesod appLoginTokens
-  tokenMap <- liftIO $ readMVar tokenMapVar
-  pure $ HM.lookup un tokenMap
+lookupToginToken un = runDb $ fmap (userTokenToken . entityVal) <$> getBy (UniqueUserToken un)
 
 recordLoginToken :: Username -> Text -> Handler ()
 recordLoginToken un session = do
-  let token = Token $ setCookieValue $ parseSetCookie $ encodeUtf8 session
-  tokenMapVar <- getsYesod appLoginTokens
-  liftIO $ modifyMVar_ tokenMapVar $ pure . HM.insert un token
-  whenPersistLogins storeLogins
+  let token = Token $ setCookieValue $ parseSetCookie $ TE.encodeUtf8 session
+  void $
+    runDb $ upsert UserToken {userTokenName = un, userTokenToken = token} [UserTokenToken =. token]
 
-whenPersistLogins :: Handler () -> Handler ()
-whenPersistLogins f = do
-  b <- getsYesod appPersistLogins
-  when b f
-
-loadLogins :: Handler ()
-loadLogins = do
-  tokenMapVar <- getsYesod appLoginTokens
-  liftIO $ modifyMVar_ tokenMapVar $ \m -> fromMaybe m <$> readLogins
-
-storeLogins :: Handler ()
-storeLogins = do
-  tokenMapVar <- getsYesod appLoginTokens
-  liftIO $ do
-    m <- readMVar tokenMapVar
-    writeLogins m
+runDb :: SqlPersistT IO a -> Handler a
+runDb func = do
+  pool <- getsYesod appConnectionPool
+  liftIO $ runSqlPool func pool
 
 addInfoMessage :: Html -> Handler ()
 addInfoMessage = addMessage ""

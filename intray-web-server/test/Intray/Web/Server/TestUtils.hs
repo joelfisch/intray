@@ -2,8 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Intray.Web.Server.TestUtils
-  ( intrayTestServeSettings
-  , intrayWebServerSpec
+  ( intrayWebServerSpec
+  , withWebServer
+  , withConnectionPoolToo
   , withExampleAccount
   , withExampleAccount_
   , withExampleAccountAndLogin
@@ -15,64 +16,58 @@ module Intray.Web.Server.TestUtils
   ) where
 
 import Control.Monad.Logger
+import qualified Data.Text as T
 import Data.Text (Text)
-import Database.Persist.Sqlite (mkSqliteConnectionInfo)
+import Database.Persist.Sqlite hiding (get)
 import Intray.Data
 import Intray.Data.Gen ()
-import qualified Intray.Server.OptParse.Types as API
 import qualified Intray.Server.TestUtils as API
-import Intray.Web.Server
+import Intray.Web.Server.Application ()
 import Intray.Web.Server.Foundation
-import Intray.Web.Server.OptParse.Types
-import Network.HTTP.Types
-import Servant.Client (BaseUrl(..), ClientEnv(..))
+import qualified Network.HTTP.Client as Http
+import qualified Network.HTTP.Types as Http
+import Servant.Client (ClientEnv(..))
 import TestImport
 import Yesod.Auth
 import Yesod.Test
 
 {-# ANN module ("HLint: ignore Reduce duplication" :: String) #-}
 
-intrayTestServeSettings :: IO ServeSettings
-intrayTestServeSettings = do
-  let connInfo = mkSqliteConnectionInfo "test.db"
-  pure
-    ServeSettings
-      { serveSetAPISettings =
-          API.ServeSettings
-            { API.serveSetHost = "localhost"
-            , API.serveSetPort = 8001
-            , API.serveSetLogLevel = LevelError
-            , API.serveSetConnectionInfo = connInfo
-            , API.serveSetAdmins = [fromJust $ parseUsername "admin"]
-            , API.serveSetFreeloaders = []
-            , API.serveSetMonetisationSettings = Nothing
-            }
-      , serveSetPort = 8000
-      , serveSetPersistLogins = False
-      , serveSetTracking = Nothing
-      , serveSetVerification = Nothing
-      }
-
 intrayWebServerSpec :: YesodSpec App -> Spec
-intrayWebServerSpec = b . a
-  where
-    a :: YesodSpec App -> SpecWith ClientEnv
-    a =
-      yesodSpecWithSiteGeneratorAndArgument
-        (\(ClientEnv _ burl _) -> do
-           sets <- intrayTestServeSettings
-           let apiSets' = (serveSetAPISettings sets) {API.serveSetPort = baseUrlPort burl}
-           let sets' = sets {serveSetAPISettings = apiSets'}
-           makeIntrayApp sets')
-    b :: SpecWith ClientEnv -> Spec
-    b = API.withIntrayServer
+intrayWebServerSpec = API.withIntrayServer . withConnectionPoolToo . withWebServer
+
+withWebServer :: YesodSpec App -> SpecWith (ClientEnv, ConnectionPool)
+withWebServer =
+  yesodSpecWithSiteGeneratorAndArgument
+    (\(ClientEnv _ burl _, pool) -> do
+       man <- liftIO $ Http.newManager Http.defaultManagerSettings
+       pure $
+         App
+           { appHttpManager = man
+           , appStatic = myStatic
+           , appTracking = Nothing
+           , appVerification = Nothing
+           , appAPIBaseUrl = burl
+           , appConnectionPool = pool
+           })
+
+withConnectionPoolToo :: SpecWith (ClientEnv, ConnectionPool) -> SpecWith ClientEnv
+withConnectionPoolToo =
+  aroundWith $ \func cenv ->
+    runNoLoggingT $
+    withSystemTempDir "intray-web-server" $ \tdir -> do
+      cacheFile <- resolveFile tdir "login-cache.db"
+      withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile cacheFile) 1 $ \pool ->
+        liftIO $ do
+          void $ runSqlPool (runMigrationSilent migrateLoginCache) pool
+          func (cenv, pool)
 
 loginTo :: Username -> Text -> YesodExample App ()
 loginTo username passphrase = do
   get $ AuthR LoginR
   statusIs 200
   request $ do
-    setMethod methodPost
+    setMethod Http.methodPost
     setUrl $ AuthR loginFormPostTargetR
     addTokenFromCookie
     addPostParam "userkey" $ usernameText username
@@ -87,7 +82,7 @@ withFreshAccount exampleUsername examplePassphrase func = do
   get $ AuthR registerR
   statusIs 200
   request $ do
-    setMethod methodPost
+    setMethod Http.methodPost
     setUrl $ AuthR registerR
     addTokenFromCookie
     addPostParam "username" $ usernameText exampleUsername

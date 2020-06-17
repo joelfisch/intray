@@ -19,9 +19,9 @@ data ServeFlags =
   ServeFlags
     { serveFlagAPIFlags :: !API.ServeFlags
     , serveFlagPort :: !(Maybe Int)
-    , serveFlagPersistLogins :: !(Maybe Bool)
     , serveFlagTracking :: !(Maybe Text)
     , serveFlagVerification :: !(Maybe Text)
+    , serveFlagLoginCacheFile :: !(Maybe FilePath)
     }
   deriving (Show, Eq)
 
@@ -35,9 +35,9 @@ data Configuration =
   Configuration
     { confAPIConfiguration :: !API.Configuration
     , confPort :: !(Maybe Int)
-    , confPersistLogins :: !(Maybe Bool)
     , confTracking :: !(Maybe Text)
     , confVerification :: !(Maybe Text)
+    , confLoginCacheFile :: !(Maybe FilePath)
     }
   deriving (Show, Eq)
 
@@ -50,19 +50,17 @@ instance YamlSchema Configuration where
     objectParser
       "Configuration"
       ((,,,) <$> optionalField "web-port" "The port to serve web requests on" <*>
-       optionalField
-         "persist-logins"
-         "Whether to persist logins accross server restarts. Don't use this in production." <*>
        optionalField "tracking" "The google analytics tracking code" <*>
-       optionalField "verification" "The google search console verification code")
+       optionalField "verification" "The google search console verification code" <*>
+       optionalField "login-cache-file" "The file to store the login cache database in")
 
 data Environment =
   Environment
     { envAPIEnvironment :: !API.Environment
     , envPort :: !(Maybe Int)
-    , envPersistLogins :: !(Maybe Bool)
     , envTracking :: !(Maybe Text)
     , envVerification :: !(Maybe Text)
+    , envLoginCacheFile :: !(Maybe FilePath)
     }
   deriving (Show, Eq)
 
@@ -74,9 +72,9 @@ data ServeSettings =
   ServeSettings
     { serveSetAPISettings :: !API.ServeSettings
     , serveSetPort :: !Int
-    , serveSetPersistLogins :: !Bool
     , serveSetTracking :: !(Maybe Text)
     , serveSetVerification :: !(Maybe Text)
+    , serveSetLoginCacheFile :: !FilePath
     }
   deriving (Show)
 

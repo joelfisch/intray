@@ -46,10 +46,11 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..}
         ServeSettings
           { serveSetAPISettings = apiSets
           , serveSetPort = port
-          , serveSetPersistLogins =
-              fromMaybe False (serveFlagPersistLogins <|> envPersistLogins <|> mc confPersistLogins)
           , serveSetTracking = serveFlagTracking <|> envTracking <|> mc confTracking
           , serveSetVerification = serveFlagVerification <|> envVerification <|> mc confVerification
+          , serveSetLoginCacheFile =
+              fromMaybe "intray-web-server.db" $
+              serveFlagLoginCacheFile <|> envLoginCacheFile <|> mc confLoginCacheFile
           }
     , Settings)
 
@@ -76,15 +77,15 @@ environmentParser =
        (Env.def Nothing <> Env.help "port to run the web server on") <*>
      Env.var
        (fmap Just . Env.auto)
-       "PERSIST_LOGINS"
-       (Env.def Nothing <> Env.help "persist logins between restarts") <*>
-     Env.var
-       (fmap Just . Env.auto)
        "ANALYTICS_TRACKING_ID"
        (Env.def Nothing <> Env.help "google analytics tracking id") <*>
      Env.var
        (fmap Just . Env.auto)
        "SEARCH_CONSOLE_VERIFICATION"
+       (Env.def Nothing <> Env.help "google search console verification id") <*>
+     Env.var
+       (fmap Just . Env.str)
+       "LOGIN_CACHE_FILE"
        (Env.def Nothing <> Env.help "google search console verification id"))
 
 getArguments :: IO Arguments
@@ -132,14 +133,6 @@ parseCommandServe = info parser modifier
        option
          (Just <$> auto)
          (mconcat [long "web-port", metavar "PORT", value Nothing, help "the port to serve on"]) <*>
-       flag
-         Nothing
-         (Just True)
-         (mconcat
-            [ long "persist-logins"
-            , help
-                "Whether to persist logins accross restarts. This should not be used in production."
-            ]) <*>
        option
          (Just . T.pack <$> str)
          (mconcat
@@ -155,6 +148,14 @@ parseCommandServe = info parser modifier
             , value Nothing
             , metavar "VERIFICATION_TAG"
             , help "The contents of the google search console verification tag"
+            ]) <*>
+       option
+         (Just <$> str)
+         (mconcat
+            [ long "login-cache-file"
+            , value Nothing
+            , metavar "FILEPATH"
+            , help "The file to store the login cache database in"
             ]))
     modifier = fullDesc <> progDesc "Serve requests" <> YamlParse.confDesc @Configuration
 
