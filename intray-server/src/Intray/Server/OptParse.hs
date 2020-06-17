@@ -39,6 +39,10 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..}
   let host =
         T.pack $ fromMaybe ("localhost:" <> show port) $ serveFlagHost <|> envHost <|> mc confHost
   let logLevel = fromMaybe LevelInfo $ serveFlagLogLevel <|> envLogLevel <|> mc confLogLevel
+  signingKeyFile <-
+    case serveFlagSigningKeyFile <|> envSigningKeyFile <|> mc confSigningKeyFile of
+      Nothing -> resolveFile' "signing-key.json"
+      Just skf -> resolveFile' skf
   let connInfo =
         mkSqliteConnectionInfo $ fromMaybe "intray.db" (serveFlagDb <|> envDb <|> mc confDb)
   admins <-
@@ -97,6 +101,7 @@ combineToInstructions (CommandServe ServeFlags {..}) Flags {..} Environment {..}
           { serveSetHost = host
           , serveSetPort = port
           , serveSetLogLevel = logLevel
+          , serveSetSigningKeyFile = signingKeyFile
           , serveSetConnectionInfo = connInfo
           , serveSetAdmins = admins
           , serveSetFreeloaders = freeloaders
@@ -135,6 +140,10 @@ environmentParser =
     (fmap Just . Env.auto)
     "LOG_LEVEL"
     (Env.def Nothing <> Env.help "minimal severity of log messages") <*>
+  Env.var
+    (fmap Just . Env.auto)
+    "SIGNING_KEY_FILE"
+    (Env.def Nothing <> Env.help "the file to store the signing key in") <*>
   Env.var
     (fmap Just . Env.auto)
     "STRIPE_PLAN"
@@ -226,6 +235,14 @@ parseServeFlags =
        , value Nothing
        , help $
          "the log level, possible values: " <> show [LevelDebug, LevelInfo, LevelWarn, LevelError]
+       ]) <*>
+  option
+    (Just <$> str)
+    (mconcat
+       [ long "signing-key-file"
+       , value Nothing
+       , metavar "FILEPATH"
+       , help "the file to store the signing key in"
        ]) <*>
   option
     (Just <$> str)

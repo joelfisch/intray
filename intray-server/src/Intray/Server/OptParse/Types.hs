@@ -28,6 +28,7 @@ data ServeFlags =
     , serveFlagAdmins :: ![String]
     , serveFlagFreeloaders :: ![String]
     , serveFlagLogLevel :: Maybe LogLevel
+    , serveFlagSigningKeyFile :: !(Maybe FilePath)
     , serveFlagStripePlan :: !(Maybe String)
     , serveFlagStripeSecretKey :: !(Maybe String)
     , serveFlagStripePublishableKey :: !(Maybe String)
@@ -51,6 +52,7 @@ data Configuration =
     , confAdmins :: !(Maybe [String])
     , confFreeloaders :: !(Maybe [String])
     , confLogLevel :: !(Maybe LogLevel)
+    , confSigningKeyFile :: !(Maybe FilePath)
     , confMonetisationConfig :: !(Maybe MonetisationConfiguration)
     }
   deriving (Show, Eq)
@@ -67,6 +69,7 @@ instance YamlSchema Configuration where
     optionalField "admins" "The list of usernames that will be considered administrators" <*>
     optionalField "freeloaders" "The list of usernames that won't have to pay" <*>
     optionalFieldWith "log-level" "The minimal log level for log messages" viaRead <*>
+    optionalField "log-level" "The file to store the JWT signing key in" <*>
     optionalField
       "monetisation"
       "Monetisation configuration. If this is not configured then the server is run for free."
@@ -105,6 +108,7 @@ data Environment =
     , envPort :: !(Maybe Int)
     , envDb :: !(Maybe Text)
     , envLogLevel :: !(Maybe LogLevel)
+    , envSigningKeyFile :: !(Maybe FilePath)
     , envStripePlan :: !(Maybe String)
     , envStripeSecretKey :: !(Maybe String)
     , envStripePublishableKey :: !(Maybe String)
@@ -127,6 +131,7 @@ data ServeSettings =
     { serveSetHost :: !Text
     , serveSetPort :: !Int
     , serveSetLogLevel :: !LogLevel
+    , serveSetSigningKeyFile :: !(Path Abs File)
     , serveSetConnectionInfo :: !SqliteConnectionInfo
     , serveSetAdmins :: ![Username]
     , serveSetFreeloaders :: ![Username]
