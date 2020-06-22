@@ -70,6 +70,8 @@ instance Yesod App where
     \case
       Just AddR -> pure Nothing
       r -> pure $ maximumContentLength s r
+  makeSessionBackend _ =
+    Just <$> defaultClientSessionBackend (60 * 24 * 365 * 10) "client_session_key.aes"
 
 instance PathPiece Username where
   fromPathPiece = parseUsername
