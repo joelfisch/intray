@@ -87,9 +87,7 @@ combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
           pure $
           DispatchPostPostAddItem
             AddSettings
-              { addSetContents = T.unwords $ map T.pack addArgContents
-              , addSetReadStdin = addArgReadStdin
-              }
+              {addSetContents = map T.pack addArgContents, addSetReadStdin = addArgReadStdin}
         CommandShowItem -> pure DispatchShowItem
         CommandDoneItem -> pure DispatchDoneItem
         CommandSize -> pure DispatchSize
@@ -222,7 +220,7 @@ parseCommandPostPostAddItem = info parser modifier
     parser =
       CommandPostPostAddItem <$>
       (AddArgs <$>
-       some
+       many
          (strArgument (mconcat [help "Give the contents of the item to be added.", metavar "TEXT"])) <*>
        switch (mconcat [long "stdin", help "Read contents from stdin too"]))
 

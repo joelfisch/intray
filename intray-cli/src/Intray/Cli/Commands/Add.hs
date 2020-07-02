@@ -18,12 +18,16 @@ import Intray.Cli.Sync
 addItem :: AddSettings -> CliM ()
 addItem AddSettings {..} = do
   now <- liftIO getCurrentTime
-  itemContents <-
-    if addSetReadStdin
-      then do
-        cts <- liftIO T.getContents
-        pure $ T.intercalate "\n" [addSetContents, cts]
-      else pure addSetContents
-  modifyClientStoreAndSync $
+  mItemContents <-
+    case (addSetReadStdin, addSetContents) of
+      (False, []) -> pure Nothing
+      (True, []) -> Just <$> liftIO T.getContents
+      (False, cts) -> pure $ Just $ T.unwords cts
+      (True, cts) ->
+        Just <$> do
+          cts' <- liftIO T.getContents
+          pure $ T.intercalate "\n" [T.unwords cts, cts']
+  forM_ mItemContents $ \contents ->
+    modifyClientStoreAndSync $
     addItemToClientStore
-      AddedItem {addedItemContents = textTypedItem itemContents, addedItemCreated = now}
+      AddedItem {addedItemContents = textTypedItem contents, addedItemCreated = now}

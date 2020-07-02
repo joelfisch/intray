@@ -168,7 +168,7 @@ data LoginSettings =
 
 data AddSettings =
   AddSettings
-    { addSetContents :: Text
+    { addSetContents :: [Text]
     , addSetReadStdin :: Bool
     }
   deriving (Show, Eq, Generic)

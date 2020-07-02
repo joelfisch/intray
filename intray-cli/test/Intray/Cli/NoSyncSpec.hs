@@ -57,7 +57,7 @@ spec = do
         let intray d = runReaderT (dispatch d) sets
         intray $
           DispatchPostPostAddItem $
-          AddSettings {addSetContents = "hello world", addSetReadStdin = False}
+          AddSettings {addSetContents = ["hello", "world"], addSetReadStdin = False}
         intray DispatchShowItem
         intray DispatchDoneItem
         intray DispatchSize
