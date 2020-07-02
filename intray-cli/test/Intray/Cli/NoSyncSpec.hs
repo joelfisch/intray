@@ -5,11 +5,10 @@ module Intray.Cli.NoSyncSpec
   ( spec
   ) where
 
-import TestImport
-
 import Intray.Cli
 import Intray.Cli.OptParse
 import Intray.Data
+import TestImport
 
 spec :: Spec
 spec = do
@@ -56,7 +55,9 @@ spec = do
                 , setSyncStrategy = NeverSync
                 }
         let intray d = runReaderT (dispatch d) sets
-        intray $ DispatchPostPostAddItem "hello world"
+        intray $
+          DispatchPostPostAddItem $
+          AddSettings {addSetContents = "hello world", addSetReadStdin = False}
         intray DispatchShowItem
         intray DispatchDoneItem
         intray DispatchSize

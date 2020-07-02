@@ -14,6 +14,7 @@ module Intray.Cli.OptParse
   , Dispatch(..)
   , RegisterSettings(..)
   , LoginSettings(..)
+  , AddSettings(..)
   , CliM
   ) where
 
@@ -82,7 +83,13 @@ combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
               , loginSetPassword =
                   T.pack <$> (loginArgPassword <|> envPassword <|> mc configPassword)
               }
-        CommandPostPostAddItem ss -> pure $ DispatchPostPostAddItem $ T.unwords $ map T.pack ss
+        CommandPostPostAddItem AddArgs {..} ->
+          pure $
+          DispatchPostPostAddItem
+            AddSettings
+              { addSetContents = T.unwords $ map T.pack addArgContents
+              , addSetReadStdin = addArgReadStdin
+              }
         CommandShowItem -> pure DispatchShowItem
         CommandDoneItem -> pure DispatchDoneItem
         CommandSize -> pure DispatchSize
@@ -214,8 +221,10 @@ parseCommandPostPostAddItem = info parser modifier
     modifier = fullDesc <> progDesc "Add an item"
     parser =
       CommandPostPostAddItem <$>
-      some
-        (strArgument (mconcat [help "Give the contents of the item to be added.", metavar "TEXT"]))
+      (AddArgs <$>
+       some
+         (strArgument (mconcat [help "Give the contents of the item to be added.", metavar "TEXT"])) <*>
+       switch (mconcat [long "stdin", help "Read contents from stdin too"]))
 
 parseCommandShowItem :: ParserInfo Command
 parseCommandShowItem = info parser modifier
