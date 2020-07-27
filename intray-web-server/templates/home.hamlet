@@ -77,12 +77,8 @@
             <div .item>
               Click the Intray icon on the launcher
             <div .item>
-              Click 'log in' (with a saved password)
-            <div .item>
-              Click the 'add item' text area.
-            <div .item>
               Start typing
-        <td> 3
+        <td> 1
         <td> <i class="green checkmark icon"></i>
       <tr>
         <td> Safari on IOS
@@ -91,12 +87,8 @@
             <div .item>
               Click the Intray icon on the launcher
             <div .item>
-              Click 'log in' (with a saved password)
-            <div .item>
-              Click the 'add item' text area.
-            <div .item>
               Start typing
-        <td> 3
+        <td> 1
         <td> <i class="green checkmark icon"></i>
       <tr>
         <td .positive>
