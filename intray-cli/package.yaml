@@ -14,12 +14,6 @@ library:
   ghc-options: -Wall
   default-extensions:
   - NoImplicitPrelude
-  exposed-modules:
-  - Intray.Cli
-  - Intray.Cli.OptParse
-  - Intray.Cli.Session
-  - Intray.Cli.Store
-  - Intray.Cli.Sync
 
   dependencies:
   - aeson >=1.0
@@ -29,6 +23,7 @@ library:
   - containers
   - cookie >=0.4
   - envparse
+  - filelock
   - http-client >=0.5
   - http-client-tls >=0.3
   - intray-api
@@ -47,6 +42,7 @@ library:
   - servant-server >=0.9
   - text >=1.2
   - time
+  - unliftio
   - validity
   - yaml >=0.8
   - yamlparse-applicative
@@ -75,15 +71,18 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - base
+    - async
     - bytestring
     - genvalidity-hspec
     - genvalidity-hspec-aeson >=0.1
     - hspec
+    - intray-api
     - intray-api-gen
     - intray-cli
     - intray-client
     - intray-data
     - intray-server-gen
+    - mergeless
     - mtl
     - path
     - path-io

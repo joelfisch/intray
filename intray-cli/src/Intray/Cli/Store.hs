@@ -1,13 +1,15 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Intray.Cli.Store
-  ( ClientStore(..)
+  ( CS
+  , ClientStore(..)
+  , withClientStore
+  , withClientStore'
   , readClientStore
-  , readClientStoreOrEmpty
+    -- readClientStoreOrEmpty,
   , readClientStoreSize
-  , writeClientStore
+    -- writeClientStore,
   , addItemToClientStore
   , storeSize
   , anyUnsynced
@@ -31,11 +33,25 @@ import Intray.API
 import Intray.Cli.JSON
 import Intray.Cli.OptParse
 import Intray.Cli.Path
+import System.FileLock
 import Text.Time.Pretty
+import UnliftIO.Exception
 
-readClientStore ::
-     (Ord ci, FromJSONKey ci, FromJSON ci, Ord si, FromJSONKey si, FromJSON si, FromJSON a)
-  => CliM (Maybe (ClientStore ci si a))
+type CS = ClientStore ClientId ItemUUID (AddedItem TypedItem)
+
+withClientStore :: (CS -> CliM CS) -> CliM ()
+withClientStore func = void $ withClientStore' (fmap ((,) ()) . func)
+
+withClientStore' :: (CS -> CliM (a, CS)) -> CliM a
+withClientStore' func = do
+  p <- storePath
+  bracket (liftIO $ lockFile (fromAbsFile p) Exclusive) (liftIO . unlockFile) $ \_ -> do
+    before <- readClientStoreOrEmpty
+    (r, after) <- func before
+    writeClientStore after
+    pure r
+
+readClientStore :: CliM (Maybe CS)
 readClientStore = do
   p <- storePath
   readJSON p $
@@ -46,31 +62,28 @@ readClientStore = do
       , "If you do have unsynced items, you will want to make a backup of this file first."
       ]
 
-readClientStoreOrEmpty ::
-     (Ord ci, FromJSONKey ci, FromJSON ci, Ord si, FromJSONKey si, FromJSON si, FromJSON a)
-  => CliM (ClientStore ci si a)
+readClientStoreOrEmpty :: CliM CS
 readClientStoreOrEmpty = fromMaybe emptyClientStore <$> readClientStore
 
 readClientStoreSize :: CliM Int
-readClientStoreSize =
-  storeSize <$> (readClientStoreOrEmpty @ClientId @ItemUUID @(AddedItem TypedItem))
+readClientStoreSize = storeSize <$> readClientStoreOrEmpty
 
-writeClientStore :: ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM ()
+writeClientStore :: CS -> CliM ()
 writeClientStore s = do
   checkLastSeenAfter s
   storePath >>= (`writeJSON` s)
 
-anyUnsynced :: ClientStore ci si a -> Bool
+anyUnsynced :: CS -> Bool
 anyUnsynced = not . M.null . clientStoreAdded
 
-checkLastSeenAfter :: ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM ()
+checkLastSeenAfter :: CS -> CliM ()
 checkLastSeenAfter s = do
   mLs <- readLastSeen
   case mLs of
     Nothing -> pure () -- Nothing was last seen, cannot be out of date
     Just ls -> unless (lastSeenInClientStore ls s) clearLastSeen
 
-lastSeenInClientStore :: LastItem -> ClientStore ClientId ItemUUID (AddedItem TypedItem) -> Bool
+lastSeenInClientStore :: LastItem -> CS -> Bool
 lastSeenInClientStore li ClientStore {..} =
   case li of
     LastItemUnsynced ci a1 ->
@@ -106,7 +119,7 @@ clearLastSeen = do
   p <- lastSeenItemPath
   liftIO $ ignoringAbsence $ removeFile p
 
-lastItemInClientStore :: ClientStore ClientId ItemUUID (AddedItem TypedItem) -> Maybe LastItem
+lastItemInClientStore :: CS -> Maybe LastItem
 lastItemInClientStore ClientStore {..} =
   let lasts =
         concat
@@ -117,10 +130,7 @@ lastItemInClientStore ClientStore {..} =
         [] -> Nothing
         (li:_) -> Just li
 
-doneLastItem ::
-     LastItem
-  -> ClientStore ClientId ItemUUID (AddedItem TypedItem)
-  -> ClientStore ClientId ItemUUID (AddedItem TypedItem)
+doneLastItem :: LastItem -> CS -> CS
 doneLastItem li cs =
   case li of
     LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs

@@ -13,11 +13,10 @@ import Intray.Cli.Sync
 import Intray.Client
 
 sync :: CliM ()
-sync = do
-  before <- readClientStoreOrEmpty
-  let req = makeSyncRequest before
-  mErrOrClientStore <- withToken $ \t -> runSingleClient $ clientPostSync t req
-  after <-
+sync =
+  withClientStore $ \before -> do
+    let req = makeSyncRequest before
+    mErrOrClientStore <- withToken $ \t -> runSingleClient $ clientPostSync t req
     case mErrOrClientStore of
       Nothing -> liftIO $ die "No server configured."
       Just errOrClientStore ->
@@ -28,7 +27,6 @@ sync = do
             let after = mergeSyncResponse before resp
             anyUnsyncedWarning after
             pure after
-  writeClientStore after
 
 showMergeStats :: SyncRequest ci si a -> SyncResponse ci si a -> String
 showMergeStats SyncRequest {..} SyncResponse {..} =

@@ -8,10 +8,7 @@ module Intray.Server.TestUtils
   ( withIntrayServer
   , withFreeIntrayServer
   , withPaidIntrayServer
-  , setupIntrayTestConn
   , setupTestHttpManager
-  , setupIntrayTestApp
-  , withIntrayApp
   , cleanupIntrayTestServer
   , runClient
   , runClientOrError
@@ -27,8 +24,6 @@ module Intray.Server.TestUtils
   , module Servant.Client
   ) where
 
-import Import
-
 import Control.Monad.Logger
 import Control.Monad.Trans.Resource (runResourceT)
 import Data.Cache as Cache
@@ -38,28 +33,23 @@ import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
 import Data.Time
 import Data.UUID.Typed
-import Lens.Micro
-import qualified Network.HTTP.Client as HTTP
-import qualified Network.HTTP.Types as HTTP
-import Web.Cookie
-import Web.Stripe.Plan as Stripe
-
-import Servant
-import Servant.Auth.Client
-import Servant.Auth.Server as Auth
-import Servant.Client
-
 import Database.Persist.Sqlite
-import Network.Wai as Wai
-import Network.Wai.Handler.Warp (testWithApplication)
-
+import Import
 import Intray.API
 import Intray.Client
+import Intray.Data.Gen ()
 import Intray.Server
 import Intray.Server.OptParse.Types
 import Intray.Server.Types
-
-import Intray.Data.Gen ()
+import Lens.Micro
+import qualified Network.HTTP.Client as HTTP
+import qualified Network.HTTP.Types as HTTP
+import Network.Wai.Handler.Warp (testWithApplication)
+import Servant
+import Servant.Auth.Server as Auth
+import Servant.Client
+import Web.Cookie
+import Web.Stripe.Plan as Stripe
 
 {-# ANN module ("HLint: ignore Use camelCase" :: String) #-}
 
@@ -70,32 +60,31 @@ withIntrayServer specFunc = do
 
 withPaidIntrayServer :: Int -> SpecWith ClientEnv -> Spec
 withPaidIntrayServer maxFree specFunc =
-  afterAll_ cleanupIntrayTestServer $
-  beforeAll (setupPaidIntrayTestApp maxFree) $
-  aroundWith withIntrayApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
+  around (withPaidIntrayTestApp maxFree) $
+  modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
 
 withFreeIntrayServer :: SpecWith ClientEnv -> Spec
 withFreeIntrayServer specFunc =
-  afterAll_ cleanupIntrayTestServer $
-  beforeAll setupFreeIntrayTestApp $
-  aroundWith withIntrayApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
+  around withFreeIntrayTestApp $ modifyMaxShrinks (const 0) $ modifyMaxSuccess (`div` 20) specFunc
 
 testdbFile :: String
 testdbFile = "test.db"
 
-setupIntrayTestConn :: IO ConnectionPool
-setupIntrayTestConn = do
-  let connInfo = mkSqliteConnectionInfo (T.pack testdbFile) & walEnabled .~ False
-  runNoLoggingT $ do
-    p <- createSqlitePoolFromInfo connInfo 4
-    void $ runResourceT $ flip runSqlPool p $ runMigrationSilent migrateAll
-    pure p
+withIntrayTestConn :: (ConnectionPool -> IO a) -> IO a
+withIntrayTestConn func =
+  withSystemTempDir "intray-server" $ \tdir -> do
+    dbPath <- resolveFile tdir testdbFile
+    let connInfo = mkSqliteConnectionInfo (T.pack (fromAbsFile dbPath)) & walEnabled .~ False
+    runNoLoggingT $ do
+      p <- createSqlitePoolFromInfo connInfo 4
+      void $ runResourceT $ flip runSqlPool p $ runMigrationSilent migrateAll
+      liftIO $ func p
 
 setupTestHttpManager :: IO HTTP.Manager
 setupTestHttpManager = HTTP.newManager HTTP.defaultManagerSettings
 
-setupPaidIntrayTestApp :: Int -> IO (HTTP.Manager, Wai.Application)
-setupPaidIntrayTestApp maxFree = do
+withPaidIntrayTestApp :: Int -> (ClientEnv -> IO a) -> IO a
+withPaidIntrayTestApp maxFree func = do
   now <- getCurrentTime
   let planName = PlanId "dummyPlan"
       dummyPlan =
@@ -122,34 +111,31 @@ setupPaidIntrayTestApp maxFree = do
           , stripeSetPublishableKey = "Example, should not be used."
           }
   let monetisationEnvMaxItemsFree = maxFree
-  setupIntrayTestApp $ Just MonetisationEnv {..}
+  withIntrayTestApp (Just MonetisationEnv {..}) func
 
-setupFreeIntrayTestApp :: IO (HTTP.Manager, Wai.Application)
-setupFreeIntrayTestApp = setupIntrayTestApp Nothing
+withFreeIntrayTestApp :: (ClientEnv -> IO a) -> IO a
+withFreeIntrayTestApp = withIntrayTestApp Nothing
 
-setupIntrayTestApp :: Maybe MonetisationEnv -> IO (HTTP.Manager, Wai.Application)
-setupIntrayTestApp menv = do
-  pool <- setupIntrayTestConn
-  man <- setupTestHttpManager
-  signingKey <- Auth.generateKey
-  let jwtCfg = defaultJWTSettings signingKey
-  let cookieCfg = defaultCookieSettings
-  let intrayEnv =
-        IntrayServerEnv
-          { envHost = "localhost"
-          , envConnectionPool = pool
-          , envCookieSettings = cookieCfg
-          , envJWTSettings = jwtCfg
-          , envAdmins = [fromJust $ parseUsername "admin"]
-          , envFreeloaders = []
-          , envMonetisation = menv
-          }
-  pure (man, serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv))
-
-withIntrayApp :: (ClientEnv -> IO ()) -> (HTTP.Manager, Wai.Application) -> IO ()
-withIntrayApp func (man, app) =
-  testWithApplication (pure app) $ \port ->
-    func $ ClientEnv man (BaseUrl Http "127.0.0.1" port "") Nothing
+withIntrayTestApp :: Maybe MonetisationEnv -> (ClientEnv -> IO a) -> IO a
+withIntrayTestApp menv func =
+  withIntrayTestConn $ \pool -> do
+    man <- setupTestHttpManager
+    signingKey <- Auth.generateKey
+    let jwtCfg = defaultJWTSettings signingKey
+    let cookieCfg = defaultCookieSettings
+    let intrayEnv =
+          IntrayServerEnv
+            { envHost = "localhost"
+            , envConnectionPool = pool
+            , envCookieSettings = cookieCfg
+            , envJWTSettings = jwtCfg
+            , envAdmins = [fromJust $ parseUsername "admin"]
+            , envFreeloaders = []
+            , envMonetisation = menv
+            }
+    let app = serveWithContext intrayAPI (intrayAppContext intrayEnv) (makeIntrayServer intrayEnv)
+    testWithApplication (pure app) $ \port ->
+      func $ ClientEnv man (BaseUrl Http "127.0.0.1" port "") Nothing
 
 cleanupIntrayTestServer :: IO ()
 cleanupIntrayTestServer = do

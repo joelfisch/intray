@@ -13,19 +13,16 @@ import Intray.Cli.Session
 import Intray.Cli.Store
 import Intray.Client
 
-withClientStoreAndSync ::
-     (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM (ClientStore ClientId ItemUUID (AddedItem TypedItem)))
-  -> CliM ()
-withClientStoreAndSync func = do
-  before <- readClientStoreOrEmpty
-  processed <- func before
-  let req = makeSyncRequest processed
-  strat <- asks setSyncStrategy
-  mErrOrClientStore <-
-    case strat of
-      NeverSync -> pure Nothing
-      AlwaysSync -> withToken $ \t -> runSingleClient $ clientPostSync t req
-  after <-
+withClientStoreAndSync :: (CS -> CliM CS) -> CliM ()
+withClientStoreAndSync func =
+  withClientStore $ \before -> do
+    processed <- func before
+    let req = makeSyncRequest processed
+    strat <- asks setSyncStrategy
+    mErrOrClientStore <-
+      case strat of
+        NeverSync -> pure Nothing
+        AlwaysSync -> withToken $ \t -> runSingleClient $ clientPostSync t req
     case mErrOrClientStore of
       Nothing -> pure processed
       Just errOrClientStore ->
@@ -38,36 +35,32 @@ withClientStoreAndSync func = do
             let after = mergeSyncResponse processed r
             anyUnsyncedWarning after
             pure after
-  writeClientStore after
 
-modifyClientStoreAndSync ::
-     (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> ClientStore ClientId ItemUUID (AddedItem TypedItem))
-  -> CliM ()
+modifyClientStoreAndSync :: (CS -> CS) -> CliM ()
 modifyClientStoreAndSync func = withClientStoreAndSync (pure . func)
 
-syncAndGet :: (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> CliM a) -> CliM a
-syncAndGet func = do
-  before <- readClientStoreOrEmpty
-  let req = makeSyncRequest before
-  strat <- asks setSyncStrategy
-  mErrOrClientStore <-
-    case strat of
-      NeverSync -> pure Nothing
-      AlwaysSync -> withToken $ \t -> runSingleClient $ clientPostSync t req
-  case mErrOrClientStore of
-    Nothing -> func before
-    Just errOrClientStore ->
-      case errOrClientStore of
-        Left err -> do
-          liftIO $ putStrLn $ unlines ["Sync failed, but still fetched succesfully:", show err]
-          func before
-        Right r -> do
-          let after = mergeSyncResponse before r
-          anyUnsyncedWarning after
-          writeClientStore after
-          func after
+syncAndGet :: (CS -> CliM a) -> CliM a
+syncAndGet func =
+  withClientStore' $ \before -> do
+    let req = makeSyncRequest before
+    strat <- asks setSyncStrategy
+    mErrOrClientStore <-
+      case strat of
+        NeverSync -> pure Nothing
+        AlwaysSync -> withToken $ \t -> runSingleClient $ clientPostSync t req
+    case mErrOrClientStore of
+      Nothing -> (,) <$> func before <*> pure before
+      Just errOrClientStore ->
+        case errOrClientStore of
+          Left err -> do
+            liftIO $ putStrLn $ unlines ["Sync failed, but still fetched succesfully:", show err]
+            (,) <$> func before <*> pure before
+          Right r -> do
+            let after = mergeSyncResponse before r
+            anyUnsyncedWarning after
+            (,) <$> func after <*> pure after
 
-anyUnsyncedWarning :: ClientStore ci si a -> CliM ()
+anyUnsyncedWarning :: CS -> CliM ()
 anyUnsyncedWarning after =
   when (anyUnsynced after) $
   liftIO $
@@ -78,5 +71,5 @@ anyUnsyncedWarning after =
     , "If that is the case, please navigate to your sync server's web interface to subscribe."
     ]
 
-syncAndReturn :: (ClientStore ClientId ItemUUID (AddedItem TypedItem) -> a) -> CliM a
+syncAndReturn :: (CS -> a) -> CliM a
 syncAndReturn func = syncAndGet $ pure . func

@@ -2,15 +2,12 @@
 
 module Intray.Web.Server.Handler.AuthRSpec where
 
-import TestImport
-
-import Network.HTTP.Types
-
-import Yesod.Test
-
 import Intray.Data (parseUsername)
 import Intray.Web.Server.Foundation
 import Intray.Web.Server.TestUtils
+import Network.HTTP.Types
+import TestImport
+import Yesod.Test
 
 {-# ANN module ("HLint: ignore Reduce duplication" :: String) #-}
 
@@ -30,6 +27,7 @@ spec =
       statusIs 200
     yit "fails to register and shows an error if an account with the same username exists" $ do
       registerFlow "example" "example"
+      registerFlow "example" "example2"
       statusIs 303
       loc <- getLocation
       liftIO $ loc `shouldBe` Right (AuthR registerR)
