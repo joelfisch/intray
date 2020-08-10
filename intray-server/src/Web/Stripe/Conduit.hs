@@ -1,65 +1,90 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeFamilies #-}
 
-{-|
-
-   Based on https://github.com/dmjio/stripe/issues/89
-   but modified heavily.
-
--}
+-- |
+--
+--   Based on https://github.com/dmjio/stripe/issues/89
+--   but modified heavily.
 module Web.Stripe.Conduit where
-
-import Prelude
 
 import Control.Monad
 import Control.Monad.Catch
 import Control.Monad.IO.Class
-import Data.Aeson
+import qualified Data.ByteString.Char8 as BS
 import Data.Conduit
-import Safe (lastMay)
-import Web.Stripe ((-&-), stripe)
-
 import qualified Data.Conduit.List as CL
-import qualified Web.Stripe as Stripe
-import qualified Web.Stripe.Customer as Stripe
+import qualified Data.Maybe as Maybe
+import qualified Data.Text as T
+import Data.Text (Text)
+import qualified Network.HTTP.Simple as HS
+import Safe (lastMay)
+import qualified StripeAPI as Stripe
+import qualified Web.Stripe as StripeOld
+import Prelude
 
 -- | Create a conduit request to `Stripe`'s API
 stripeConduit ::
-     ( MonadIO m
-     , FromJSON (Stripe.StripeReturn a)
-     , Stripe.StripeReturn a ~ Stripe.StripeList b
-     , Stripe.StripeHasParam a (Stripe.StartingAfter id)
-     , MonadThrow m
-     )
-  => Stripe.StripeConfig
-  -> Stripe.StripeRequest a
-  -> (b -> id)
-  -- ^ A mapping between the type and its ID field used in pagination
-  -- TODO: the user should not have to set this themself
-  -> ConduitT () b m ()
-stripeConduit config request toId = do
-  res <- liftIO $ stripe config request
-  case res of
-    Left e -> throwM e
-    Right slist
-        -- Yield all objs already present
-     -> do
-      let objs = Stripe.list slist
-      CL.sourceList objs
-        -- Paginate
-      when (Stripe.hasMore slist) $ do
+  ( MonadIO m,
+    MonadThrow m
+  ) =>
+  StripeOld.StripeConfig ->
+  Maybe Text ->
+  ConduitT () Stripe.Event m ()
+stripeConduit config startingAfter = do
+  res <-
+    liftIO
+      $ Stripe.runWithConfiguration
+        ( Stripe.defaultConfiguration
+            { Stripe.configSecurityScheme =
+                Stripe.basicAuthenticationSecurityScheme $
+                  Stripe.BasicAuthenticationData
+                    { Stripe.basicAuthenticationDataUsername = T.pack $ BS.unpack $ StripeOld.getStripeKey $ StripeOld.secretKey config,
+                      Stripe.basicAuthenticationDataPassword = ""
+                    }
+            }
+        )
+      $ Stripe.getEvents
+        Stripe.mkGetEventsParameters
+          { Stripe.getEventsParametersQueryStartingAfter = startingAfter,
+            Stripe.getEventsParametersQueryType = Just "checkout.session.completed"
+          }
+  case HS.getResponseBody res of
+    Stripe.GetEventsResponse200 Stripe.GetEventsResponseBody200 {..} -> do
+      CL.sourceList getEventsResponseBody200Data
+      when getEventsResponseBody200HasMore $ do
         lastId <-
-          case toId <$> lastMay objs of
+          case Stripe.eventId <$> lastMay getEventsResponseBody200Data of
             Just lastId -> pure lastId
             Nothing ->
               throwM
-                Stripe.StripeError
-                  { Stripe.errorType = Stripe.APIError
-                  , Stripe.errorMsg = "Stripe returned an empty list"
-                  , Stripe.errorCode = Nothing
-                  , Stripe.errorParam = Nothing
-                  , Stripe.errorHTTP = Nothing
-                  , Stripe.errorValue = Nothing
+                StripeOld.StripeError
+                  { StripeOld.errorType = StripeOld.APIError,
+                    StripeOld.errorMsg = "Stripe returned an empty list",
+                    StripeOld.errorCode = Nothing,
+                    StripeOld.errorParam = Nothing,
+                    StripeOld.errorHTTP = Nothing,
+                    StripeOld.errorValue = Nothing
                   }
-        stripeConduit config (request -&- Stripe.StartingAfter lastId) toId
+        stripeConduit config (Just lastId)
+    Stripe.GetEventsResponseError err ->
+      throwM
+        StripeOld.StripeError
+          { StripeOld.errorType = StripeOld.APIError,
+            StripeOld.errorMsg = T.pack err,
+            StripeOld.errorCode = Nothing,
+            StripeOld.errorParam = Nothing,
+            StripeOld.errorHTTP = Nothing,
+            StripeOld.errorValue = Nothing
+          }
+    Stripe.GetEventsResponseDefault Stripe.Error {..} ->
+      throwM
+        StripeOld.StripeError
+          { StripeOld.errorType = StripeOld.APIError,
+            StripeOld.errorMsg = Maybe.fromMaybe "" $ Stripe.apiErrorsMessage errorError,
+            StripeOld.errorCode = Nothing,
+            StripeOld.errorParam = Stripe.apiErrorsParam errorError,
+            StripeOld.errorHTTP = Nothing,
+            StripeOld.errorValue = Nothing
+          }

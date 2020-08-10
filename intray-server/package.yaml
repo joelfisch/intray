@@ -59,6 +59,8 @@ library:
   - warp >=3.2
   - yaml
   - yamlparse-applicative
+  - stripeapi
+  - http-conduit
 
 executables:
   intray-server:
